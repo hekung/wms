@@ -10,6 +10,8 @@ const home = r => require.ensure([], () => r(require('@/components/common/Home')
 const inventoryManage = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/InventoryManage')), 'inventoryManage')
 const housingNotice = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/HousingNotice')), 'housingNotice')
 const stockOut = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/StockOut')), 'stockOut')
+const roleManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/roleManage/RoleManage')), 'roleManage')
+const accountManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/accountManage/AccountManage')), 'accountManage')
 // 2. 定义路由
 // 每个路由应该映射一个组件。 其中"component" 可以是
 // 通过 Vue.extend() 创建的组件构造器，
@@ -40,7 +42,17 @@ const routes = [
         path: '/stockOut',
         component: stockOut,
         meta: { title: '出库' }
-      }
+      },
+      {
+        path: '/roleManage',
+        component: roleManage,
+        meta: { title: '角色管理' }
+      },
+      {
+        path: '/accountManage',
+        component: accountManage,
+        meta: { title: '账号管理' }
+      },
     ]
   },
   // 登录页路由

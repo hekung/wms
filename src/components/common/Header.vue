@@ -15,14 +15,14 @@
           </el-tooltip>
         </div>
         <!-- 消息中心 -->
-        <div class="btn-bell">
+        <!-- <div class="btn-bell">
           <el-tooltip effect="dark" :content="message?`有${message}条未读消息`:`消息中心`" placement="bottom">
             <router-link to="/tabs">
               <i class="el-icon-bell"></i>
             </router-link>
           </el-tooltip>
           <span class="btn-bell-badge" v-if="message"></span>
-        </div>
+        </div>-->
         <!-- 用户头像 -->
         <div class="user-avator">
           <img src="../../assets/img/img.jpg" />
@@ -30,11 +30,10 @@
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
-            {{username}}
+            {{userData?userData.userName:''}}
             <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <a href="https://github.com/lin-xin/vue-manage-system" target="_blank">
               <el-dropdown-item>项目仓库</el-dropdown-item>
             </a>
             <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
@@ -46,6 +45,7 @@
 </template>
 <script>
 import bus from '../common/bus'
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
@@ -55,18 +55,25 @@ export default {
       message: 2
     }
   },
-  computed: {
-    username() {
-      let username = localStorage.getItem('ms_username')
-      return username ? username : this.name
-    }
-  },
+  computed: mapState({
+    userData: state => state.user.userData
+  }),
   methods: {
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == 'loginout') {
-        localStorage.removeItem('ms_username')
-        this.$router.push('/login')
+        this.util.removeCookie('username')
+        this.util.removeCookie('password')
+        // this.$store.commit('user/setUserData', {})
+        // this.$router.push('/login')
+        let url = '/innobeautywms/auth/logout'
+        this.util.get(url).then(res => {
+          if (res.data.success) {
+            location.reload()
+          } else {
+            this.$message.error('系统错误')
+          }
+        })
       }
     },
     // 侧边栏折叠
@@ -110,17 +117,14 @@ export default {
 }
 </script>
 <style scoped>
-.collapse-btn:hover {
-  background: rgb(40, 52, 70);
-}
 .header {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 70px;
   font-size: 22px;
-  color: #fff;
   background-color: #242f42;
+  color: #fff;
 }
 .collapse-btn {
   float: left;

@@ -58,7 +58,8 @@ export default {
     float: left;
     width: 50px;
     height: 50px;
-    background-color: #f00;
+    background-color: rgb(50, 65, 87);
+    visibility: hidden;
     margin-left: 20px;
     margin-top: 10px;
   }

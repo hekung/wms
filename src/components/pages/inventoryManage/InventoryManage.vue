@@ -6,57 +6,73 @@
         style="position:absolute;left:50%;transform:translateX(-50%)"
       >
         <el-radio-button label="all">全部商品</el-radio-button>
-        <el-radio-button label="onOut">上架中的商品</el-radio-button>
-        <el-radio-button label="undercarriage">已下架的商品</el-radio-button>
+        <el-radio-button label="onSell">上架中的商品</el-radio-button>
+        <el-radio-button label="noSell">未上架的商品</el-radio-button>
       </el-radio-group>
     </el-row>
     <el-row class="table-content">
       <el-table :data="productList" border class="table" ref="multipleTable" style="height:100%;">
-        <el-table-column prop="productName" label="商品图片" align="center"></el-table-column>
-        <el-table-column prop="productName" label="商品名称" align="center"></el-table-column>
-        <el-table-column prop="code" label="商品编码" align="center"></el-table-column>
-        <el-table-column prop="productName" label="价格"></el-table-column>
-        <el-table-column prop="storage" label="总库"></el-table-column>
-        <el-table-column prop="num" label="各仓库库存" sortable>
+        <el-table-column prop="productImgList" label="商品图片" align="center">
           <template slot-scope="scope">
-            <div style="padding:5px;">
-              <span>A</span>
-              <span
-                style="display:inline-block;border:1px solid #ccc;margin-left:10px;padding:5px;"
-              >{{scope.row.num.a}}</span>
-            </div>
-            <div style="padding:5px;">
-              <span>B</span>
-              <span
-                style="display:inline-block;border:1px solid #ccc;margin-left:10px;padding:5px;"
-              >{{scope.row.num.a}}</span>
-            </div>
-            <div style="padding:5px;">
-              <span>C</span>
-              <span
-                style="display:inline-block;border:1px solid #ccc;margin-left:10px;padding:5px;"
-              >{{scope.row.num.a}}</span>
+            <div v-if="scope.row.productImgList.length">
+              <img :src="getImgSrc(scope.row.productImgList)" alt style="width:100%;height:120px;" />
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="sellCount" label="销量" sortable></el-table-column>
-        <el-table-column prop="createDate" label="创建时间" sortable></el-table-column>
+        <el-table-column prop="productName" label="商品名称" align="center">
+          <template slot-scope="scope">
+            <div>
+              <el-link
+                type="primary"
+                @click="showDetail(scope.$index, scope.row)"
+              >{{scope.row.productName}}</el-link>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="productNo" label="商品编码" align="center"></el-table-column>
+        <el-table-column prop="productPrice" label="单价" align="center" sortable>
+          <template slot-scope="scope">
+            <span style="color:rgb(230, 11, 48);">¥{{scope.row.productPrice}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="storage" label="总库" align="center" sortable></el-table-column>
+        <el-table-column prop="storage" label="各仓库库存" align="center">
+          <template slot-scope="scope">
+            <div
+              style="padding:5px;"
+              v-for="(item, index) in scope.row.stockPileForVoList"
+              :key="index"
+            >
+              <span style="font-size:10px;">{{item.stockname}}</span>
+              <span
+                style="display:inline-block;border:1px solid #ccc;margin-left:10px;padding:2px;"
+              >{{item.quantity}}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sellCount" label="销量" align="center" sortable></el-table-column>
+        <el-table-column prop="createTime" label="创建时间" align="center" sortable></el-table-column>
       </el-table>
     </el-row>
     <el-row>
       <div style="margin-top:40px;float:left;">
         <label>搜索：</label>
-        <el-input v-model="inputVal" placeholder="请输入内容" style="display:inline-block;width:300px;"></el-input>
+        <el-input
+          v-model="inputVal"
+          placeholder="请输入内容"
+          v-on:keyup.enter.native="search"
+          style="display:inline-block;width:300px;"
+        ></el-input>
       </div>
       <div style="margin-top:40px;float:right;">
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :page-sizes="[10,30,50]"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="totalRows"
         ></el-pagination>
       </div>
     </el-row>
@@ -71,253 +87,101 @@ export default {
       name: localStorage.getItem('ms_username'),
       createStatus: false,
       currentPage: 1,
+      pageSize: 10,
       tableType: 'all',
+      totalRows: 0,
       inputVal: '',
-      productList: [
-        {
-          id: '111111',
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          hubType: 'a',
-          sellCount: '133',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          id: '111111',
-          orderNum: '122231311553',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          status: '已付款',
-          storage: '12',
-          sellCount: '220',
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          id: '111111',
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          hubType: 'a',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          buyer: 'daychang',
-          status: '已付款',
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          status: '已付款',
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        }
-      ]
+      productList: []
     }
   },
   mounted() {
-    // $('.el-table__row').each((index, item) => {
-    //   let orderNum = this.productList[index].orderNum
-    //   let createDate = this.productList[index].createDate
-    //   let dom = `<tr class="item-head">
-    //                 <td colspan="8" class="no-br"><i>订单号：</i><i>${orderNum}</i><i>创建时间：</i><i>${createDate}</i></td>
-    //             </tr>`
-    //   $(item).before(dom)
-    // })
-  },
-  computed: {
-    role() {
-      return this.name === 'admin' ? '超级管理员' : '普通用户'
-    }
+    // this.search()
   },
   methods: {
-    changeDate() {
-      const now = new Date().getTime()
-      this.data.forEach((item, index) => {
-        const date = new Date(now - (6 - index) * 86400000)
-        item.name = `${date.getFullYear()}/${date.getMonth() +
-          1}/${date.getDate()}`
-      })
+    getImgSrc(imgList = []) {
+      let item = imgList.find(e => e.category === 0)
+      if (item) {
+        return item.imgAddr
+      } else {
+        return ''
+      }
     },
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {},
+    showDetail(index, rowData) {
+      this.createStatus = true
+      this.selectItem = rowData
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.currentPage = 1
+      this.search()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.search()
+    },
     changeCreateStatus(val) {
       this.createStatus = val
+      this.search(this.tableType)
+    },
+    search() {
+      let params = {
+        pageNo: this.currentPage,
+        pageSize: this.pageSize
+      }
+      if (this.translateStatus === '2') {
+        params.alleffective = true
+      } else {
+        params.productStatus = this.translateStatus
+      }
+      this.util
+        .post('/innobeauty/oms/productmanager/products', params)
+        .then(res => {
+          if (res.data.success) {
+            this.productList = res.data.data.list
+            this.productList.map(item => {
+              let num = item.stockPileForVoList.reduce(
+                (acc, cur, index, arr) => {
+                  return acc + cur.quantity
+                },
+                0
+              )
+              item.storage = num
+            })
+            this.totalRows = res.data.data.rowsTotal
+          } else {
+            this.$message.error(res.data.errMsg)
+          }
+        })
+    },
+    createProduct() {
+      this.selectItem = {}
+      this.createStatus = true
+    },
+    changeStatus(rowData, toStatus) {
+      let url = `/innobeauty/oms/productmanager/product/${rowData.productId}/${toStatus}`
+      this.util.post(url).then(res => {
+        if (res.data.success) {
+          this.search(this.tableType)
+        } else {
+          this.$message.error('修改订单状态失败')
+        }
+      })
+    }
+  },
+  watch: {
+    tableType(val) {
+      this.currentPage = 1
+      this.search(val)
+    }
+  },
+  computed: {
+    translateStatus() {
+      const map = {
+        all: '2',
+        onSell: '0',
+        noSell: '1'
+      }
+      return map[this.tableType]
     }
   }
 }
@@ -332,7 +196,7 @@ export default {
     float: right;
   }
   .table-content {
-    height: calc(~'100% - 120px');
+    height: calc(~'100% - 200px');
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 50px');
       overflow: auto;

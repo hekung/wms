@@ -3,7 +3,7 @@
     <transition name="form-fade" mode="in-out">
       <section class="form_contianer" v-show="showLogin">
         <div class="manage_tip">
-          <p>OMS管理系统</p>
+          <p>WMS管理系统</p>
         </div>
         <el-form :model="loginForm" :rules="rules" ref="loginForm">
           <el-form-item prop="username">
@@ -69,9 +69,9 @@ export default {
         .then(res => {
           if (res.data && res.data.success) {
             this.$store.commit('user/setUserData', res.data.data)
-            // this.util.setCookie('username', this.loginForm.username)
-            // this.util.setCookie('password', this.loginForm.password)
-            this.$router.push('/index')
+            this.util.setCookie('username', this.loginForm.username)
+            this.util.setCookie('password', this.loginForm.password)
+            this.$router.push('/index').catch(() => {})
           } else {
             this.$message({
               type: 'error',

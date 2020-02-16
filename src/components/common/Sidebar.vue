@@ -26,7 +26,10 @@
                   :index="threeItem.index"
                 >{{ threeItem.title }}</el-menu-item>
               </el-submenu>
-              <el-menu-item v-else :index="subItem.index" :key="subItem.index">{{ subItem.title }}</el-menu-item>
+              <el-menu-item v-else :index="subItem.index" :key="subItem.index">
+                <i :class="subItem.icon"></i>
+                <span slot="title">{{ subItem.title }}</span>
+              </el-menu-item>
             </template>
           </el-submenu>
         </template>
@@ -64,6 +67,23 @@ export default {
             {
               index: 'stockOut',
               title: '出库'
+            }
+          ]
+        },
+	      {
+          icon: 'el-icon-menu',
+          index: '3',
+          title: '系统权限管理',
+          subs: [
+            {
+              icon: 'el-icon-user',
+              index: 'accountManage',
+              title: '账号管理'
+            },
+            {
+              icon: 'el-icon-user',
+              index: 'roleManage',
+              title: '角色管理'
             }
           ]
         }

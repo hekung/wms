@@ -10,17 +10,18 @@ Vue.prototype.util = new Util()
 Vue.config.productionTip = false
 router.beforeEach((to, from, next) => {
   // ...
-  if (to.path !== '/login') {
-    const util = new Util()
-    let sid = util.getCookie('sid')
-    if (!sid) {
-      next('/login')
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
+  // if (to.path !== '/login') {
+  //   const util = new Util()
+  //   let sid = util.getCookie('sid')
+  //   if (!sid) {
+  //     next('/login')
+  //   } else {
+  //     next()
+  //   }
+  // } else {
+  //   next()
+  // }
+  next()
 })
 new Vue({
   render: h => h(App),
