@@ -7,12 +7,12 @@
     </el-row>
     <el-row class="table-content">
       <el-table :data="roleList" border class="table" ref="multipleTable" style="height:100%;">
-        <el-table-column prop="roleName" label="角色"></el-table-column>
-        <el-table-column prop="time" label="创建时间"></el-table-column>
+        <el-table-column prop="name" label="角色"></el-table-column>
+        <el-table-column prop="created" label="创建时间"></el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <div>
-              <el-link type="primary" @click="scope.row.isEdit=true" style="margin-right:20px;">修改</el-link>
+              <el-link type="primary" @click="modifyView(scope.row)" style="margin-right:20px;">修改</el-link>
               <el-link type="primary" @click="deleteRole(scope.$index, scope.row)">删除</el-link>
             </div>
           </template>
@@ -29,14 +29,14 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :page-sizes="[10, 30, 50]"
+          :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="totalRows"
         ></el-pagination>
       </div>
     </el-row>
-    <create-role v-if="createStatus" @createStatus="changeCreateStatus"></create-role>
+    <create-role v-if="createStatus" @createStatus="changeCreateStatus" :detail="selectedItem"></create-role>
   </div>
 </template>
 
@@ -50,41 +50,48 @@ export default {
     return {
       createStatus: false,
       currentPage: 1,
+      pageSize: 10,
+      totalRows: 0,
       tableType: 'all',
       inputVal: '',
-      roleList: [
-        {
-          roleName: '管理员',
-          account: 'daddqdq',
-          authority: '全部',
-          useful: true,
-          isEdit: false,
-          children: [{ account: 'dwqd' }, { account: 'fgreggr' }],
-          //必须
-          addChildId: '',
-          addhildName: ''
-        },
-        {
-          roleName: '管理员',
-          account: 'daddqdq',
-          authority: '全部',
-          useful: true,
-          isEdit: false,
-          children: [{ account: 'dwqd' }, { account: 'fgreggr' }],
-          //必须
-          addChildId: '',
-          addhildName: ''
-        }
-      ]
+      selectedItem: {},
+      roleList: []
     }
   },
-  mounted() {},
+  mounted() {
+    this.search()
+  },
   computed: {},
   methods: {
-    handleSizeChange(val) {},
-    handleCurrentChange(val) {},
+    search() {
+      let url = '/innobeautywms/roles'
+      let params = {
+        pageNo: this.currentPage,
+        pageSize: this.pageSize
+      }
+      this.util.post(url, params).then(res => {
+        if (res.data.success) {
+          this.roleList = res.data.data.list
+          this.totalRows = res.data.data.total
+        }
+      })
+    },
+    modifyView(rowData) {
+      this.selectedItem = rowData
+      this.createStatus = true
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+    },
     changeCreateStatus(val) {
       this.createStatus = val
+      if (!val) {
+        this.search()
+        this.selectedItem = {}
+      }
     },
     deleteRole() {}
   }

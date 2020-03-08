@@ -11,7 +11,7 @@
         <el-col :span="24">
           <el-form-item
             label="用户账号："
-            prop="account"
+            prop="open_code"
             :rules="{required: true, message: '请输入', trigger: 'blur'}"
             style="width:360px;"
           >
@@ -31,7 +31,7 @@
               :on-success="onSuccessPC"
               :before-upload="beforeUpload"
               :on-change="onImgChangePC"
-              action="/innobeauty/oms/pic/upload"
+              action="/innobeautywms/imgUpload"
             >
               <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
               <div v-else style="height:100%;line-height:120px;">
@@ -89,20 +89,28 @@ export default {
       ruleForm: {
         open_code: '',
         name: '',
-        roleId: ''
+        roleId: '',
+        account: ''
       },
       rules: {}
     }
   },
   created() {
     if (this.detail.id) {
-      let { open_code, name, headImg, roleName } = this.detail
+      let { open_code, name, headImg, roleName, roleId } = this.detail
       this.imageUrlPC = headImg
       this.headImg = headImg
-      this.ruleForm = { open_code, name }
+      this.ruleForm = { open_code, name, roleId }
     }
+    this.getRoleList()
   },
   methods: {
+    getRoleList() {
+      let url = '/innobeautywms/roles'
+      this.util.get(url).then(res => {
+        this.roleArr = res.data.data
+      })
+    },
     handleClose(done) {
       this.$emit('detailStatus', false)
     },
@@ -130,19 +138,19 @@ export default {
     },
     submit() {
       let url = '/innobeautywms/account'
-      let { open_code, name, roleId = '1' } = this.ruleForm
+      let { open_code, name, roleId } = this.ruleForm
       let headImg = this.headImg
       let id = this.detail.id
       let params = {
         open_code,
         name,
-        roleId: '1',
+        roleId,
         headImg,
         id
       }
-      // if(this.detail.id) {
-      //   params.id = (this.detail.id
-      // }
+      if (this.detail.id) {
+        params.id = this.detail.id
+      }
       this.util.post(url, params).then(res => {
         if (res.data.success) {
           this.$message.success('账号添加/修改成功')

@@ -58,7 +58,7 @@ export default {
           subs: [
             {
               index: 'index',
-              title: '仓库管理'
+              title: '商品管理'
             },
             {
               index: 'housingNotice',
@@ -70,7 +70,7 @@ export default {
             }
           ]
         },
-	      {
+        {
           icon: 'el-icon-menu',
           index: '3',
           title: '系统权限管理',
@@ -115,7 +115,7 @@ export default {
   display: block;
   position: absolute;
   left: 0;
-  top: 140px;
+  top: 70px;
   bottom: 0;
   overflow-y: scroll;
 }

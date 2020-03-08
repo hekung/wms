@@ -54,7 +54,7 @@
             <el-tooltip
               class="item-pop"
               effect="dark"
-              :content="scope.row.userAddress.address"
+              :content="util.getOrderAddress(scope.row.userAddress)"
               placement="top"
             >
               <el-button type="text">收货地址</el-button>
@@ -244,6 +244,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       productsList: [],
+      orderList: [],
       showMessageDetail: false,
       totalRows: 0,
       tableType: 'all',
@@ -495,7 +496,10 @@ export default {
     toggleMessageDetail(isShow, rowData) {
       this.showMessageDetail = isShow
       if (rowData) {
-        this.selectStockItem = rowData
+        let id = rowData.orderIdReal
+        this.selectStockItem = this.productsList.filter(e => {
+          return e.orderIdReal == id
+        })
       }
     },
     handleSizeChange(val) {
@@ -508,7 +512,7 @@ export default {
     },
     search() {
       $('.item-head').remove()
-      let url = '/innobeautywms/ship/orders'
+      let url = '/innobeautywms/ordermanager/orders'
       let params = {
         pageNo: this.currentPage,
         pageSize: this.pageSize
@@ -528,6 +532,7 @@ export default {
       this.util.post(url, params).then(res => {
         if (res.data.success) {
           let orderList = res.data.data.list
+          this.orderList = orderList
           this.totalRows = res.data.data.rowsTotal
           // 各个订单的商品数量组成的数组
           this.orderProNums = orderList.map(item => {
@@ -593,7 +598,7 @@ export default {
       })
     },
     submitForm(rowData) {
-      let url = '/innobeautywms/ship/finishShip'
+      let url = '/innobeautywms/ordermanager/finishShip'
       let { expressName, expressNo, remark } = this.ruleForm
       let {
         orderIdReal,

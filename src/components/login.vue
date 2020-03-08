@@ -41,12 +41,6 @@ export default {
       showLogin: true
     }
   },
-  // mounted(){
-  // 	this.showLogin = true;
-  // 	if (!this.adminInfo.id) {
-  // 		this.getAdminData()
-  // 	}
-  // },
   computed: mapState({
     userData: state => state.user.userData
   }),
@@ -79,48 +73,8 @@ export default {
             })
           }
         })
-      // this.$axios({
-      //   method: 'post',
-      //   url: '/oms/auth/login',
-      //   data: {
-      //     username: this.loginForm.username,
-      //     password: this.loginForm.password
-      //   },
-      //   transformRequest: [
-      //     function(data) {
-      //       let ret = ''
-      //       for (let it in data) {
-      //         ret +=
-      //           encodeURIComponent(it) +
-      //           '=' +
-      //           encodeURIComponent(data[it]) +
-      //           '&'
-      //       }
-      //       ret = ret.substring(0, ret.lastIndexOf('&'))
-      //       return ret
-      //     }
-      //   ],
-      //   headers: {
-      //     'Content-Type': 'application/x-www-form-urlencoded'
-      //   }
-      // }).then(res => {
-      //   this.$store.commit('user/setUserData', res.data.data)
-      //   this.util.setCookie('username', this.loginForm.username)
-      //   this.util.setCookie('password', this.loginForm.password)
-      // })
     }
   }
-  // watch: {
-  // 	adminInfo: function (newValue){
-  // 		if (newValue.id) {
-  // 			this.$message({
-  //                 type: 'success',
-  //                 message: '检测到您之前登录过，将自动登录'
-  //             });
-  // 			this.$router.push('manage')
-  // 		}
-  // 	}
-  // }
 }
 </script>
 

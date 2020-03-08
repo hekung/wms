@@ -1,11 +1,32 @@
 import axios from './request.js'
+import cityData from './city.data-3.js'
 export default class Util {
     getCommonUrl() {
         if (process.env.NODE_ENV === 'development') {
-            return '开发环境地址'
+            return '/vue-wms'
         } else {
-            return '生产环境地址'
+            return location.origin + '/'
         }
+    }
+    getOrderAddress({ prov, city, area, address }) {
+        let provinceName, cityName, areaName, addressRes
+        // 获取省
+        let provinceItem = cityData.find(pitem => {
+            return pitem.value == prov
+        })
+        provinceName = provinceItem.text || ''
+        // 获取市
+        let cityItem = provinceItem.children.find(citem => {
+            return citem.value == city
+        })
+        cityName = cityItem.text || ''
+        // 获取区
+        let areaItem = cityItem.children.find(aitem => {
+            return aitem.value == area
+        })
+        areaName = areaItem.text || ''
+        addressRes = address || ''
+        return provinceName + cityName + areaName + addressRes
     }
     // 获取请求
     get(url, params) {

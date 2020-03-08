@@ -7,69 +7,30 @@
     </div>
     <el-row class="table-content">
       <el-table
-        :data="productsList"
+        :data="this.info.productList"
         border
+        :span-method="objectSpanMethod"
         class="table"
         ref="multipleTable"
         style="height:100%;"
-        :span-method="objectSpanMethod"
       >
-        <el-table-column prop="productName" label="商品图片/名称" align="center">
+        <el-table-column prop="productName" label="商品名称"></el-table-column>
+        <el-table-column prop="productNo" label="商品编码"></el-table-column>
+        <el-table-column prop="quantity" label="入库量">
           <template slot-scope="scope">
-            <div>
-              <img :src="scope.row.productPictureUrl" alt class="product-img" />
-              <span>{{scope.row.productName}}</span>
-            </div>
+            <span>{{info.storehouseName+'('+scope.row.quantity+')'}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="price" label="单价" align="center">
+        <el-table-column label="备注" prop="remark">
           <template slot-scope="scope">
-            <span style="color:rgb(230, 11, 48);">¥{{scope.row.productPrice}}</span>
+            <div v-html="scope.row.remark" class="remark"></div>
           </template>
         </el-table-column>
-        <el-table-column prop="number" label="数量" align="center"></el-table-column>
-        <el-table-column prop="userAddress" label="收货信息" align="center">
+        <el-table-column prop="status" label="当前状态">
           <template slot-scope="scope">
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="scope.row.userAddress.nickName"
-              placement="top"
-            >
-              <el-button type="text">姓名</el-button>
-            </el-tooltip>
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="scope.row.userAddress.tel"
-              placement="top"
-            >
-              <el-button type="text">手机号</el-button>
-            </el-tooltip>
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="scope.row.userAddress.address"
-              placement="top"
-            >
-              <el-button type="text">收货地址</el-button>
-            </el-tooltip>
+            <span :class="info.status==0?'green':'gray'">{{info.status==0?'等待入库':'完成'}}</span>
           </template>
         </el-table-column>
-        <el-table-column label="物流公司" align="center" prop="aaa"></el-table-column>
-        <el-table-column label="运单" align="center" prop="ddd"></el-table-column>
-        <el-table-column label="创建时间" align="center" prop="createTime"></el-table-column>
-        <el-table-column label="发货时间" align="center" prop="ccc"></el-table-column>
-        <!-- <el-table-column prop="status" label="通知">
-          <template slot-scope="scope">
-            <el-link
-              type="primary"
-              @click="toggleMessageDetail(true,scope.row)"
-              v-if="scope.row.orderStatus=='1'|| scope.row.orderStatus=='2'"
-            >新消息</el-link>
-            <el-link v-else @click="toggleMessageDetail(true,scope.row)">查看历史</el-link>
-          </template>
-        </el-table-column>-->
       </el-table>
     </el-row>
     <el-row>
@@ -90,7 +51,7 @@
             <span class="time">2016-03-10 18:07:15</span>
             <span class="txt">感谢您在京东购物，欢迎您再次光临！</span>
           </li>
-          <li class="first" v-if="productsList.length && productsList[0].orderStatus">
+          <li class="first" v-if="info.status==0">
             <i class="node-icon"></i>
             <div>
               <el-button type="primary" plain @click="clickBackTo=!clickBackTo">回复</el-button>
@@ -114,14 +75,16 @@ export default {
     VueUeditorWrap
   },
   props: {
-    detail: Array,
-    default() {
-      return []
-    }
+    detail: Object
   },
   data() {
     return {
-      info: {},
+      info: {
+        status: '',
+        storehouseName: '',
+        productList: [],
+        remark: ''
+      },
       ueditorText: '',
       clickBackTo: false,
       pcEditorOption: {
@@ -144,17 +107,34 @@ export default {
     }
   },
   created() {
-    if (this.detail.length) {
-      this.productsList = this.detail
+    if (this.detail && this.detail.id) {
+      this.info.status = this.detail.status
+      this.info.storehouseName = this.detail.storehouseName
+      this.getDetail(this.detail.id)
     }
   },
   methods: {
     submit() {},
+    getDetail(id) {
+      let url = `/innobeautywms/ordermanager/entryorderdetail/${id}`
+      this.util.get(url).then(res => {
+        if (res.data.success) {
+          let { remark, entryOrderDetailVoList } = res.data.data
+          this.info.remark = remark
+          this.info.productList = entryOrderDetailVoList
+          this.info.productList.forEach(item => {
+            item.remark = remark
+          })
+        } else {
+          this.$message.error(res.data.errMsg)
+        }
+      })
+    },
     handleClose() {
       this.$emit('detailStatus', false)
     },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex > 4) {
+      if (columnIndex > 2) {
         if (rowIndex === 0) {
           return {
             rowspan: 3,
@@ -172,12 +152,6 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.product-img {
-  width: 80px;
-  height: 80px;
-  margin: auto;
-  display: block;
-}
 .create-stock {
   position: absolute;
   left: 0;
@@ -188,6 +162,14 @@ export default {
   z-index: 1;
   padding: 20px;
   overflow: scroll;
+}
+.gray {
+  color: #666;
+}
+.remark {
+  /deep/ img {
+    width: 100%;
+  }
 }
 .track-list {
   margin: 20px;

@@ -1,5 +1,5 @@
 import axios from 'axios'; // 引入axios
-import { Loading } from 'element-ui'; //项目已经全局引入element的话可以不单独引入
+import { Loading, Message } from 'element-ui'; //项目已经全局引入element的话可以不单独引入
 // 环境的切换
 // if (process.env.NODE_ENV == 'development') {    
 //     axios.defaults.baseURL = 'https://www.baidu.com';} 
@@ -11,7 +11,7 @@ import { Loading } from 'element-ui'; //项目已经全局引入element的话可
 // }复制代码
 var axiosInstance = axios.create({
   // baseURL: 'https://some-domain.com/api/',
-  timeout: 10000,
+  timeout: 60000,
   headers: { 'X-Requested-With': 'XMLHttpRequest' },
 });
 let loading
@@ -67,6 +67,8 @@ axiosInstance.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
   // 对响应错误做点什么
+  tryHideFullScreenLoading()
+  Message.error({ message: '请求错误，请联系技术人员' })
   return Promise.reject(error);
 });
 

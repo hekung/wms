@@ -11,15 +11,6 @@ const state = {
 }
 // getters
 const getters = {
-    // cartProducts: (state, getters, rootState) => {
-
-    // },
-
-    // cartTotalPrice: (state, getters) => {
-    //     return getters.cartProducts.reduce((total, product) => {
-    //         return total + product.price * product.quantity
-    //     }, 0)
-    // }
 }
 
 // actions
@@ -57,25 +48,6 @@ const actions = {
 
 // mutations
 const mutations = {
-    // pushProductToCart(state, { id }) {
-    //     state.items.push({
-    //         id,
-    //         quantity: 1
-    //     })
-    // },
-
-    // incrementItemQuantity(state, { id }) {
-    //     const cartItem = state.items.find(item => item.id === id)
-    //     cartItem.quantity++
-    // },
-
-    // setCartItems(state, { items }) {
-    //     state.items = items
-    // },
-
-    // setCheckoutStatus(state, status) {
-    //     state.checkoutStatus = status
-    // }
     setUserData(state, data) {
         state.userData = data
     }

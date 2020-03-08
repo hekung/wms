@@ -132,7 +132,7 @@ export default {
       this.util.post('/innobeautywms/accounts', params).then(res => {
         if (res.data.success) {
           this.accountList = res.data.data.list
-          this.totalRows = res.data.data.rowsTotal
+          this.totalRows = res.data.data.total
         } else {
           this.$message.error(res.data.errMsg)
         }

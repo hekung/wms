@@ -31,7 +31,7 @@ const routes = [
       {
         path: '/index',
         component: inventoryManage,
-        meta: { title: '仓库管理' }
+        meta: { title: '商品管理' }
       },
       {
         path: '/housingNotice',

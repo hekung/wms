@@ -29,7 +29,6 @@ export default {
             this.$store.commit('user/setUserData', res.data.data)
             this.util.setCookie('username', username)
             this.util.setCookie('password', password)
-            this.$router.push('/index').catch(() => {})
           } else {
             this.$message({
               type: 'error',

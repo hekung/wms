@@ -84,7 +84,6 @@ export default {
   components: {},
   data() {
     return {
-      name: localStorage.getItem('ms_username'),
       createStatus: false,
       currentPage: 1,
       pageSize: 10,
@@ -95,7 +94,7 @@ export default {
     }
   },
   mounted() {
-    // this.search()
+    this.search()
   },
   methods: {
     getImgSrc(imgList = []) {
@@ -134,7 +133,7 @@ export default {
         params.productStatus = this.translateStatus
       }
       this.util
-        .post('/innobeauty/oms/productmanager/products', params)
+        .post('/innobeautywms/productmanager/products', params)
         .then(res => {
           if (res.data.success) {
             this.productList = res.data.data.list
@@ -156,16 +155,6 @@ export default {
     createProduct() {
       this.selectItem = {}
       this.createStatus = true
-    },
-    changeStatus(rowData, toStatus) {
-      let url = `/innobeauty/oms/productmanager/product/${rowData.productId}/${toStatus}`
-      this.util.post(url).then(res => {
-        if (res.data.success) {
-          this.search(this.tableType)
-        } else {
-          this.$message.error('修改订单状态失败')
-        }
-      })
     }
   },
   watch: {
