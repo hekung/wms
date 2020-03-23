@@ -73,7 +73,7 @@
       </el-table>
     </el-row>
     <el-row>
-      <div class="track-list">
+      <!-- <div class="track-list">
         <ul>
           <li>
             <i class="node-icon"></i>
@@ -97,7 +97,7 @@
             </div>
           </li>
         </ul>
-      </div>
+      </div>-->
     </el-row>
     <div v-if="clickBackTo===true">
       <VueUeditorWrap v-model="ueditorText" :config="pcEditorOption" />
@@ -157,7 +157,7 @@ export default {
       if (columnIndex > 4) {
         if (rowIndex === 0) {
           return {
-            rowspan: 3,
+            rowspan: 20,
             colspan: 1
           }
         } else {

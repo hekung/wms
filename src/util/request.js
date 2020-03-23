@@ -1,5 +1,6 @@
 import axios from 'axios'; // 引入axios
 import { Loading, Message } from 'element-ui'; //项目已经全局引入element的话可以不单独引入
+import router from '../router/index'
 // 环境的切换
 // if (process.env.NODE_ENV == 'development') {    
 //     axios.defaults.baseURL = 'https://www.baidu.com';} 
@@ -64,6 +65,10 @@ axiosInstance.interceptors.request.use(function (config) {
 axiosInstance.interceptors.response.use(function (response) {
   // 对响应数据做点什么
   tryHideFullScreenLoading()
+  if (response.data['no-session']) {
+    router.push('/login')
+    return Promise.reject({ errMsg: '未登录' })
+  }
   return response;
 }, function (error) {
   // 对响应错误做点什么

@@ -8,13 +8,17 @@
 export default {
   name: 'app',
   created() {
-    let username = this.util.getCookie('username')
-    if (!username) {
-      this.$router.push('/login').catch(() => {})
-    } else {
-      // 登录操作
-      let password = this.util.getCookie('password')
-      this.login(username, password)
+    // let username = this.util.getCookie('username')
+    // if (!username) {
+    //   this.$router.push('/login').catch(() => {})
+    // } else {
+    //   // 登录操作
+    //   let password = this.util.getCookie('password')
+    //   this.login(username, password)
+    // }
+    let sid = this.util.getCookie('sid')
+    if (!sid) {
+      this.$router.push('/login')
     }
   },
   methods: {

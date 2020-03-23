@@ -50,8 +50,8 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="status" label="通知">
-          <template slot-scope="scope">
+        <el-table-column prop="123344e334" label="通知">
+          <!-- <template slot-scope="scope">
             <el-link v-if="scope.row.status==2" @click="toggleMessageDetail(true,scope.row)">查看历史</el-link>
             <el-link
               type="primary"
@@ -63,20 +63,16 @@
                 <i class="message-count" v-if="scope.row.newMessage">{{scope.row.newMessage}}</i>
               </span>
             </el-link>
-          </template>
+          </template>-->
         </el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
             <el-button
               type="text"
-              @click="handleEdit(scope.$index, scope.row)"
+              @click="handleFinish(scope.row)"
               :disabled="scope.row.status!=1"
             >入库完成</el-button>
-            <el-button
-              type="text"
-              @click="handleDelete(scope.$index, scope.row)"
-              :disabled="scope.row.status!=1"
-            >驳回</el-button>
+            <el-button type="text" @click="handleBack(scope.row)" :disabled="scope.row.status!=1">驳回</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -227,16 +223,36 @@ export default {
         this.selectStockItem = {}
       }
     },
-    handleEdit(index, rowData) {
-      this.selectStockItem = rowData
-      this.createStatus = true
+    handleFinish(rowData) {
+      let entryOrderId = rowData.id
+      let { orderId, type } = rowData
+      let url = `/innobeautywms/ordermanager/entryorder/finishEntryOrder`
+      this.util.post(url, { orderId, type, entryOrderId }).then(res => {
+        if (res.data.success) {
+          this.currentPage = 1
+          this.search()
+        } else {
+          this.$message.error('请求错误，请联系技术人员')
+        }
+      })
     },
-    handleDelete() {},
+    handleBack(rowData) {
+      let entryorderId = rowData.id
+      let url = `/innobeautywms/ordermanager/entryorder/disallowance/${entryorderId} `
+      this.util.post(url).then(res => {
+        if (res.data.success) {
+          this.currentPage = 1
+          this.search()
+        } else {
+          this.$message.error('请求错误，请联系技术人员')
+        }
+      })
+    },
     objectSpanMethod({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 3) {
         if (rowIndex === 0) {
           return {
-            rowspan: 3,
+            rowspan: 20,
             colspan: 1
           }
         } else {
@@ -280,7 +296,7 @@ export default {
     float: right;
   }
   .table-content {
-    height: calc(~'100% - 200px');
+    height: calc(~'100% - 120px');
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 48px');
       overflow: auto;

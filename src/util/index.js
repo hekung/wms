@@ -14,16 +14,25 @@ export default class Util {
         let provinceItem = cityData.find(pitem => {
             return pitem.value == prov
         })
+        if (!provinceItem) {
+            return ''
+        }
         provinceName = provinceItem.text || ''
         // 获取市
         let cityItem = provinceItem.children.find(citem => {
             return citem.value == city
         })
+        if (!cityItem) {
+            return ''
+        }
         cityName = cityItem.text || ''
         // 获取区
         let areaItem = cityItem.children.find(aitem => {
             return aitem.value == area
         })
+        if (!areaItem) {
+            return ''
+        }
         areaName = areaItem.text || ''
         addressRes = address || ''
         return provinceName + cityName + areaName + addressRes

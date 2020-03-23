@@ -171,7 +171,7 @@ export default {
     float: right;
   }
   .table-content {
-    height: calc(~'100% - 200px');
+    height: calc(~'100% - 140px');
     margin-top: 40px;
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 48px');

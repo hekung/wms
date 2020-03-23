@@ -63,8 +63,8 @@ export default {
         .then(res => {
           if (res.data && res.data.success) {
             this.$store.commit('user/setUserData', res.data.data)
-            this.util.setCookie('username', this.loginForm.username)
-            this.util.setCookie('password', this.loginForm.password)
+            // this.util.setCookie('username', this.loginForm.username)
+            // this.util.setCookie('password', this.loginForm.password)
             this.$router.push('/index').catch(() => {})
           } else {
             this.$message({

@@ -22,7 +22,7 @@
         <el-table-column prop="productName" label="商品图片/名称" align="center">
           <template slot-scope="scope">
             <div>
-              <img :src="scope.row.productPictureUrl" alt class="product-img" />
+              <img :src="scope.row.productPictureUrl" alt class="product-img" style="height:100px;" />
               <span>{{scope.row.productName}}</span>
             </div>
           </template>
@@ -35,36 +35,17 @@
         <el-table-column prop="number" label="数量" align="center"></el-table-column>
         <el-table-column prop="userAddress" label="收货信息" align="center">
           <template slot-scope="scope">
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="scope.row.userAddress.nickName"
-              placement="top"
-            >
-              <el-button type="text">姓名</el-button>
-            </el-tooltip>
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="scope.row.userAddress.tel"
-              placement="top"
-            >
-              <el-button type="text">手机号</el-button>
-            </el-tooltip>
-            <el-tooltip
-              class="item-pop"
-              effect="dark"
-              :content="util.getOrderAddress(scope.row.userAddress)"
-              placement="top"
-            >
-              <el-button type="text">收货地址</el-button>
-            </el-tooltip>
+            <div style="text-align:center;">
+              <p>{{scope.row.userAddress.nickName}}</p>
+              <p>{{scope.row.userAddress.tel}}</p>
+              <p>{{util.getOrderAddress(scope.row.userAddress)}}</p>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="subtotal" label="实收款(元)" align="center">
           <template slot-scope="scope">
             <p>¥{{scope.row.subtotal}}</p>
-            <p>（含快递：¥）</p>
+            <!-- <p>（含快递：¥）</p> -->
           </template>
         </el-table-column>
         <el-table-column prop="stockPileForVoList" label="出货仓">
@@ -93,15 +74,15 @@
         <el-table-column label="运单" align="center" prop="ddd"></el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime"></el-table-column>
         <el-table-column label="发货时间" align="center" prop="ccc"></el-table-column>
-        <el-table-column prop="status" label="通知">
-          <template slot-scope="scope">
+        <el-table-column prop="3244324" label="通知">
+          <!-- <template slot-scope="scope">
             <el-link
               type="primary"
               @click="toggleMessageDetail(true,scope.row)"
               v-if="scope.row.orderStatus=='1'|| scope.row.orderStatus=='2'"
             >新消息</el-link>
             <el-link v-else @click="toggleMessageDetail(true,scope.row)">查看历史</el-link>
-          </template>
+          </template>-->
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
@@ -204,6 +185,9 @@
                 <el-button type="text" slot="reference">留言</el-button>
               </el-popover>-->
             </div>
+            <div v-if="scope.row.orderStatus=='2'">
+              <el-button type="text" @click="handleBack(scope.row)">驳回</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -260,228 +244,7 @@ export default {
           { required: true, message: '请输入物流公司', trigger: 'blur' }
         ],
         num: [{ required: true, message: '请输入快递单号', trigger: 'blur' }]
-      },
-      productList: [
-        {
-          id: '111111',
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: 'onOut',
-          unusual: '52',
-          hubType: 'a',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          },
-          isEdit: false
-        },
-        {
-          id: '111111',
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: 'onOut',
-          unusual: '52',
-          storage: '12',
-          sellCount: '220',
-          hubType: 'a',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          isEdit: false,
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          id: '111111',
-          orderNum: '122231311534',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          unusual: '52',
-          isEdit: false,
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311556',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          hubType: 'a',
-          isEdit: false,
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311556',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          hubType: 'a',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        },
-        {
-          orderNum: '122231311551',
-          createDate: '2019-02-11 09:09:28',
-          productName: '资生堂蒂花之秀............................',
-          price: '999.00',
-          number: '2',
-          buyer: 'daychang',
-          status: '已付款',
-          num: {
-            a: '122',
-            b: '1254',
-            c: '444'
-          },
-          hubType: 'a',
-          orderInfo: {
-            name: '张三',
-            tel: '187888888',
-            address: '广东省深圳市。。。。。。',
-            allMoney: '15999',
-            yunFee: '15',
-            hub: 'A'
-          }
-        }
-      ]
+      }
     }
   },
   mounted() {
@@ -493,6 +256,24 @@ export default {
     }
   },
   methods: {
+    handleBack(rowData) {
+      let orderId = rowData.orderIdReal
+      let params = {
+        orderId,
+        orderNo: rowData.orderNo,
+        isIntegral: rowData.isIntegral
+      }
+      const url = `/innobeautywms/ordermanager/order/disallowance`
+      this.util.post(url, params).then(res => {
+        if (res.data.success) {
+          this.$message.success('驳回成功')
+          this.currentPage = 1
+          this.search()
+        } else {
+          this.$message.errMsg(res.data.errMsg)
+        }
+      })
+    },
     toggleMessageDetail(isShow, rowData) {
       this.showMessageDetail = isShow
       if (rowData) {
@@ -522,7 +303,7 @@ export default {
           params.allOrderflag = true
           break
         case 'wait':
-          params.orderStatus = '2'
+          params.waitForShip = true
           break
         case 'history':
           params.historyflag = true
@@ -582,7 +363,7 @@ export default {
 
           this.$nextTick(() => {
             $('.el-table__row').each((index, item) => {
-              let orderNum = this.productsList[index].orderId
+              let orderNum = this.productsList[index].orderNo
               let createDate = this.productsList[index].createdAt
               if (orderNum === this.lastOrderNum) return
               let dom = `<tr class="item-head">
@@ -614,7 +395,10 @@ export default {
         consignee_telphone: tel
       }
       this.util.post(url, params).then(res => {
-        console.log(res.data)
+        if (res.data.success) {
+          this.currentPage = 1
+          this.search()
+        }
       })
     },
     handleClose() {
