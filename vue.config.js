@@ -9,7 +9,8 @@ module.exports = {
   lintOnSave: false,//是否开启eslint保存检测 ,它的有效值为 true || false || 'error'
   outputDir: 'dist',
   assetsDir: 'static',
-  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/vue-wms/',
+  // publicPath: process.env.NODE_ENV === 'production' ? '/' : '/vue-wms/',
+  publicPath: '/vue-wms/',
   filenameHashing: true,
 
   // When building in multi-pages mode, the webpack config will contain different plugins

@@ -7,9 +7,10 @@ Vue.use(VueRouter)
 // 可以从其他文件 import 进来
 const login = r => require.ensure([], () => r(require('@/components/login')), 'login')
 const home = r => require.ensure([], () => r(require('@/components/common/Home')), 'home')
-const inventoryManage = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/InventoryManage')), 'inventoryManage')
-const housingNotice = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/HousingNotice')), 'housingNotice')
-const stockOut = r => require.ensure([], () => r(require('@/components/pages/inventoryManage/StockOut')), 'stockOut')
+const productTable = r => require.ensure([], () => r(require('@/components/pages/productManage/ProductTable')), 'ProductTable')
+const createProduct = r => require.ensure([], () => r(require('@/components/pages/productManage/CreateProduct')), 'CreateProduct')
+const stockOutTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockOutTable')), 'stockOutTable')
+const stockInTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockInTable')), 'stockInTable')
 const roleManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/roleManage/RoleManage')), 'roleManage')
 const accountManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/accountManage/AccountManage')), 'accountManage')
 // 2. 定义路由
@@ -30,18 +31,13 @@ const routes = [
     children: [
       {
         path: '/index',
-        component: inventoryManage,
-        meta: { title: '商品管理' }
+        component: productTable,
+        meta: { title: '产品列表' }
       },
       {
-        path: '/housingNotice',
-        component: housingNotice,
-        meta: { title: '入库' }
-      },
-      {
-        path: '/stockOut',
-        component: stockOut,
-        meta: { title: '出库' }
+        path: '/createProduct',
+        component: createProduct,
+        meta: { title: '创建产品' }
       },
       {
         path: '/roleManage',
@@ -53,6 +49,16 @@ const routes = [
         component: accountManage,
         meta: { title: '账号管理' }
       },
+      {
+        path: '/stockOutTable',
+        component: stockOutTable,
+        meta: { title: '出库列表' }
+      },
+      {
+        path: '/stockInTable',
+        component: stockInTable,
+        meta: { title: '入库列表' }
+      }
     ]
   },
   // 登录页路由

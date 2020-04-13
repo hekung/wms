@@ -1,12 +1,10 @@
 <template>
-  <div class="stock-manage">
-    <el-row>
-      <div class="create">
-        <el-button type="primary" plain @click="createAccount">新建账号</el-button>
-      </div>
+  <div class="account-manage">
+    <el-row style="position:relative;height:40px;">
+      <el-button type="warning" size="medium" @click="createAccount">新建账号</el-button>
     </el-row>
     <el-row class="table-content">
-      <el-table :data="accountList" border class="table" ref="multipleTable" style="height:100%;">
+      <el-table :data="accountList" stripe ref="multipleTable" style="height:100%;">
         <el-table-column prop="open_code" label="用户账号"></el-table-column>
         <el-table-column prop="name" label="真实姓名"></el-table-column>
         <el-table-column prop="headImg" label="头像" align="center">
@@ -18,7 +16,7 @@
         <el-table-column prop="createTime" label="注册时间"></el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
-            <div v-if="scope.row.status=='1'">
+            <div v-if="scope.row.state==0">
               <el-link type="primary" style="margin-right:20px;" @click="modifyOne(scope.row)">修改</el-link>
               <el-link type="primary" @click="changeStatus(scope.row)">停用</el-link>
             </div>
@@ -30,10 +28,6 @@
       </el-table>
     </el-row>
     <el-row>
-      <div style="margin-top:40px;float:left;">
-        <label>搜索：</label>
-        <el-input v-model="inputVal" placeholder="请输入内容" style="display:inline-block;width:300px;"></el-input>
-      </div>
       <div style="margin-top:40px;float:right;">
         <el-pagination
           @size-change="handleSizeChange"
@@ -65,26 +59,7 @@ export default {
       totalRows: 0,
       inputVal: '',
       selectItem: {},
-      accountList: [
-        {
-          realName: '张三',
-          accountId: 'daddqdq',
-          img: '',
-          role: '管理员',
-          authority: '全部',
-          useful: true,
-          time: '2019-10-21'
-        },
-        {
-          realName: '张三',
-          accountId: 'daddqdq',
-          img: '',
-          role: '管理员',
-          authority: '全部',
-          useful: true,
-          time: '2019-10-21'
-        }
-      ]
+      accountList: []
     }
   },
   mounted() {
@@ -103,7 +78,7 @@ export default {
     changeStatus(rowData) {
       let url = `/innobeautywms/account/status/${rowData.user_id}`
       this.util.post(url).then(res => {
-        if (res.data.success) {
+        if (res.data.status == 0) {
           this.$message.success('修改用户状态成功')
           this.search()
         } else {
@@ -130,11 +105,14 @@ export default {
         pageSize: this.pageSize
       }
       this.util.post('/innobeautywms/accounts', params).then(res => {
-        if (res.data.success) {
-          this.accountList = res.data.data.list
-          this.totalRows = res.data.data.total
-        } else {
-          this.$message.error(res.data.errMsg)
+        if (res.data.status == 0) {
+          this.accountList = res.data.date.list
+          this.accountList.forEach(e => {
+            e.createTime = this.$moment(new Date(e.createTime)).format(
+              'YYYY-MM-DD HH:mm:ss'
+            )
+          })
+          this.totalRows = res.data.date.total
         }
       })
     },
@@ -162,17 +140,16 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.stock-manage {
-  background-color: #f5f5f5;
+.account-manage {
+  background-color: #fff;
   height: 100%;
-  padding: 20px;
+  padding: 40px;
   position: relative;
-  .create {
-    float: right;
-  }
+  // .create {
+  //   float: right;
+  // }
   .table-content {
-    height: calc(~'100% - 140px');
-    margin-top: 40px;
+    height: calc(~'100% - 100px');
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 48px');
       overflow: auto;

@@ -65,7 +65,7 @@ axiosInstance.interceptors.request.use(function (config) {
 axiosInstance.interceptors.response.use(function (response) {
   // 对响应数据做点什么
   tryHideFullScreenLoading()
-  if (response.data['no-session']) {
+  if (response.data.status == 10) {
     router.push('/login')
     return Promise.reject({ errMsg: '未登录' })
   }

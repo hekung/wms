@@ -4,7 +4,7 @@
       class="sidebar-el-menu"
       :default-active="onRoutes"
       :collapse="collapse"
-      background-color="#324157"
+      background-color="#242f42"
       text-color="#bfcbd9"
       active-text-color="#20a0ff"
       unique-opened
@@ -52,21 +52,32 @@ export default {
       collapse: false,
       items: [
         {
-          icon: 'el-icon-lx-calendar',
+          icon: 'el-icon-s-grid',
           index: '1',
-          title: 'WMS仓储管理',
+          title: '产品管理',
           subs: [
             {
               index: 'index',
-              title: '商品管理'
+              title: '产品列表'
             },
             {
-              index: 'housingNotice',
-              title: '入库'
+              index: 'createProduct',
+              title: '创建产品'
+            }
+          ]
+        },
+        {
+          icon: 'el-icon-tickets',
+          index: '2',
+          title: '库存管理',
+          subs: [
+            {
+              index: 'stockInTable',
+              title: '入库列表'
             },
             {
-              index: 'stockOut',
-              title: '出库'
+              index: 'stockOutTable',
+              title: '出库列表'
             }
           ]
         },
@@ -76,15 +87,14 @@ export default {
           title: '系统权限管理',
           subs: [
             {
-              icon: 'el-icon-user',
               index: 'accountManage',
               title: '账号管理'
-            },
-            {
-              icon: 'el-icon-user',
-              index: 'roleManage',
-              title: '角色管理'
             }
+            // {
+            //   icon: 'el-icon-user',
+            //   index: 'roleManage',
+            //   title: '角色管理'
+            // }
           ]
         }
       ]
@@ -125,7 +135,8 @@ export default {
 .sidebar-el-menu:not(.el-menu--collapse) {
   width: 250px;
 }
-.sidebar > ul {
+.sidebar > ul.el-menu {
   height: 100%;
+  border-right: 0 none;
 }
 </style>

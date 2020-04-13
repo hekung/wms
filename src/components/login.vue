@@ -61,7 +61,7 @@ export default {
           password: this.loginForm.password
         })
         .then(res => {
-          if (res.data && res.data.success) {
+          if (res.data && res.data.status == 0) {
             this.$store.commit('user/setUserData', res.data.data)
             // this.util.setCookie('username', this.loginForm.username)
             // this.util.setCookie('password', this.loginForm.password)

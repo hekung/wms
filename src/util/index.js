@@ -45,6 +45,10 @@ export default class Util {
     post(url, params) {
         return axios.post(url, params)
     }
+    // delete请求
+    requestDelete(url, params) {
+        return axios.delete(url, params)
+    }
     // form格式请求
     postForm(url, params) {
         return axios({

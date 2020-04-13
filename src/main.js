@@ -5,8 +5,10 @@ import router from './router/index.js'
 import './util/plugin.js'
 import Util from './util/index.js'
 import axios from 'axios'
+import moment from 'moment'
 Vue.prototype.$axios = window.axios = axios  //改变
 Vue.prototype.util = new Util()
+Vue.prototype.$moment = moment
 Vue.config.productionTip = false
 // router.beforeEach((to, from, next) => {
 //   // ...

@@ -60,7 +60,7 @@
     </el-form>
     <div slot="footer" style="text-align: center;">
       <el-button type="primary" @click="submit">提 交</el-button>
-      <el-button @click="dialogFormVisible = false">取 消</el-button>
+      <el-button @click="$emit('detailStatus', false)">取 消</el-button>
     </div>
   </div>
 </template>
@@ -102,7 +102,7 @@ export default {
       this.headImg = headImg
       this.ruleForm = { open_code, name, roleId }
     }
-    this.getRoleList()
+    // this.getRoleList()
   },
   methods: {
     getRoleList() {
@@ -116,7 +116,7 @@ export default {
     },
     onSuccessPC(response, file, fileList) {
       this.imageUrlPC = URL.createObjectURL(file.raw)
-      this.headImg = response.url
+      this.headImg = response.date
     },
     beforeUpload(file) {
       const isJPG = /(gif|jpg|jpeg|png|GIF|JPG|PNG|SVG|svg)$/.test(file.type)
@@ -144,7 +144,7 @@ export default {
       let params = {
         open_code,
         name,
-        roleId,
+        roleId: 1,
         headImg,
         id
       }
@@ -152,11 +152,9 @@ export default {
         params.id = this.detail.id
       }
       this.util.post(url, params).then(res => {
-        if (res.data.success) {
+        if (res.data.status == 0) {
           this.$message.success('账号添加/修改成功')
           this.$emit('detailStatus', false)
-        } else {
-          this.$message.error(res.data.errMsg)
         }
       })
     }

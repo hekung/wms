@@ -82,9 +82,12 @@ export default {
     },
     handleSizeChange(val) {
       this.pageSize = val
+      this.currentPage = 1
+      this.search()
     },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.search()
     },
     changeCreateStatus(val) {
       this.createStatus = val
