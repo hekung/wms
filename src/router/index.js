@@ -11,6 +11,7 @@ const productTable = r => require.ensure([], () => r(require('@/components/pages
 const createProduct = r => require.ensure([], () => r(require('@/components/pages/productManage/CreateProduct')), 'CreateProduct')
 const stockOutTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockOutTable')), 'stockOutTable')
 const stockInTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockInTable')), 'stockInTable')
+const stockDaily = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockDaily')), 'stockDaily')
 const roleManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/roleManage/RoleManage')), 'roleManage')
 const accountManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/accountManage/AccountManage')), 'accountManage')
 // 2. 定义路由
@@ -58,6 +59,11 @@ const routes = [
         path: '/stockInTable',
         component: stockInTable,
         meta: { title: '入库列表' }
+      },
+      {
+        path: '/stockDaily',
+        component: stockDaily,
+        meta: { title: '入库日记账' }
       }
     ]
   },

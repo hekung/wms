@@ -6,15 +6,10 @@
         <i class="el-dialog__close el-icon el-icon-close" @click="handleClose"></i>
       </button>
     </div>
-    <el-form :model="ruleForm" :rules="rules" label-width="120px">
+    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px">
       <el-row>
         <el-col :span="24">
-          <el-form-item
-            label="用户账号："
-            prop="open_code"
-            :rules="{required: true, message: '请输入', trigger: 'blur'}"
-            style="width:360px;"
-          >
+          <el-form-item label="用户账号：" prop="open_code" style="width:360px;">
             <el-input v-model="ruleForm.open_code" placeholder="请输入"></el-input>
           </el-form-item>
         </el-col>
@@ -43,7 +38,6 @@
         <el-col :span="24">
           <el-form-item
             label="用户角色："
-            prop="role"
             :rules="{required: true, message: '请选择', trigger: 'blur'}"
           >
             <el-select v-model="ruleForm.roleId" placeholder="请选择">
@@ -85,7 +79,7 @@ export default {
       imageUrlPC: '',
       pcImgFile: '',
       headImg: '',
-      roleArr: [{ id: '1', name: '角色1' }],
+      roleArr: [{ id: 1, name: '管理员' }],
       ruleForm: {
         open_code: '',
         name: '',
@@ -137,24 +131,28 @@ export default {
       this.imageUrlPC = URL.createObjectURL(file.raw)
     },
     submit() {
-      let url = '/innobeautywms/account'
-      let { open_code, name, roleId } = this.ruleForm
-      let headImg = this.headImg
-      let id = this.detail.id
-      let params = {
-        open_code,
-        name,
-        roleId: 1,
-        headImg,
-        id
-      }
-      if (this.detail.id) {
-        params.id = this.detail.id
-      }
-      this.util.post(url, params).then(res => {
-        if (res.data.status == 0) {
-          this.$message.success('账号添加/修改成功')
-          this.$emit('detailStatus', false)
+      this.$refs.ruleForm.validate(valid => {
+        if (valid) {
+          let url = '/innobeautywms/account'
+          let { open_code, name, roleId } = this.ruleForm
+          let headImg = this.headImg
+          let id = this.detail.id
+          let params = {
+            open_code,
+            name,
+            roleId: 1,
+            headImg,
+            id
+          }
+          if (this.detail.id) {
+            params.id = this.detail.id
+          }
+          this.util.post(url, params).then(res => {
+            if (res.data.status == 0) {
+              this.$message.success('账号添加/修改成功')
+              this.$emit('detailStatus', false)
+            }
+          })
         }
       })
     }

@@ -9,15 +9,14 @@
       <i class="close-btn el-icon el-icon-close" @click="close"></i>
     </div>
     <el-steps :active="stepActive" finish-status="success" simple>
-      <el-step title="指定仓库"></el-step>
-      <el-step title="填写物流信息"></el-step>
+      <el-step title="指定仓库/填写物流"></el-step>
       <el-step title="已出库"></el-step>
     </el-steps>
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
       <el-row v-if="stepActive==0">
         <el-col :span="24">
           <div class="title">
-            <span>指定仓库/物流公司</span>
+            <span>指定仓库/物流</span>
           </div>
         </el-col>
         <el-col :span="24">
@@ -44,13 +43,6 @@
             </el-select>
           </el-form-item>
         </el-col>
-      </el-row>
-      <el-row v-else-if="stepActive==1">
-        <el-col :span="24">
-          <div class="title">
-            <span>物流信息</span>
-          </div>
-        </el-col>
         <el-col :span="24">
           <el-form-item label="快递单号：" prop="expressNo">
             <el-input v-model="ruleForm.expressNo"></el-input>
@@ -72,13 +64,6 @@
           <el-form-item label="物流公司：">
             <span>{{ruleForm.expressCompanys}}</span>
           </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row v-if="stepActive==2">
-        <el-col :span="24">
-          <div class="title">
-            <span>物流信息</span>
-          </div>
         </el-col>
         <el-col :span="24">
           <el-form-item label="快递单号：">
@@ -140,38 +125,16 @@
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row v-if="stepActive==1">
-        <el-col :span="24">
-          <div class="title">
-            <span>指定仓库/物流公司</span>
-          </div>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="仓库：">
-            <span>{{getStorehouseName()}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="物流公司：">
-            <span>{{ruleForm.expressCompanys}}</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
       <el-row>
         <el-col :span="24">
-          <div class="buttons" v-if="stepActive==0">
-            <el-button type="primary" @click="submitForm" size="small">确定</el-button>
-            <el-button type="success" size="small" @click="goNext">下一步</el-button>
+          <div class="buttons" v-if="stepActive ==0">
+            <el-button type="primary" @click="submitForm" size="small">确认</el-button>
+            <el-button type="error" @click="handleDelete" size="small">驳回</el-button>
             <el-button type="info" size="small" @click="close">返回</el-button>
           </div>
-          <div class="buttons" v-if="stepActive==1">
-            <el-button type="success" @click="goLast" size="small">上一步</el-button>
-            <el-button type="primary" @click="submitForm" size="small">确定</el-button>
-            <el-button type="info" size="small" @click="close">返回</el-button>
-          </div>
-          <div class="buttons" v-if="stepActive==2">
+          <div class="buttons" v-else>
             <el-button type="warning" size="small" @click="confirmTo" v-if="!receive">确认到货</el-button>
-            <el-button type="success" size="small" @click="confirmTo" disabled v-else>已确认到货</el-button>
+            <el-button type="success" size="small" disabled v-else>已确认到货</el-button>
             <el-button type="info" size="small" @click="close">返回</el-button>
           </div>
         </el-col>
@@ -217,6 +180,28 @@ export default {
     this.getDetail()
   },
   methods: {
+    handleDelete() {
+      this.$prompt('是否确认驳回该出库单', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请添加备注信息'
+      })
+        .then(async ({ value }) => {
+          const url = '/innobeautywms/shippingOrder/delete'
+          let params = {
+            id: this.id,
+            closeReason: value
+          }
+          let res = await this.util.post(url, params)
+          if (res.data.status == 0) {
+            this.$message.success('操作成功')
+            setTimeout(() => {
+              this.close()
+            }, 1000)
+          }
+        })
+        .catch(() => {})
+    },
     async confirmTo() {
       const url = `/innobeautywms/shippingOrder/acceptance/${this.id}`
       let res = await this.util.get(url)
@@ -269,12 +254,10 @@ export default {
         if (date.receive) {
           this.receive = date.receive
         }
-        if (!this.ruleForm.storehouseId) {
+        if (!this.ruleForm.expressNo) {
           this.stepActive = 0
-        } else if (!this.ruleForm.expressNo) {
-          this.stepActive = 1
         } else {
-          this.stepActive = 2
+          this.stepActive = 1
         }
       }
     },
@@ -287,10 +270,7 @@ export default {
           const url = `/innobeautywms/shippingOrder`
           let id = this.id
           let { storehouseId, expressCompanys, expressNo } = this.ruleForm
-          let params = { id, storehouseId, expressCompanys }
-          if (this.stepActive == 1) {
-            params.expressNo = expressNo
-          }
+          let params = { id, storehouseId, expressCompanys, expressNo }
           this.util.post(url, params).then(res => {
             let { status } = res.data
             if (status == 0) {

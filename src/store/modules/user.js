@@ -6,7 +6,8 @@ const state = {
         status: '',
         userId: '',
         userName: '',
-        userType: ''
+        userType: '',
+        headImgUrl: ''
     },
 }
 // getters

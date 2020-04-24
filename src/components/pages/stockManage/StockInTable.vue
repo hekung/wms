@@ -1,6 +1,6 @@
 <template>
   <div class="in-manage">
-    <el-row style="position:relative;height:40px;">
+    <el-row style="position:relative;height:50px;">
       <el-button type="warning" size="medium" @click="addNew">新建入库单</el-button>
       <el-form :model="form" :inline="true" class="form">
         <el-form-item label="入库单筛选：">
@@ -41,6 +41,25 @@
         </el-form-item>
       </el-form>
     </el-row>
+    <el-row>
+      <el-col :span="24" style="position:relative;">
+        <el-select placeholder="入库编号" size="mini" value="1" style="width:100px;">
+          <el-option label="入库编号" value="1" size="mini"></el-option>
+        </el-select>
+        <el-input
+          v-model="orderNo"
+          size="mini"
+          style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
+        ></el-input>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          @click="blurSearch"
+          size="mini"
+          style="position:absolute;;margin-left:190px;"
+        ></el-button>
+      </el-col>
+    </el-row>
     <el-row class="table-content">
       <el-table
         :data="entryOrderList"
@@ -50,11 +69,15 @@
         @sort-change="sortChange"
       >
         <el-table-column prop="createTime" label="创建日期" align="center" sortable="custom">
-          <template slot-scope="scope">
+          <!-- <template slot-scope="scope">
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
+          </template>-->
+        </el-table-column>
+        <el-table-column prop="category" label="入库类型" align="center">
+          <template slot-scope="scope">
+            <span>{{scope.row.orderStatus=='待入库'?'':scope.row.category}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="category" label="入库类型" align="center"></el-table-column>
         <el-table-column prop="rate" label="入库编号" align="center">
           <template slot-scope="scope">
             <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
@@ -84,16 +107,19 @@
     </el-row>
     <create-stock-in v-if="showCreatePage" @close="closeCreatePage"></create-stock-in>
     <stock-into-info v-if="showInfoPage" :id="detailId" @close="closeInfoPage"></stock-into-info>
+    <stock-into-draft v-if="showDraftPage" :id="detailId" @close="closeDraftPage"></stock-into-draft>
   </div>
 </template>
 
 <script>
 import CreateStockIn from './CreateStockIn'
 import StockIntoInfo from './StockIntoInfo'
+import StockIntoDraft from './StockIntoDraft'
 export default {
   components: {
     CreateStockIn,
-    StockIntoInfo
+    StockIntoInfo,
+    StockIntoDraft
   },
   data() {
     return {
@@ -102,9 +128,12 @@ export default {
       pageSize: 10,
       totalRows: 0,
       detailId: '',
+      timeOrder: '',
       showCreatePage: false,
       showInfoPage: false,
+      showDraftPage: false,
       entryOrderList: [],
+      orderNo: '',
       stockList: [{ id: undefined, name: '全部' }],
       categoryList: [
         { id: undefined, name: '全部' },
@@ -144,7 +173,6 @@ export default {
           }
         ]
       },
-      type: '2',
       form: {
         datePickVal: '',
         storeHouseId: '',
@@ -175,7 +203,11 @@ export default {
       }
     },
     lookDetail(rowData) {
-      this.showInfoPage = true
+      if (rowData.orderStatus == '待入库') {
+        this.showDraftPage = true
+      } else {
+        this.showInfoPage = true
+      }
       this.detailId = rowData.id
     },
     closeAndGetInfo(id) {
@@ -191,7 +223,16 @@ export default {
       this.showInfoPage = false
       this.search()
     },
-    sortChange() {},
+    closeDraftPage() {
+      this.showDraftPage = false
+      this.search()
+    },
+    sortChange({ column, prop, order }) {
+      let val = order == 'descending' ? 1 : 0
+      this.timeOrder = val
+      this.currentPage = 1
+      this.search()
+    },
     addNew() {
       this.showCreatePage = true
     },
@@ -230,22 +271,34 @@ export default {
         })
         .catch(() => {})
     },
-    async search() {
-      const url = '/innobeautywms/entryOrder/list'
+    blurSearch() {
+      this.search({ blur: true })
+    },
+    async search(addition) {
+      let url = '/innobeautywms/entryOrder/list'
       let params = {
-        type: this.type,
         pageNo: this.currentPage,
         pageSize: this.pageSize
+      }
+      if (this.timeOrder === 0 || this.timeOrder === 1) {
+        params.timeOrder = this.timeOrder
+      }
+      if (addition && addition.blur && this.orderNo) {
+        params.orderNo = this.orderNo
+        url = '/innobeautywms/entryOrder/list/search'
       }
       if (this.form.datePickVal && this.form.datePickVal.length) {
         let startTime = this.form.datePickVal[0].getTime()
         let endTime = this.form.datePickVal[1].getTime() + 24 * 60 * 60 * 1000
         Object.assign(params, { startTime, endTime })
       }
-      if (this.form.storeHouseId) {
+      if (
+        this.form.storeHouseId !== '' &&
+        this.form.storeHouseId !== undefined
+      ) {
         params.storeHouseId = this.form.storeHouseId
       }
-      if (this.form.category) {
+      if (this.form.category !== '' && this.form.category !== undefined) {
         params.category = this.form.category
       }
       try {
@@ -281,7 +334,7 @@ export default {
     width: 100%;
   }
   .table-content {
-    height: calc(~'100% - 100px');
+    height: calc(~'100% - 140px');
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 50px');
       overflow: auto;

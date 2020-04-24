@@ -66,10 +66,11 @@ export default {
             // this.util.setCookie('username', this.loginForm.username)
             // this.util.setCookie('password', this.loginForm.password)
             this.$router.push('/index').catch(() => {})
+            localStorage.setItem('userData', JSON.stringify(res.data.date))
           } else {
             this.$message({
               type: 'error',
-              message: res.data.errMsg
+              message: '账号密码错误'
             })
           }
         })

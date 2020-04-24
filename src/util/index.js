@@ -45,6 +45,14 @@ export default class Util {
     post(url, params) {
         return axios.post(url, params)
     }
+    postDownLoadFile(url, params) {
+        return axios({
+            method: 'post',
+            url,
+            data: params,
+            responseType: 'blob'
+        })
+    }
     // delete请求
     requestDelete(url, params) {
         return axios.delete(url, params)

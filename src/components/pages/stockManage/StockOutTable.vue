@@ -1,6 +1,6 @@
 <template>
   <div class="out-manage">
-    <el-row style="position:relative;height:40px;">
+    <el-row style="position:relative;height:50px;">
       <el-form :model="form" :inline="true">
         <el-form-item label="下单日期：">
           <el-date-picker
@@ -28,6 +28,25 @@
       </el-form>
     </el-row>
     <el-row>
+      <el-col :span="24" style="position:relative;">
+        <el-select placeholder="出库编号" size="mini" value="1" style="width:100px;">
+          <el-option label="出库编号" value="1" size="mini"></el-option>
+        </el-select>
+        <el-input
+          v-model="orderNo"
+          size="mini"
+          style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
+        ></el-input>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          @click="blurSearch"
+          size="mini"
+          style="position:absolute;;margin-left:190px;"
+        ></el-button>
+      </el-col>
+    </el-row>
+    <el-row>
       <el-tabs v-model="type">
         <el-tab-pane label="全部出库单" name="2"></el-tab-pane>
         <el-tab-pane label="待出库" name="0"></el-tab-pane>
@@ -42,10 +61,10 @@
         style="height:100%;"
         @sort-change="sortChange"
       >
-        <el-table-column prop="createTime" label="订单日期">
-          <template slot-scope="scope">
+        <el-table-column prop="createTime" label="订单日期" sortable="custom">
+          <!-- <template slot-scope="scope">
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
-          </template>
+          </template>-->
         </el-table-column>
         <el-table-column prop="orderNo" label="订单编号">
           <template slot-scope="scope">
@@ -70,17 +89,6 @@
         <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
         <el-table-column prop="expressNo" label="快递单号"></el-table-column>
         <el-table-column prop="orderStatus" label="出库状态"></el-table-column>
-        <el-table-column label="操作" align="center" v-if="type=='0'">
-          <template slot-scope="scope">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="handleDelete(scope.row)"
-              :disabled="scope.row.status==0"
-            ></el-button>
-          </template>
-        </el-table-column>
       </el-table>
     </el-row>
     <el-row>
@@ -112,6 +120,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       totalRows: 0,
+      orderNo: '',
       timeOrder: '',
       showDetail: false,
       stockOutList: [],
@@ -211,9 +220,8 @@ export default {
       this.search()
     },
     sortChange({ column, prop, order }) {
-      if (prop == 'createTime') {
-        this.timeOrder = val
-      }
+      let val = order == 'descending' ? 1 : 0
+      this.timeOrder = val
       this.currentPage = 1
       this.search()
     },
@@ -239,19 +247,29 @@ export default {
         })
         .catch(() => {})
     },
-    async search() {
-      const url = '/innobeautywms/shippingOrder/list'
+    blurSearch() {
+      this.search({ blur: true })
+    },
+    async search(addition) {
+      let url = '/innobeautywms/shippingOrder/list'
       let params = {
         type: this.type,
         pageNo: this.currentPage,
         pageSize: this.pageSize
+      }
+      if (this.timeOrder === 0 || this.timeOrder === 1) {
+        params.timeOrder = this.timeOrder
+      }
+      if (addition && addition.blur && this.orderNo) {
+        params.orderNo = this.orderNo
+        url = '/innobeautywms/shippingOrder/list/search'
       }
       if (this.form.datePickVal && this.form.datePickVal.length) {
         let startTime = this.form.datePickVal[0].getTime()
         let endTime = this.form.datePickVal[1].getTime() + 24 * 60 * 60 * 1000
         Object.assign(params, { startTime, endTime })
       }
-      if (this.form.stockId !== '') {
+      if (this.form.stockId !== '' && this.form.stockId !== undefined) {
         params.storeHouseId = this.form.stockId
       }
       try {

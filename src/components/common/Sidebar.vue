@@ -7,6 +7,7 @@
       background-color="#242f42"
       text-color="#bfcbd9"
       active-text-color="#20a0ff"
+      @select="select"
       unique-opened
       router
     >
@@ -78,6 +79,10 @@ export default {
             {
               index: 'stockOutTable',
               title: '出库列表'
+            },
+            {
+              index: 'stockDaily',
+              title: '库存日记账'
             }
           ]
         },
@@ -115,6 +120,13 @@ export default {
   watch: {
     onRoutes(val) {
       bus.$emit('router-change', val)
+    }
+  },
+  methods: {
+    select(index) {
+      if (index === this.onRoutes) {
+        window.location.reload()
+      }
     }
   }
 }

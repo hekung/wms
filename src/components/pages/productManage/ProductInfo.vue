@@ -24,46 +24,17 @@
       <el-form-item label="产品体积(ml)：" prop="volume">
         <el-input v-model="ruleForm.volume" size="small"></el-input>
       </el-form-item>
-
       <div class="title">
         <span>仓储信息</span>
       </div>
       <el-col :span="24">
-        <el-form-item label="所在仓库：" v-if="!id">
-          <el-select v-model="stockId" placeholder="请选择" size="small">
-            <el-option
-              v-for="(item) in storeHouseList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-          <el-button @click="addStoreInfo" type="primary" size="small" style="margin-left:20px;">添加</el-button>
-        </el-form-item>
-      </el-col>
-      <el-col :span="24">
         <el-form-item label="库存明细：">
           <el-table :data="ruleForm.productStockPileFormList" style="width:420px;">
             <el-table-column prop="name" label="所在仓库"></el-table-column>
-            <el-table-column prop="quantity" label="数量">
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.quantity" size="mini" v-if="!id"></el-input>
-                <span v-else>{{scope.row.quantity}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" v-if="!id">
-              <template slot-scope="scope">
-                <el-button
-                  type="text"
-                  icon="el-icon-delete"
-                  @click="handleDelete(scope.$index, scope.row)"
-                >删除</el-button>
-              </template>
-            </el-table-column>
+            <el-table-column prop="quantity" label="数量"></el-table-column>
           </el-table>
         </el-form-item>
       </el-col>
-
       <el-col :span="24">
         <div class="buttons">
           <el-button type="primary" @click="submitForm">保存</el-button>
@@ -187,13 +158,9 @@ export default {
 
       let res = await this.util.post(url, params)
       if (res.data.status == 0) {
-        if (this.id) {
-          this.$message.success('修改产品信息成功')
-        } else {
-          this.$message.success('创建产品成功')
-        }
+        this.$message.success('操作成功')
         setTimeout(() => {
-          this.$router.push('/index')
+          this.cancel()
         }, 1000)
       }
     },

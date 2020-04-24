@@ -19,8 +19,7 @@ let loading
 function startLoading() {
   loading = Loading.service({
     lock: true,
-    text: '数据请求中……',
-    background: 'rgba(0, 0, 0, 0.7)'
+    background: 'transparent'
   })
 }
 function endLoading() {

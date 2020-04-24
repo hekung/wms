@@ -5,86 +5,55 @@
       <div class="crumb">
         <span class="parent" @click="close">入库列表</span>
         <span class="el-breadcrumb__separator">/</span>
-        <span class="current">入库单详情</span>
+        <span class="current">入库单信息</span>
       </div>
       <i class="close-btn el-icon el-icon-close" @click="close"></i>
     </div>
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
+    <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
       <el-row>
         <el-col :span="24">
-          <el-form-item label="入库仓：" prop="storehouseId">
-            <el-select v-model="ruleForm.storehouseId" placeholder="请选择入库仓" size="small">
-              <el-option
-                v-for="(item) in storeHouseList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
+          <el-form-item label="入库编号：">
+            <span>{{orderNo}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="入库类型：" prop="category">
-            <el-select v-model="ruleForm.category" placeholder="请选择" size="small">
-              <el-option
-                v-for="(item) in categoryList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
+          <el-form-item label="关联订单编号：" v-if="saleOrderNo">
+            <span>{{saleOrderNo}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="入库产品：">
-            <el-select v-model="selectProductId" placeholder="请选择" size="small">
-              <el-option
-                v-for="(item) in productList"
-                :key="item.id"
-                :label="item.productName"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-            <el-button @click="addProduct" type="primary" size="small" style="margin-left:20px;">添加</el-button>
+          <el-form-item label="入库仓：">
+            <span>{{storeHouseNameRes}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="产品内容：" prop="commodityItemSaveFormList">
+          <el-form-item label="入库类型：">
+            <span>{{categoryMap[ruleForm.category]||''}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="产品内容：">
             <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
               <el-table-column prop="productName" label="产品名称"></el-table-column>
               <el-table-column prop="productNo" label="产品编码"></el-table-column>
-              <el-table-column prop="stock" label="当前库存">
+              <!-- <el-table-column prop="stock" label="当前库存">
                 <template slot-scope="scope">
                   <div>{{getStokCanUse(scope.row.productStockPileInfo)}}</div>
                 </template>
-              </el-table-column>
-              <el-table-column prop="quantity" label="数量">
-                <template slot-scope="scope">
-                  <el-input v-model="scope.row.quantity"></el-input>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作">
-                <template slot-scope="scope">
-                  <el-button
-                    type="text"
-                    icon="el-icon-delete"
-                    @click="handleDelete(scope.$index, scope.row)"
-                  >删除</el-button>
-                </template>
-              </el-table-column>
+              </el-table-column>-->
+              <el-table-column prop="quantity" label="数量"></el-table-column>
             </el-table>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="备注：">
-            <el-input v-model="ruleForm.remark"></el-input>
+            <span>{{ruleForm.remark}}</span>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="24">
           <div class="buttons">
-            <el-button type="primary" @click="submitForm" size="small">确认</el-button>
             <el-button type="danger" @click="deleteThis" size="small">删除</el-button>
             <el-button type="info" size="small" @click="close">返回</el-button>
           </div>
@@ -115,8 +84,11 @@ export default {
       ],
       categoryMap: {
         0: '出厂入库',
-        1: '退货入库'
+        1: '退货入库',
+        2: '移货入库'
       },
+      saleOrderNo: '',
+      orderNo: '',
       selectProductId: '',
       productList: [],
       originalProductList: [],
@@ -125,16 +97,6 @@ export default {
         remark: '',
         storehouseId: '',
         category: ''
-      },
-      rules: {
-        storehouseId: [{ required: true, message: '请选择仓库' }],
-        commodityItemSaveFormList: [
-          {
-            validator: validateProducts,
-            required: true
-          }
-        ],
-        category: [{ required: true, message: '请选择入库类型' }]
       }
     }
   },
@@ -184,6 +146,8 @@ export default {
         this.originalProductList = [...date.entryOrderProductWithStockVoList]
         this.ruleForm.category = date.category
         this.ruleForm.storehouseId = date.storehouseId || ''
+        this.saleOrderNo = date.saleOrderNo
+        this.orderNo = date.orderNo
       }
     },
     async submitForm() {
@@ -283,6 +247,18 @@ export default {
         } else {
           return 0
         }
+      } else {
+        return ''
+      }
+    }
+  },
+  computed: {
+    storeHouseNameRes() {
+      let item = this.storeHouseList.find(
+        e => e.id === this.ruleForm.storehouseId
+      )
+      if (item) {
+        return item.name
       } else {
         return ''
       }

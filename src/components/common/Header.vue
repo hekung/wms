@@ -25,12 +25,12 @@
         </div>-->
         <!-- 用户头像 -->
         <div class="user-avator">
-          <img src="../../assets/img/img.jpg" />
+          <img :src="userInfo.headImgUrl||''" />
         </div>
         <!-- 用户名下拉菜单 -->
         <el-dropdown class="user-name" trigger="click" @command="handleCommand">
           <span class="el-dropdown-link">
-            {{userData?userData.userName:''}}
+            {{userInfo?userInfo.name:''}}
             <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -50,7 +50,8 @@ export default {
       collapse: false,
       fullscreen: false,
       name: 'linxin',
-      message: 2
+      message: 2,
+      userInfo: JSON.parse(localStorage.getItem('userData'))
     }
   },
   computed: mapState({
@@ -60,13 +61,9 @@ export default {
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == 'loginout') {
-        this.util.removeCookie('username')
-        this.util.removeCookie('password')
-        // this.$store.commit('user/setUserData', {})
-        // this.$router.push('/login')
         let url = '/innobeautywms/auth/logout'
         this.util.get(url).then(res => {
-          if (res.data.success) {
+          if (res.data.status == 0) {
             location.reload()
           } else {
             this.$message.error('系统错误')
