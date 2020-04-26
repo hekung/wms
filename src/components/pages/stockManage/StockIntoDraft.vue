@@ -175,20 +175,27 @@ export default {
         .catch(() => {})
     },
     async createStockIn() {
-      const url = '/innobeautywms/entryOrder/return/submit'
-      let res = await this.util.post(url, {
-        id: this.id,
-        remark: this.ruleForm.remark
+      this.$prompt('是否确认入库', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请添加审核意见'
+      }).then(async ({ value }) => {
+        const url = '/innobeautywms/entryOrder/return/submit'
+        let res = await this.util.post(url, {
+          id: this.id,
+          remark: this.ruleForm.remark,
+          message: value
+        })
+        let { status } = res.data
+        if (status === 0) {
+          this.$message.success('操作成功')
+          setTimeout(() => {
+            this.$emit('close')
+          }, 1000)
+        } else {
+          this.$message.error(res.data.msg)
+        }
       })
-      let { status } = res.data
-      if (status === 0) {
-        this.$message.success('操作成功')
-        setTimeout(() => {
-          this.$emit('close')
-        }, 1000)
-      } else {
-        this.$message.error(res.data.msg)
-      }
     },
     cancel() {
       this.$emit('close')
