@@ -11,6 +11,9 @@
     </div>
     <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
       <el-row>
+        <el-form-item label="操作人：" v-if="ruleForm.category==1">
+          <span>{{userName}}</span>
+        </el-form-item>
         <el-col :span="24">
           <el-form-item label="入库编号：">
             <span>{{orderNo}}</span>
@@ -36,6 +39,7 @@
             <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
               <el-table-column prop="productName" label="产品名称"></el-table-column>
               <el-table-column prop="productNo" label="产品编码"></el-table-column>
+              <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
               <!-- <el-table-column prop="stock" label="当前库存">
                 <template slot-scope="scope">
                   <div>{{getStokCanUse(scope.row.productStockPileInfo)}}</div>
@@ -68,13 +72,6 @@ export default {
     id: Number
   },
   data() {
-    const validateProducts = (rule, value, callback) => {
-      if (!this.ruleForm.commodityItemSaveFormList.length) {
-        callback(new Error('请选择产品'))
-      } else {
-        callback()
-      }
-    }
     return {
       storeHouseList: [],
       categoryList: [
@@ -82,6 +79,7 @@ export default {
         { id: 1, name: '退货入库' },
         { id: 2, name: '移货入库' }
       ],
+      userName: '',
       categoryMap: {
         0: '出厂入库',
         1: '退货入库',
@@ -148,6 +146,7 @@ export default {
         this.ruleForm.storehouseId = date.storehouseId || ''
         this.saleOrderNo = date.saleOrderNo
         this.orderNo = date.orderNo
+        this.userName = date.userName
       }
     },
     async submitForm() {

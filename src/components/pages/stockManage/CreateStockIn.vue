@@ -39,6 +39,7 @@
         <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
           <el-table-column prop="productName" label="内容名称"></el-table-column>
           <el-table-column prop="productNo" label="内容编码"></el-table-column>
+          <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
           <el-table-column prop="quantity" label="数量">
             <template slot-scope="scope">
               <el-input v-model="scope.row.quantity"></el-input>

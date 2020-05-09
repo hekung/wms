@@ -9,68 +9,10 @@
       <i class="close-btn el-icon el-icon-close" @click="close"></i>
     </div>
     <el-steps :active="stepActive" finish-status="success" simple>
-      <el-step title="指定仓库/填写物流"></el-step>
+      <el-step title="填写物流"></el-step>
       <el-step title="已出库"></el-step>
     </el-steps>
     <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
-      <el-row v-if="stepActive==0">
-        <el-col :span="24">
-          <div class="title">
-            <span>指定仓库/物流</span>
-          </div>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="选择仓库：" prop="storehouseId">
-            <el-radio-group v-model="ruleForm.storehouseId" size="small">
-              <el-radio v-for="item in storeHouseList" :key="item.id" :label="item.id">{{item.name}}</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="选择物流公司：">
-            <el-select
-              v-model="ruleForm.expressCompanys"
-              placeholder="请选择"
-              size="small"
-              prop="expressCompanys"
-            >
-              <el-option
-                v-for="(item) in expressCompanyList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.name"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="快递单号：" prop="expressNo">
-            <el-input v-model="ruleForm.expressNo"></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row v-else>
-        <el-col :span="24">
-          <div class="title">
-            <span>指定仓库/物流公司</span>
-          </div>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="仓库：">
-            <span>{{getStorehouseName()}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="物流公司：">
-            <span>{{ruleForm.expressCompanys}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="快递单号：">
-            <span>{{ruleForm.expressNo}}</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
       <el-row>
         <el-col :span="24">
           <div class="title">
@@ -78,22 +20,32 @@
           </div>
         </el-col>
         <el-col :span="24">
+          <el-form-item label="操作员：">
+            <span>{{ruleForm.userName}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
           <el-form-item label="订单编号：">
             <span>{{ruleForm.orderNo}}</span>
           </el-form-item>
+        </el-col>
+        <el-col :span="24">
           <el-form-item label="产品内容：">
             <el-table :data="ruleForm.productList" style="width:420px;">
               <el-table-column prop="productName" label="产品名称"></el-table-column>
               <el-table-column prop="productNo" label="产品编码"></el-table-column>
+              <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
               <el-table-column prop="quantity" label="数量"></el-table-column>
-              <el-table-column prop="stock" label="可用库存">
-                <template slot-scope="scope">
-                  <div>{{getStokCanUse(scope.row.stockPileList)}}</div>
-                </template>
-              </el-table-column>
             </el-table>
           </el-form-item>
         </el-col>
+        <el-col :span="24">
+          <el-form-item label="备注：">
+            <span>{{ruleForm.remark}}</span>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row>
         <el-col :span="24">
           <div class="title">
             <span>配送信息</span>
@@ -115,13 +67,28 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <div class="title">
-            <span>其他信息</span>
-          </div>
+          <el-form-item label="邮政编码：">
+            <span>{{ruleForm.postalCode}}</span>
+          </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="备注：">
-            <span>{{ruleForm.remark}}</span>
+          <el-form-item label="发货仓库：">
+            <span>{{getStorehouseName()}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="物流公司：">
+            <span>{{ruleForm.designatedLogistics}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" v-if="stepActive==0">
+          <el-form-item label="快递单号：" prop="expressNo">
+            <el-input v-model="ruleForm.expressNo"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" v-else>
+          <el-form-item label="快递单号：">
+            <span>{{ruleForm.expressNo}}</span>
           </el-form-item>
         </el-col>
       </el-row>
@@ -150,9 +117,12 @@ export default {
   data() {
     return {
       stepActive: 0,
-      expressCompanyList: [
-        { id: 1, name: '顺丰速递' },
-        { id: 2, name: '国际速递' }
+      expressCompanysList: [
+        { id: 0, name: 'JP佐川' },
+        { id: 1, name: 'JPEMS' },
+        { id: 2, name: 'HK圆通' },
+        { id: 3, name: '邮政小包' },
+        { id: 4, name: '顺丰' }
       ],
       receive: false,
       storeHouseList: [],
@@ -160,16 +130,17 @@ export default {
         productList: [],
         expressNo: '',
         receiverName: '',
+        postalCode: '',
         receiverMobile: '',
         receiverAddress: '',
         remark: '',
         orderNo: '',
         storehouseId: '',
-        expressCompanys: ''
+        storehouseName: '',
+        designatedLogistics: '',
+        userName: ''
       },
       rules: {
-        storehouseId: [{ required: true, message: '请选择仓库' }],
-        expressCompanys: [{ required: true, message: '请选择物流公司' }],
         expressNo: [
           { required: true, message: '请输入快递单号', trigger: 'blur' }
         ]
@@ -251,6 +222,9 @@ export default {
             this.ruleForm[key] = date[key]
           }
         }
+        this.ruleForm.designatedLogistics = this.expressCompanysList.find(
+          e => e.id == date.designatedLogistics
+        ).name
         if (date.receive) {
           this.receive = date.receive
         }
@@ -269,8 +243,8 @@ export default {
         if (valid) {
           const url = `/innobeautywms/shippingOrder`
           let id = this.id
-          let { storehouseId, expressCompanys, expressNo } = this.ruleForm
-          let params = { id, storehouseId, expressCompanys, expressNo }
+          let { expressNo } = this.ruleForm
+          let params = { id, expressNo }
           this.util.post(url, params).then(res => {
             let { status } = res.data
             if (status == 0) {
@@ -282,33 +256,6 @@ export default {
           })
         }
       })
-    },
-    goNext() {
-      this.$refs['ruleForm'].validate(valid => {
-        if (valid) {
-          const url = `/innobeautywms/shippingOrder`
-          let params
-          let id = this.id
-          let { storehouseId, expressCompanys, expressNo } = this.ruleForm
-          if (this.stepActive == 0) {
-            params = { id, storehouseId, expressCompanys }
-          } else {
-            params = { id, expressNo }
-          }
-          this.util.post(url, params).then(res => {
-            let { status } = res.data
-            if (status == 0) {
-              this.getDetail()
-            } else {
-              this.$message.error('请求错误，请联系技术人员')
-            }
-          })
-        }
-      })
-    },
-    goLast() {
-      let stepActive = this.stepActive
-      this.stepActive = stepActive - 1
     }
   }
 }

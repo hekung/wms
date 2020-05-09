@@ -61,7 +61,7 @@
         style="height:100%;"
         @sort-change="sortChange"
       >
-        <el-table-column prop="createTime" label="订单日期" sortable="custom">
+        <el-table-column prop="createTime" label="下单时间" sortable="custom">
           <!-- <template slot-scope="scope">
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
           </template>-->
@@ -71,23 +71,14 @@
             <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="下单人"></el-table-column>
-        <el-table-column prop="productInfoList" label="产品内容">
+        <el-table-column prop="userName" label="操作员"></el-table-column>
+        <!-- <el-table-column prop="productInfoList" label="产品内容">
           <template slot-scope="scope">
             <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
           </template>
-        </el-table-column>
-        <el-table-column prop="receiverAddress" label="收货信息">
-          <template slot-scope="scope">
-            <div>
-              <span>{{scope.row.receiverName}}-{{scope.row.receiverMobile}}</span>
-              <p>{{scope.row.receiverAddress}}</p>
-            </div>
-          </template>
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
         <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
-        <el-table-column prop="expressNo" label="快递单号"></el-table-column>
         <el-table-column prop="orderStatus" label="出库状态"></el-table-column>
       </el-table>
     </el-row>

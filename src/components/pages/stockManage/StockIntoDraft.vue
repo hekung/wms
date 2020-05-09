@@ -12,6 +12,9 @@
       <div class="title">
         <span>基本信息</span>
       </div>
+      <el-form-item label="操作人：" v-if="categoryName=='退货入库'">
+        <span>{{userName}}</span>
+      </el-form-item>
       <el-form-item label="入库编号：">
         <span>{{orderNo}}</span>
       </el-form-item>
@@ -28,6 +31,7 @@
         <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
           <el-table-column prop="productName" label="内容名称"></el-table-column>
           <el-table-column prop="productNo" label="内容编码"></el-table-column>
+          <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
           <el-table-column prop="quantity" label="数量"></el-table-column>
         </el-table>
       </el-form-item>
@@ -48,15 +52,7 @@ export default {
     id: Number
   },
   data() {
-    const validateProducts = (rule, value, callback) => {
-      if (!this.ruleForm.commodityItemSaveFormList.length) {
-        callback(new Error('请选择产品'))
-      } else {
-        callback()
-      }
-    }
     return {
-      selectProductId: '',
       productList: [],
       storeHouseList: [],
       saleOrderNo: '',
@@ -68,6 +64,7 @@ export default {
       orderNo: '',
       sotoreHouseName: '',
       categoryName: '',
+      userName: '',
       ruleForm: {
         commodityItemSaveFormList: [],
         category: '',
@@ -78,22 +75,9 @@ export default {
   },
   created() {
     this.getproductList()
-    // this.getStockList()
     this.getDetail()
   },
   methods: {
-    async getStockList() {
-      const url = `/innobeautywms/storehouseVo`
-      try {
-        let res = await this.util.get(url)
-        let { status, date } = res.data
-        if (status == 0) {
-          this.storeHouseList = date
-        }
-      } catch (error) {
-        return Promise.reject(error)
-      }
-    },
     async getDetail() {
       const url = ` /innobeautywms/entryOrder/${this.id}`
       let res = await this.util.get(url)
@@ -111,6 +95,7 @@ export default {
           this.sotoreHouseName = stockItem.name
         }
         this.orderNo = date.orderNo
+        this.userName = date.userName
         let categoryItem = this.categoryList.find(e => e.id == date.category)
         if (categoryItem) {
           this.categoryName = categoryItem.name
@@ -127,24 +112,6 @@ export default {
     },
     handleDelete(index) {
       this.ruleForm.commodityItemSaveFormList.splice(index, 1)
-    },
-    addProduct() {
-      let index = this.ruleForm.commodityItemSaveFormList.findIndex(
-        e => e.productId == this.selectProductId
-      )
-      if (index != -1) {
-        return
-      }
-      let item = this.productList.find(e => e.id == this.selectProductId)
-      if (!item) {
-        this.$message.error('请先选择产品')
-        return
-      }
-      item = Object.assign({}, item)
-      item.productId = item.id
-      delete item.id
-      item.quantity = ''
-      this.ruleForm.commodityItemSaveFormList.push(item)
     },
     submitForm() {
       this.createStockIn()
