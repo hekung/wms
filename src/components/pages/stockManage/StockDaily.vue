@@ -14,8 +14,15 @@
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
             size="mini"
+            @change="pickChange"
           ></el-date-picker>
-          <el-select v-model="form.stockId" placeholder="出库仓" size="mini" style="margin:0 12px;">
+          <el-select
+            v-model="form.stockId"
+            placeholder="仓库"
+            size="mini"
+            style="margin:0 12px;"
+            @change="stockChange"
+          >
             <el-option
               v-for="(item) in stockList"
               :key="item.id"
@@ -23,41 +30,52 @@
               :value="item.id"
             ></el-option>
           </el-select>
-          <el-button size="mini" type="primary" @click="screening">筛选</el-button>
+          <el-select
+            v-model="form.productId"
+            placeholder="产品名称"
+            size="mini"
+            style="margin:0 12px;"
+            @change="productChange"
+          >
+            <el-option
+              v-for="(item) in productList"
+              :key="item.id"
+              :label="item.productName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
           <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
+          <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
         </el-form-item>
       </el-form>
     </el-row>
     <el-row class="table-content">
-      <el-table :data="dataList" stripe ref="multipleTable" style="height:100%;width:100%;">
-        <el-table-column prop="creatTime" label="日期" fixed align="center" width="120">
-          <!-- <template slot-scope="scope">
-            <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD')}}</span>
-          </template>-->
-        </el-table-column>
-        <el-table-column
-          v-for="(value,index) in productNameList"
-          :key="index"
-          :label="value"
-          align="center"
-        >
-          <el-table-column label="入库数" align="center">
-            <template slot-scope="scope">
-              <span>{{scope.row.map[value]?scope.row.map[value].inStock:0}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="出库数" align="center">
-            <template slot-scope="scope">
-              <span>{{scope.row.map[value]?scope.row.map[value].outStock:0}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="库存" align="center">
-            <template slot-scope="scope">
-              <span>{{scope.row.map[value]?scope.row.map[value].quantity:0}}</span>
-            </template>
-          </el-table-column>
+      <el-table
+        :data="dataList"
+        stripe
+        ref="multipleTable"
+        style="height:100%;width:100%;"
+        v-if="!form.productId"
+      >
+        <el-table-column :label="storehouseName" align="center">
+          <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
+          <el-table-column label="SKU编码" prop="skuNo"></el-table-column>
+          <el-table-column label="产品名称" prop="productName"></el-table-column>
+          <el-table-column label="入库" prop="inStock"></el-table-column>
+          <el-table-column label="出库" prop="outStock"></el-table-column>
+          <el-table-column label="库存" prop="quantity"></el-table-column>
         </el-table-column>
       </el-table>
+      <div v-else>
+        <el-table ref="multipleTable" :data="dataList">
+          <el-table-column label="仓库" prop="storeHouseName"></el-table-column>
+          <el-table-column label="SKU编码" prop="skuNo"></el-table-column>z
+          <el-table-column label="产品名称" prop="productName"></el-table-column>z
+          <el-table-column label="入库" prop="inStock"></el-table-column>
+          <el-table-column label="出库" prop="outStock"></el-table-column>
+          <el-table-column label="库存" prop="quantity"></el-table-column>
+        </el-table>
+      </div>
     </el-row>
     <!-- <el-row>
       <div style="margin-top:20px;float:right;">
@@ -85,8 +103,9 @@ export default {
       totalRows: 0,
       timeOrder: '',
       dataList: [],
-      productNameList: [],
+      productList: [],
       stockList: [{ id: undefined, name: '全部' }],
+      storehouseName: '',
       pickerOptions: {
         shortcuts: [
           {
@@ -126,16 +145,39 @@ export default {
     }
   },
   created() {
-    this.setDeafultTimeRange()
-    this.search()
+    // this.setDeafultTimeRange()
     this.getStockList()
+    this.getProductList()
+    this.search()
   },
-  computed: {},
   methods: {
+    clearScreen() {
+      for (const key in this.form) {
+        if (key !== 'datePickVal') {
+          this.form[key] = ''
+        } else {
+          this.form[key] = []
+        }
+      }
+      this.screening()
+    },
+    stockChange() {
+      this.form.productId = ''
+      this.screening()
+    },
+    productChange() {
+      this.form.stockId = ''
+      this.screening()
+    },
     setDeafultTimeRange() {
-      const end = new Date()
-      const start = new Date()
-      start.setTime(start.getTime() - 3600 * 1000 * 24 * 10)
+      const end = new Date(
+        new Date(new Date().toLocaleDateString()).getTime() +
+          24 * 60 * 60 * 1000 -
+          1
+      ) // 获取当天23：59：59
+      const start = new Date(
+        new Date(new Date().toLocaleDateString()).getTime()
+      ) //获取当天0点
       this.form.datePickVal = [start, end]
     },
     async getStockList() {
@@ -151,16 +193,38 @@ export default {
         return Promise.reject(error)
       }
     },
+    async getProductList() {
+      const url = `/innobeautywms/product/select/list`
+      try {
+        let res = await this.util.get(url)
+        let { status, date } = res.data
+        if (status == 0) {
+          date.unshift({ id: undefined, productName: '全部' })
+          this.productList = date
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
     exportOut() {
-      const url = '/innobeautywms/inventoryJournal/excel/export'
+      let url = '/innobeautywms/inventoryStatistic/excel/export'
+      if (this.form.productId) {
+        url = '/innobeautywms/inventoryStatistic/product/excel/export'
+      }
       let params = {}
       if (this.form.datePickVal && this.form.datePickVal.length) {
         let startTime = this.form.datePickVal[0].getTime()
-        let endTime = this.form.datePickVal[1].getTime() + 24 * 60 * 60 * 1000
+        let endTime =
+          new Date(this.form.datePickVal[1].toLocaleDateString()).getTime() +
+          24 * 60 * 60 * 1000 -
+          1
         Object.assign(params, { startTime, endTime })
       }
-      if (this.form.stockId !== '') {
+      if (this.form.stockId !== '' && this.form.stockId !== undefined) {
         params.storeHouseId = this.form.stockId
+      }
+      if (this.form.productId !== '' && this.form.productId !== undefined) {
+        params.productId = this.form.productId
       }
       this.util.postDownLoadFile(url, params).then(res => {
         // let blob = new Blob([res.data], {
@@ -168,9 +232,19 @@ export default {
         // })
         // let objUrl = URL.createObjectURL(res.data)
         // window.location.href = objUrl
+        if (res.data.type === 'application/json') {
+          let reader = new FileReader()
+          reader.readAsText(res.data, 'utf-8')
+          reader.onload = () => {
+            // console.log('----', JSON.parse(reader.result))
+            const result = JSON.parse(reader.result)
+            this.$message.error(result.msg)
+          }
+          return
+        }
         const content = res.data
         const blob = new Blob([content])
-        const fileName = '库存日记账.xls'
+        const fileName = '库存统计.xls'
         if ('download' in document.createElement('a')) {
           // 非IE下载
           const elink = document.createElement('a')
@@ -207,24 +281,46 @@ export default {
       this.currentPage = 1
       this.search()
     },
+    pickChange() {
+      this.screening()
+    },
     async search() {
-      const url = '/innobeautywms/inventory/report'
+      let url = '/innobeautywms/inventory/statistics'
+      if (this.form.productId) {
+        url = '/innobeautywms/inventory/product/statistics'
+      }
+
       let params = {}
       if (this.form.datePickVal && this.form.datePickVal.length) {
         let startTime = this.form.datePickVal[0].getTime()
-        let endTime = this.form.datePickVal[1].getTime() + 24 * 60 * 60 * 1000
+        let endTime =
+          new Date(this.form.datePickVal[1].toLocaleDateString()).getTime() +
+          24 * 60 * 60 * 1000 -
+          1
         Object.assign(params, { startTime, endTime })
       }
-      if (this.form.stockId !== '') {
+      if (this.form.stockId !== '' && this.form.stockId !== undefined) {
         params.storeHouseId = this.form.stockId
+      }
+      if (this.form.productId !== '' && this.form.productId !== undefined) {
+        params.productId = this.form.productId
       }
       try {
         let res = await this.util.post(url, params)
         let { status, date } = res.data
         if (status == 0) {
-          this.dataList = date.inventoryReportVoList
-          this.productNameList = date.productNoAndNameList
-          this.totalRows = this.dataList.length
+          // 如果是选择了商品，那就需要调整返回
+          if (this.form.productId) {
+            let allObj = date.find(e => e.storeHouseName === '全部')
+            let allObjIndex = date.findIndex(e => e.storeHouseName === '全部')
+            date.splice(allObjIndex, 1)
+            date = [allObj, ...date]
+          }
+          this.dataList = date
+          let storehouseObj = this.stockList.find(
+            e => e.id === this.form.stockId
+          )
+          this.storehouseName = storehouseObj ? storehouseObj.name : '全部'
         }
       } catch (error) {
         return Promise.reject(error)
@@ -239,6 +335,7 @@ export default {
   height: 100%;
   padding: 40px;
   position: relative;
+  overflow: hidden;
   /deep/ .el-range-editor--mini .el-range-separator {
     width: 30px;
   }
@@ -247,20 +344,21 @@ export default {
   }
   .table-content {
     margin-top: 20px;
-    max-height: calc(~'100% - 100px');
+    max-height: calc(~'100% - 60px');
     min-height: 500px;
+    overflow: auto;
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 100px');
       overflow: auto;
     }
-    /deep/ .el-table__body-wrapper::-webkit-scrollbar {
-      width: 10px; // 横向滚动条
-      height: 10px; // 纵向滚动条 必写
-    }
-    /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
-      background-color: #ddd;
-      border-radius: 4px;
-    }
+    // /deep/ .el-table__body-wrapper::-webkit-scrollbar {
+    //   width: 10px; // 横向滚动条
+    //   height: 10px; // 纵向滚动条 必写
+    // }
+    // /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
+    //   background-color: #ddd;
+    //   border-radius: 4px;
+    // }
   }
 }
 </style>

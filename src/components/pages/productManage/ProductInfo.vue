@@ -62,10 +62,7 @@
           <el-input v-model="height" size="small"></el-input>
         </div>
       </el-form-item>
-      <el-form-item label="中箱内产品数(个)：">
-        <el-input v-model="ruleForm.middleBoxProductNumber" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="中箱尺寸mm(长宽高)：">
+      <el-form-item label="内盒尺寸mm(长宽高)：">
         <div class="df">
           <el-input v-model="binLength" size="small"></el-input>
           <span>*</span>
@@ -92,36 +89,34 @@
           <el-input v-model="binHeight2" size="small"></el-input>
         </div>
       </el-form-item>
-      <el-form-item label="最小发货数：">
+      <el-form-item label="最小发货数：" prop="minShipNumber">
         <el-input v-model="ruleForm.minShipNumber" size="small" class="ib"></el-input>
-        <el-select v-model="ruleForm.deliveryUnit" placeholder="单位" class="ib" size="small">
-          <el-option label="个" value="个"></el-option>
-          <el-option label="盒" value="盒"></el-option>
-          <el-option label="包" value="包"></el-option>
-          <el-option label="张" value="张"></el-option>
-          <el-option label="本" value="本"></el-option>
+        <el-select v-model="ruleForm.deliveryUnit" placeholder="单位" size="small" class="ib">
+          <el-option
+            v-for="(item,index) in minShipNumberUnitList"
+            :key="index"
+            :label="item"
+            :value="item"
+          >
+            <div class="sel-box">
+              <span>{{item}}</span>
+              <i class="el-icon-close del-icon" @click="deleteUnit(index)" v-show="item!=='其他'"></i>
+            </div>
+          </el-option>
         </el-select>
+        <el-input
+          v-model="newUnit"
+          placeholder="输入新单位"
+          size="small"
+          class="ib"
+          v-if="ruleForm.deliveryUnit=='其他'"
+          @keyup.enter.native="saveNewUnit"
+        ></el-input>
       </el-form-item>
-      <!-- <el-form-item label="发货单位：">
-        <el-input v-model="ruleForm.deliveryUnit" size="small"></el-input>
-      </el-form-item>-->
-      <div class="title">
-        <span>仓储信息</span>
+      <div class="buttons">
+        <el-button type="primary" @click="submitForm">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </div>
-      <el-col :span="24">
-        <el-form-item label="库存明细：">
-          <el-table :data="ruleForm.productStockPileFormList" style="width:420px;">
-            <el-table-column prop="name" label="所在仓库"></el-table-column>
-            <el-table-column prop="quantity" label="数量"></el-table-column>
-          </el-table>
-        </el-form-item>
-      </el-col>
-      <el-col :span="24">
-        <div class="buttons">
-          <el-button type="primary" @click="submitForm">保存</el-button>
-          <el-button @click="cancel">取消</el-button>
-        </div>
-      </el-col>
     </el-form>
   </div>
 </template>
@@ -132,14 +127,22 @@ export default {
   },
   data() {
     const validateFixedTo = (rule, value, callback) => {
-      const reg = /^(0|[1-9]\d*)(.\d{1,2})?$/
+      const reg = /(^[1-9]\d*$)/
       if (!value || !reg.test(String(value).trim())) {
         callback(new Error('请输入正确的数字'))
       } else {
         callback()
       }
     }
+    const validateNum = (rule, value, callback) => {
+      if (value && !/(^[1-9]\d*$)/.test(value)) {
+        callback(new Error('请输入正整数'))
+      } else {
+        callback()
+      }
+    }
     return {
+      newUnit: '',
       stockId: '',
       storeHouseList: [],
       length: '',
@@ -151,17 +154,16 @@ export default {
       binLength2: '',
       binWidth2: '',
       binHeight2: '',
+      minShipNumberUnitList: [],
       ruleForm: {
         productName: '',
         productNo: '',
         mainImage: '',
         skuNo: '',
         singleWeight: '',
-        productStockPileFormList: [],
         productArea: '',
         productSpecification: '',
         productBatchNumber: '',
-        middleBoxProductNumber: '',
         innerProductNumber: '',
         innerBoxProductNumber: '',
         caseProductNumber: '',
@@ -172,6 +174,7 @@ export default {
         caseSpecification: ''
       },
       rules: {
+        minShipNumber: [{ validator: validateNum }],
         productName: [
           { required: true, message: '请输入产品名称', trigger: 'blur' }
         ],
@@ -179,7 +182,12 @@ export default {
           { required: true, message: '请输入产品编码', trigger: 'blur' }
         ],
         skuNo: [{ required: true, message: '请输入Sku编码', trigger: 'blur' }],
-        singleWeight: [{ validator: validateFixedTo, required: true }],
+        singleWeight: [
+          {
+            validator: validateFixedTo,
+            required: true
+          }
+        ],
         productArea: [
           { required: true, message: '请输入产地', trigger: 'blur' }
         ],
@@ -194,25 +202,90 @@ export default {
   },
   created() {
     this.getStoreHouseList()
+    this.getDeliveryUnitList()
     if (this.id) {
       this.getDetail()
     }
   },
   methods: {
+    async getDeliveryUnitList() {
+      const url = '/innobeautywms/getDeliveryUnit'
+      try {
+        let res = await this.util.get(url)
+        let { date, status } = res.data
+        if (status == 0) {
+          this.minShipNumberUnitList = date.unitList
+          this.minShipNumberUnitList.push('其他')
+          if (
+            !this.minShipNumberUnitList.includes(this.ruleForm.deliveryUnit)
+          ) {
+            this.ruleForm.deliveryUnit = this.minShipNumberUnitList[0]
+          }
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async deleteUnit(index) {
+      this.$confirm('是否确认删除？').then(async () => {
+        const url = '/innobeautywms/saveDeliveryUnit'
+        let unitList = [...this.minShipNumberUnitList]
+        unitList.pop()
+        unitList.splice(index, 1)
+        try {
+          let res = await this.util.post(url, {
+            unitList
+          })
+          let { status } = res.data
+          if (status !== 0) {
+            this.$message.error('删除单位失败')
+          } else {
+            this.getDeliveryUnitList()
+          }
+        } catch (error) {
+          return Promise.reject(error)
+        }
+      })
+    },
+    async saveNewUnit() {
+      if (!this.newUnit) {
+        this.$message.error('请输入新单位')
+        return
+      }
+      if (this.minShipNumberUnitList.includes(this.newUnit)) {
+        this.$message.error('此单位已有，请在下拉框选择')
+        return
+      }
+      const url = '/innobeautywms/saveDeliveryUnit'
+      let unitList = [...this.minShipNumberUnitList]
+      unitList.pop()
+      unitList.push(this.newUnit)
+      try {
+        let res = await this.util.post(url, {
+          unitList
+        })
+        let { status } = res.data
+        if (status !== 0) {
+          this.$message.error('保存新单位失败')
+        } else {
+          this.ruleForm.deliveryUnit = this.newUnit
+          this.getDeliveryUnitList()
+          this.newUnit = ''
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
     onSuccessPC(response, file, fileList) {
       this.ruleForm.mainImage = response.date
     },
     beforeUpload(file) {
       const isJPG = /(gif|jpg|jpeg|png|GIF|JPG|PNG|SVG|svg)$/.test(file.type)
-      const isLt3M = file.size / 1024 / 1024 < 3
       if (!isJPG) {
         this.$message.error('只能是图片格式!')
       }
-      if (!isLt3M) {
-        this.$message.error('上传图片大小不能超过 3MB!')
-      }
       // 禁止自动上传
-      if (!isJPG || !isLt3M) {
+      if (!isJPG) {
         return false
       }
     },
@@ -221,14 +294,9 @@ export default {
       let res = await this.util.get(url)
       let { status, date } = res.data
       if (status == 0) {
-        let productStockPileFormList = date.productStockPileVoList.map(e => ({
-          storehouseId: e.storehouseId,
-          name: e.storeHouseName,
-          quantity: e.quantity
-        }))
         delete date.id
         delete date.productStockPileVoList
-        Object.assign(this.ruleForm, date, { productStockPileFormList })
+        Object.assign(this.ruleForm, date)
         let size1 = date.singleProductSize.split('*')
         this.length = size1[0]
         this.width = size1[1]
@@ -251,8 +319,17 @@ export default {
       }
     },
     submitForm() {
-      this.$refs.ruleForm.validate(valid => {
+      this.$refs.ruleForm.validate(async valid => {
         if (valid) {
+          if (
+            this.newUnit &&
+            !this.minShipNumberUnitList.includes(this.newUnit)
+          ) {
+            await this.saveNewUnit()
+          } else if (this.minShipNumberUnitList.includes(this.newUnit)) {
+            this.ruleForm.deliveryUnit = this.newUnit
+            this.newUnit = ''
+          }
           this.addProduct()
         } else {
           this.$message.error('有必填项未填')
@@ -262,6 +339,9 @@ export default {
     async addProduct() {
       const url = '/innobeautywms/product'
       let params = JSON.parse(JSON.stringify(this.ruleForm))
+      if (!params.minShipNumber) {
+        params.deliveryUnit = ''
+      }
       params.singleProductSize =
         this.length + '*' + this.width + '*' + this.height
       params.middleBoxProductSize =
@@ -286,6 +366,11 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.sel-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .product-content {
   background-color: #fff;
   height: 100%;

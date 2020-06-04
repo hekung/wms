@@ -35,6 +35,9 @@
           <el-table-column prop="quantity" label="数量"></el-table-column>
         </el-table>
       </el-form-item>
+      <el-form-item label="货品来源：">
+        <span>{{ruleForm.origin}}</span>
+      </el-form-item>
       <el-form-item label="备注：">
         <el-input v-model="ruleForm.remark" size="small"></el-input>
       </el-form-item>
@@ -69,7 +72,8 @@ export default {
         commodityItemSaveFormList: [],
         category: '',
         remark: '',
-        storehouseId: ''
+        storehouseId: '',
+        origin: ''
       }
     }
   },
@@ -85,6 +89,7 @@ export default {
       if (status == 0) {
         this.storeHouseList = date.storeHouseVoList
         this.ruleForm.remark = date.remark
+        this.ruleForm.origin = date.origin
         this.ruleForm.commodityItemSaveFormList =
           date.entryOrderProductWithStockVoList
         this.originalProductList = [...date.entryOrderProductWithStockVoList]

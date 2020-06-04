@@ -11,10 +11,17 @@
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
+            @change="pickChange"
             :picker-options="pickerOptions"
             size="mini"
           ></el-date-picker>
-          <el-select v-model="form.stockId" placeholder="出库仓" size="mini" style="margin:0 12px;">
+          <el-select
+            v-model="form.stockId"
+            @change="screening"
+            placeholder="出库仓"
+            size="mini"
+            style="margin:0 12px;"
+          >
             <el-option
               v-for="(item) in stockList"
               :key="item.id"
@@ -22,8 +29,8 @@
               :value="item.id"
             ></el-option>
           </el-select>
-          <el-button size="mini" type="primary" @click="screening">筛选</el-button>
           <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
+          <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
         </el-form-item>
       </el-form>
     </el-row>
@@ -60,26 +67,24 @@
         ref="multipleTable"
         style="height:100%;"
         @sort-change="sortChange"
+        @selection-change="handleSelectionChange"
       >
-        <el-table-column prop="createTime" label="下单时间" sortable="custom">
-          <!-- <template slot-scope="scope">
-            <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
-          </template>-->
-        </el-table-column>
+        <el-table-column type="selection" width="55" v-if="type=='0'"></el-table-column>
+        <el-table-column prop="createTime" label="下单时间" sortable="custom"></el-table-column>
         <el-table-column prop="orderNo" label="订单编号">
           <template slot-scope="scope">
             <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="操作员"></el-table-column>
-        <!-- <el-table-column prop="productInfoList" label="产品内容">
-          <template slot-scope="scope">
-            <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
-          </template>
-        </el-table-column>-->
+        <el-table-column prop="receiverName" label="收货人"></el-table-column>
         <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
         <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
-        <el-table-column prop="orderStatus" label="出库状态"></el-table-column>
+        <el-table-column prop="expressNo" label="物流单号"></el-table-column>
+        <el-table-column prop="orderStatus" label="出库状态">
+          <template slot-scope="scope">
+            <span :class="scope.row.orderStatus==='已完成'?'orange':''">{{scope.row.orderStatus}}</span>
+          </template>
+        </el-table-column>
       </el-table>
     </el-row>
     <el-row>
@@ -96,6 +101,23 @@
       </div>
     </el-row>
     <stock-out-info v-if="showDetail" :id="detailId" @close="toggleShowDetail"></stock-out-info>
+    <el-dialog
+      title="请选择导出报表："
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="cancelExport"
+    >
+      <el-radio-group v-model="exportOutType">
+        <el-radio :label="0" class="db">昆山发货单</el-radio>
+        <el-radio :label="1" class="db">香港发货单</el-radio>
+        <el-radio :label="2" class="db">日本发货单</el-radio>
+        <el-radio :label="3" class="db">日本发货单JP</el-radio>
+      </el-radio-group>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelExport">取 消</el-button>
+        <el-button type="primary" @click="confirmExport">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -114,6 +136,9 @@ export default {
       orderNo: '',
       timeOrder: '',
       showDetail: false,
+      dialogVisible: false,
+      exportOutType: '',
+      multipleSelection: '',
       stockOutList: [],
       productList: [],
       stockList: [{ id: undefined, name: '全部' }],
@@ -151,8 +176,7 @@ export default {
       type: '2',
       form: {
         datePickVal: '',
-        stockId: '',
-        productId: ''
+        stockId: ''
       }
     }
   },
@@ -162,12 +186,28 @@ export default {
   },
   computed: {},
   watch: {
-    type() {
+    type(val) {
       this.currentPage = 1
       this.search()
+      if (val !== '0') {
+        this.multipleSelection = []
+      }
     }
   },
   methods: {
+    pickChange() {
+      this.screening()
+    },
+    clearScreen() {
+      for (const key in this.form) {
+        if (key !== 'datePickVal') {
+          this.form[key] = ''
+        } else {
+          this.form[key] = []
+        }
+      }
+      this.screening()
+    },
     async getStockList() {
       const url = `/innobeautywms/storehouseVo`
       try {
@@ -182,8 +222,65 @@ export default {
       }
     },
     exportOut() {
-      const url = '/innobeautywms/shippingOrder/excel/export'
-      location.href = url
+      this.dialogVisible = true
+    },
+    cancelExport() {
+      this.exportOutType = ''
+      this.dialogVisible = false
+    },
+    confirmExport() {
+      if (this.exportOutType === '') {
+        this.$message.error('请选择导出模板')
+        return
+      }
+      let url =
+        '/innobeautywms/shippingOrder/excel/export/' + this.exportOutType
+      let params = {}
+      if (this.multipleSelection.length) {
+        url = '/innobeautywms/shippingOrder/excel/export/select'
+        let ids = this.multipleSelection.map(e => e.id)
+        params = {
+          type: this.exportOutType,
+          ids
+        }
+      }
+      this.util.postDownLoadFile(url, params).then(res => {
+        // 如果服务器错误返回
+        if (res.data.type === 'application/json') {
+          let reader = new FileReader()
+          reader.readAsText(res.data, 'utf-8')
+          reader.onload = () => {
+            // console.log('----', JSON.parse(reader.result))
+            const result = JSON.parse(reader.result)
+            this.$message.error(result.msg)
+          }
+        } else {
+          const nameMap = {
+            0: '昆山发货单模板',
+            1: '香港发货单模板',
+            2: '日本发货单模板',
+            3: '日本发货单JP模板'
+          }
+          const content = res.data
+          const blob = new Blob([content])
+          const fileName = nameMap[this.exportOutType] + '.xls'
+          if ('download' in document.createElement('a')) {
+            // 非IE下载
+            const elink = document.createElement('a')
+            elink.download = fileName
+            elink.style.display = 'none'
+            elink.href = URL.createObjectURL(blob)
+            document.body.appendChild(elink)
+            elink.click()
+            URL.revokeObjectURL(elink.href) // 释放URL 对象
+            document.body.removeChild(elink)
+          } else {
+            // IE10+下载
+            navigator.msSaveBlob(blob, fileName)
+          }
+        }
+        this.cancelExport()
+      })
     },
     screening() {
       this.currentPage = 1
@@ -273,6 +370,9 @@ export default {
       } catch (error) {
         return Promise.reject(error)
       }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
     }
   }
 }
@@ -288,6 +388,13 @@ export default {
   }
   /deep/ .el-date-editor--daterange.el-input__inner {
     width: 240px;
+  }
+  .orange {
+    color: orange;
+  }
+  .db {
+    display: block;
+    line-height: 30px;
   }
   .table-content {
     height: calc(~'100% - 150px');

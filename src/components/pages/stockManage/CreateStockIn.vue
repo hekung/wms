@@ -56,6 +56,9 @@
           </el-table-column>
         </el-table>
       </el-form-item>
+      <el-form-item label="货品来源：" prop="origin">
+        <el-input v-model="ruleForm.origin" size="small"></el-input>
+      </el-form-item>
       <el-form-item label="备注：">
         <el-input v-model="ruleForm.remark" size="small"></el-input>
       </el-form-item>
@@ -83,12 +86,12 @@ export default {
       storeHouseList: [],
       categoryList: [
         { id: 0, name: '出厂入库' },
-        { id: 1, name: '退货入库' },
         { id: 2, name: '移货入库' }
       ],
       ruleForm: {
         commodityItemSaveFormList: [],
         category: '',
+        origin: '',
         remark: '',
         storehouseId: ''
       },
@@ -101,6 +104,9 @@ export default {
             validator: validateProducts,
             required: true
           }
+        ],
+        origin: [
+          { required: true, message: '请输入货品来源', trigger: 'blur' }
         ],
         storehouseId: [{ required: true, message: '请选择仓库' }]
       }
@@ -173,7 +179,8 @@ export default {
         commodityItemSaveFormList,
         category,
         remark,
-        storehouseId
+        storehouseId,
+        origin
       } = this.ruleForm
       let entryOrderItemSaveFormList = commodityItemSaveFormList.map(item => ({
         productId: item.productId,
@@ -183,6 +190,7 @@ export default {
         category,
         remark,
         storehouseId,
+        origin,
         entryOrderItemSaveFormList
       })
       let { status } = res.data

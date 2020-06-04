@@ -34,6 +34,7 @@
             <i class="el-icon-caret-bottom"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item divided command="modifyPwd">修改密码</el-dropdown-item>
             <el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -65,10 +66,14 @@ export default {
         this.util.get(url).then(res => {
           if (res.data.status == 0) {
             location.reload()
+            localStorage.removeItem('userData')
           } else {
             this.$message.error('系统错误')
           }
         })
+      }
+      if (command == 'modifyPwd') {
+        this.$router.push('/resetPwd')
       }
     },
     // 侧边栏折叠

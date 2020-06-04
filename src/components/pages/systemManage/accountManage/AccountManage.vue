@@ -17,8 +17,9 @@
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
             <div v-if="scope.row.state==0">
-              <el-link type="primary" style="margin-right:20px;" @click="modifyOne(scope.row)">修改</el-link>
-              <el-link type="primary" @click="changeStatus(scope.row)">停用</el-link>
+              <el-button type="text" @click="modifyOne(scope.row)">修改信息</el-button>
+              <el-button type="text" @click="modifyPwd(scope.row)">修改密码</el-button>
+              <el-button type="text" @click="changeStatus(scope.row)">停用</el-button>
             </div>
             <div v-else>
               <el-link type="primary" @click="changeStatus(scope.row)">启用</el-link>
@@ -59,7 +60,12 @@ export default {
       totalRows: 0,
       inputVal: '',
       selectItem: {},
-      accountList: []
+      accountList: [],
+      roleMap: {
+        sellerDirector: '销售主管',
+        seller: '销售员',
+        superAdministrator: '超级管理员'
+      }
     }
   },
   mounted() {
@@ -74,6 +80,34 @@ export default {
     modifyOne(rowData) {
       this.selectItem = rowData
       this.createStatus = true
+    },
+    modifyPwd(rowData) {
+      this.$prompt(
+        '是否确认修改账号为' + rowData.open_code + '的密码?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPlaceholder: '请输入新密码'
+        }
+      ).then(({ value }) => {
+        if (value) {
+          let url = `/innobeautywms/superAdministrator/password`
+          let params = {
+            userId: rowData.user_id,
+            newPassword: value
+          }
+          this.util.post(url, params).then(res => {
+            if (res.data.status === 0) {
+              this.$message.success('修改账号密码成功')
+            } else {
+              this.$message.error(res.data.msg)
+            }
+          })
+        } else {
+          this.$message.error('未输入新密码,操作无效')
+        }
+      })
     },
     changeStatus(rowData) {
       let url = `/innobeautywms/account/status/${rowData.user_id}`

@@ -26,7 +26,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="入库仓：">
-            <span>{{storeHouseNameRes}}</span>
+            <span>{{sotoreHouseName}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -47,6 +47,11 @@
               </el-table-column>-->
               <el-table-column prop="quantity" label="数量"></el-table-column>
             </el-table>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="货品来源：">
+            <span>{{ruleForm.origin}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -90,11 +95,13 @@ export default {
       selectProductId: '',
       productList: [],
       originalProductList: [],
+      sotoreHouseName: '',
       ruleForm: {
         commodityItemSaveFormList: [],
         remark: '',
         storehouseId: '',
-        category: ''
+        category: '',
+        origin: ''
       }
     }
   },
@@ -121,6 +128,10 @@ export default {
             setTimeout(() => {
               this.close()
             }, 1000)
+          } else if (res.data.status > 0) {
+            this.$message.error(res.data.msg)
+          } else {
+            this.$message.error('请求错误')
           }
         })
         .catch(() => {})
@@ -138,7 +149,12 @@ export default {
       let { status, date } = res.data
       if (status == 0) {
         this.storeHouseList = date.storeHouseVoList
+        let stockItem = this.storeHouseList.find(e => e.id == date.storehouseId)
+        if (stockItem) {
+          this.sotoreHouseName = stockItem.name
+        }
         this.ruleForm.remark = date.remark
+        this.ruleForm.origin = date.origin
         this.ruleForm.commodityItemSaveFormList =
           date.entryOrderProductWithStockVoList
         this.originalProductList = [...date.entryOrderProductWithStockVoList]
@@ -220,15 +236,6 @@ export default {
       item.quantity = ''
       this.ruleForm.commodityItemSaveFormList.push(item)
     },
-    getStorehouseName() {
-      let item = this.storeHouseList.find(
-        e => e.id === this.ruleForm.storehouseId
-      )
-      if (item) {
-        return item.name || ''
-      }
-      return ''
-    },
     handleDelete(index) {
       this.ruleForm.commodityItemSaveFormList.splice(index, 1)
     },
@@ -246,18 +253,6 @@ export default {
         } else {
           return 0
         }
-      } else {
-        return ''
-      }
-    }
-  },
-  computed: {
-    storeHouseNameRes() {
-      let item = this.storeHouseList.find(
-        e => e.id === this.ruleForm.storehouseId
-      )
-      if (item) {
-        return item.name
       } else {
         return ''
       }

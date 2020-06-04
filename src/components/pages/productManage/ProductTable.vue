@@ -2,7 +2,7 @@
   <div class="product-manage">
     <el-row style="position:relative;height:40px;">
       <el-button type="warning" size="medium" @click="addNew">新建</el-button>
-      <el-button type="primary" size="medium" @click="exportOut">导出</el-button>
+      <!-- <el-button type="primary" size="medium" @click="exportOut">导出</el-button> -->
       <el-button
         type="danger"
         size="medium"
@@ -19,7 +19,15 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column prop="productNo" label="产品编码" align="center"></el-table-column>
+        <el-table-column type="index" label="序号" width="50" :index="getIndex"></el-table-column>
+        <el-table-column prop="mainImage" label="产品图片" align="center">
+          <template slot-scope="scope">
+            <div>
+              <img :src="scope.row.mainImage" alt srcset style="height:80px;" />
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="skuNo" label="SKU编码" align="center"></el-table-column>
         <el-table-column prop="productName" label="产品名称" align="center">
           <template slot-scope="scope">
             <div>
@@ -30,7 +38,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="quantity" label="总库存" align="center" sortable></el-table-column>
+        <el-table-column prop="productSpecification" label="规格" align="center"></el-table-column>
         <el-table-column label="操作" width="180" align="center">
           <template slot-scope="scope">
             <el-button
@@ -83,6 +91,9 @@ export default {
   methods: {
     addNew() {
       this.$router.push('/createProduct')
+    },
+    getIndex(index) {
+      return index + 1 + (this.currentPage - 1) * this.pageSize
     },
     showDetail(index, rowData) {
       this.detailId = rowData.id

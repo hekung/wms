@@ -1,63 +1,75 @@
 <template>
   <div class="in-manage">
     <el-row style="position:relative;height:50px;">
-      <el-button type="warning" size="medium" @click="addNew">新建入库单</el-button>
-      <el-form :model="form" :inline="true" class="form">
-        <el-form-item label="入库单筛选：">
-          <el-date-picker
-            v-model="form.datePickVal"
-            type="daterange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
-            size="mini"
-          ></el-date-picker>
-          <el-select v-model="form.category" placeholder="入库类型" size="mini" style="margin:0 12px;">
-            <el-option
-              v-for="(item) in categoryList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
+      <div style="display:flex;justify-content:space-between;">
+        <el-button type="warning" size="medium" @click="addNew">新建入库单</el-button>
+        <div style="width:400px;">
+          <el-select placeholder="入库编号" size="mini" value="1" style="width:100px;">
+            <el-option label="入库编号" value="1" size="mini"></el-option>
           </el-select>
-          <el-select
-            v-model="form.storeHouseId"
-            placeholder="入库仓"
+          <el-input
+            v-model="orderNo"
             size="mini"
-            style="margin:0 12px;"
-          >
-            <el-option
-              v-for="(item) in stockList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-          <el-button size="mini" type="primary" @click="screening">筛选</el-button>
-          <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
-        </el-form-item>
-      </el-form>
+            style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
+          ></el-input>
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            @click="blurSearch"
+            size="mini"
+            style="position:absolute;;margin-left:190px;"
+          ></el-button>
+        </div>
+      </div>
     </el-row>
     <el-row>
-      <el-col :span="24" style="position:relative;">
-        <el-select placeholder="入库编号" size="mini" value="1" style="width:100px;">
-          <el-option label="入库编号" value="1" size="mini"></el-option>
-        </el-select>
-        <el-input
-          v-model="orderNo"
-          size="mini"
-          style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
-        ></el-input>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          @click="blurSearch"
-          size="mini"
-          style="position:absolute;;margin-left:190px;"
-        ></el-button>
+      <el-col :span="24">
+        <el-form :model="form" :inline="true" class="form">
+          <el-form-item label="入库单筛选：">
+            <el-date-picker
+              v-model="form.datePickVal"
+              type="daterange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
+              @change="pickChange"
+              size="mini"
+            ></el-date-picker>
+            <el-select
+              v-model="form.category"
+              @change="screening"
+              placeholder="入库类型"
+              size="mini"
+              style="margin:0 12px;"
+            >
+              <el-option
+                v-for="(item) in categoryList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+            <el-select
+              v-model="form.storeHouseId"
+              @change="screening"
+              placeholder="入库仓"
+              size="mini"
+              style="margin:0 12px;"
+            >
+              <el-option
+                v-for="(item) in stockList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+            <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
+            <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
+          </el-form-item>
+        </el-form>
       </el-col>
     </el-row>
     <el-row class="table-content">
@@ -84,6 +96,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="storehouseName" label="入库仓"></el-table-column>
+        <el-table-column prop="origin" label="货品来源"></el-table-column>
         <el-table-column prop="productInfoList" label="产品名称*数量">
           <template slot-scope="scope">
             <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
@@ -185,6 +198,19 @@ export default {
     this.getStockList()
   },
   methods: {
+    clearScreen() {
+      for (const key in this.form) {
+        if (key !== 'datePickVal') {
+          this.form[key] = ''
+        } else {
+          this.form[key] = []
+        }
+      }
+      this.screening()
+    },
+    pickChange() {
+      this.screening()
+    },
     exportOut() {
       const url = '/innobeautywms/entryOrder/excel/export'
       location.href = url
@@ -327,14 +353,11 @@ export default {
   /deep/ .el-date-editor--daterange.el-input__inner {
     width: 240px;
   }
-  .form {
-    float: right;
-  }
   /deep/ .el-tabs__nav-wrap {
     width: 100%;
   }
   .table-content {
-    height: calc(~'100% - 140px');
+    height: calc(~'100% - 160px');
     /deep/.el-table__body-wrapper {
       height: calc(~'100% - 50px');
       overflow: auto;

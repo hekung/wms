@@ -6,6 +6,7 @@ Vue.use(VueRouter)
 // 1. 定义 (路由) 组件。
 // 可以从其他文件 import 进来
 const login = r => require.ensure([], () => r(require('@/components/login')), 'login')
+const ResetPwd = r => require.ensure([], () => r(require('@/components/common/ResetPwd')), 'resetPwd')
 const home = r => require.ensure([], () => r(require('@/components/common/Home')), 'home')
 const productTable = r => require.ensure([], () => r(require('@/components/pages/productManage/ProductTable')), 'ProductTable')
 const createProduct = r => require.ensure([], () => r(require('@/components/pages/productManage/CreateProduct')), 'CreateProduct')
@@ -63,7 +64,7 @@ const routes = [
       {
         path: '/stockDaily',
         component: stockDaily,
-        meta: { title: '入库日记账' }
+        meta: { title: '库存统计' }
       }
     ]
   },
@@ -71,6 +72,11 @@ const routes = [
   {
     path: "/login",
     component: login
+  },
+  {
+    path: '/resetPwd',
+    component: ResetPwd,
+    meta: { title: '修改密码' }
   }
 ]
 

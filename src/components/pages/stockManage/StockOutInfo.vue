@@ -73,7 +73,7 @@
         </el-col>
         <el-col :span="24">
           <el-form-item label="发货仓库：">
-            <span>{{getStorehouseName()}}</span>
+            <span>{{storehouseName}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -81,16 +81,16 @@
             <span>{{ruleForm.designatedLogistics}}</span>
           </el-form-item>
         </el-col>
-        <el-col :span="24" v-if="stepActive==0">
-          <el-form-item label="快递单号：" prop="expressNo">
+        <el-col :span="24">
+          <el-form-item label="物流单号：" prop="expressNo">
             <el-input v-model="ruleForm.expressNo"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="24" v-else>
-          <el-form-item label="快递单号：">
+        <!-- <el-col :span="24" v-else>
+          <el-form-item label="单号：">
             <span>{{ruleForm.expressNo}}</span>
           </el-form-item>
-        </el-col>
+        </el-col>-->
       </el-row>
       <el-row>
         <el-col :span="24">
@@ -100,8 +100,8 @@
             <el-button type="info" size="small" @click="close">返回</el-button>
           </div>
           <div class="buttons" v-else>
-            <el-button type="warning" size="small" @click="confirmTo" v-if="!receive">确认到货</el-button>
-            <el-button type="success" size="small" disabled v-else>已确认到货</el-button>
+            <el-button type="warning" size="small" @click="modifyExpressNo">确认</el-button>
+            <!-- <el-button type="success" size="small" disabled v-else>已确认到货</el-button>-->
             <el-button type="info" size="small" @click="close">返回</el-button>
           </div>
         </el-col>
@@ -124,8 +124,8 @@ export default {
         { id: 3, name: '邮政小包' },
         { id: 4, name: '顺丰' }
       ],
-      receive: false,
       storeHouseList: [],
+      storehouseName: '',
       ruleForm: {
         productList: [],
         expressNo: '',
@@ -142,7 +142,7 @@ export default {
       },
       rules: {
         expressNo: [
-          { required: true, message: '请输入快递单号', trigger: 'blur' }
+          { required: true, message: '请输入物流单号', trigger: 'blur' }
         ]
       }
     }
@@ -201,15 +201,6 @@ export default {
         return ''
       }
     },
-    getStorehouseName() {
-      let item = this.storeHouseList.find(
-        e => e.id === this.ruleForm.storehouseId
-      )
-      if (item) {
-        return item.name || ''
-      }
-      return ''
-    },
     async getDetail() {
       const url = `/innobeautywms/shippingOrder/${this.id}`
       let res = await this.util.get(url)
@@ -218,25 +209,49 @@ export default {
         this.storeHouseList = date.storeHouseVoList
         this.ruleForm.productList = date.shippingOrderProductInfoList
         for (const key in this.ruleForm) {
-          if (date[key]) {
+          if (date.hasOwnProperty(key)) {
             this.ruleForm[key] = date[key]
           }
         }
-        this.ruleForm.designatedLogistics = this.expressCompanysList.find(
+        let designatedLogisticsObj = this.expressCompanysList.find(
           e => e.id == date.designatedLogistics
-        ).name
-        if (date.receive) {
-          this.receive = date.receive
+        )
+        if (designatedLogisticsObj) {
+          this.ruleForm.designatedLogistics = designatedLogisticsObj.name
         }
         if (!this.ruleForm.expressNo) {
           this.stepActive = 0
         } else {
           this.stepActive = 1
         }
+        let item = this.storeHouseList.find(
+          e => e.id === this.ruleForm.storehouseId
+        )
+        if (item) {
+          this.storehouseName = item.name
+        }
       }
     },
     close() {
       this.$emit('close', false)
+    },
+    async modifyExpressNo() {
+      this.$refs['ruleForm'].validate(async valid => {
+        if (!valid) return
+        const url = `/innobeautywms/shippingOrder/express`
+        let id = this.id
+        let { expressNo } = this.ruleForm
+        let params = { id, expressNo }
+        this.util.post(url, params).then(res => {
+          let { status } = res.data
+          if (status == 0) {
+            this.$message.success('操作成功')
+            this.close()
+          } else {
+            this.$message.error(res.data.msg)
+          }
+        })
+      })
     },
     async submitForm() {
       this.$refs['ruleForm'].validate(async valid => {

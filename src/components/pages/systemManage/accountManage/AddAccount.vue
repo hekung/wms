@@ -14,12 +14,12 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="用户姓名：" style="width:360px;">
+          <el-form-item label="用户姓名：" style="width:360px;" prop="name">
             <el-input v-model="ruleForm.name" placeholder="请输入"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item label="用户头像：">
+          <el-form-item label="用户头像：" prop="headImg">
             <el-upload
               class="avatar-uploader"
               :show-file-list="false"
@@ -36,10 +36,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="24">
-          <el-form-item
-            label="用户角色："
-            :rules="{required: true, message: '请选择', trigger: 'blur'}"
-          >
+          <el-form-item label="用户角色：" prop="roleId">
             <el-select v-model="ruleForm.roleId" placeholder="请选择">
               <el-option
                 v-for="(item) in roleArr"
@@ -75,6 +72,24 @@ export default {
     }
   },
   data() {
+    const validateAccount = (rule, value, callback) => {
+      const reg = /^[A-Za-z0-9]+$/
+      if (!value) {
+        callback(new Error('请输入账号名称'))
+      }
+      if (!reg.test(String(value).trim())) {
+        callback(new Error('账号名称只能为字母和数字'))
+      } else {
+        callback()
+      }
+    }
+    const validateImg = (rule, value, callback) => {
+      if (!this.headImg) {
+        callback(new Error('请上传头像'))
+      } else {
+        callback()
+      }
+    }
     return {
       imageUrlPC: '',
       pcImgFile: '',
@@ -86,7 +101,34 @@ export default {
         roleId: '',
         account: ''
       },
-      rules: {}
+      rules: {
+        open_code: [
+          {
+            validator: validateAccount,
+            required: true
+          }
+        ],
+        headImg: [
+          {
+            validator: validateImg,
+            required: true,
+            trigger: 'change'
+          }
+        ],
+        name: [
+          {
+            required: true,
+            message: '请输入账号姓名',
+            trigger: 'blur'
+          }
+        ],
+        roleId: [
+          {
+            required: true,
+            message: '请选择角色'
+          }
+        ]
+      }
     }
   },
   created() {
@@ -96,13 +138,16 @@ export default {
       this.headImg = headImg
       this.ruleForm = { open_code, name, roleId }
     }
-    // this.getRoleList()
+    this.getRoleList()
   },
   methods: {
     getRoleList() {
-      let url = '/innobeautywms/roles'
+      let url = '/innobeautywms/role/list'
       this.util.get(url).then(res => {
-        this.roleArr = res.data.data
+        let { date, status } = res.data
+       if(status === 0){
+          this.roleArr = date
+       }
       })
     },
     handleClose(done) {
@@ -140,7 +185,7 @@ export default {
           let params = {
             open_code,
             name,
-            roleId: 1,
+            roleId,
             headImg,
             id
           }
@@ -174,6 +219,7 @@ export default {
     /deep/ .el-upload--text {
       width: 120px;
       height: 120px;
+      border: 1px dashed #d9d9d9;
       img {
         width: 100%;
         height: 100%;

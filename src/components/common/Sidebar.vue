@@ -51,6 +51,7 @@ export default {
   data() {
     return {
       collapse: false,
+      userData: JSON.parse(localStorage.getItem('userData')) || {},
       items: [
         {
           icon: 'el-icon-s-grid',
@@ -82,25 +83,14 @@ export default {
             },
             {
               index: 'stockDaily',
-              title: '库存日记账'
+              title: '库存统计'
             }
           ]
         },
         {
-          icon: 'el-icon-menu',
-          index: '3',
-          title: '系统权限管理',
-          subs: [
-            {
-              index: 'accountManage',
-              title: '账号管理'
-            }
-            // {
-            //   icon: 'el-icon-user',
-            //   index: 'roleManage',
-            //   title: '角色管理'
-            // }
-          ]
+          icon: 'el-icon-user',
+          index: 'accountManage',
+          title: '账号管理'
         }
       ]
     }
@@ -116,6 +106,10 @@ export default {
       this.collapse = msg
       bus.$emit('collapse-content', msg)
     })
+    let val = this.userData.rolesName
+    if (!val.includes('superAdministrator')) {
+      this.items.pop()
+    }
   },
   watch: {
     onRoutes(val) {

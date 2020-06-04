@@ -82,6 +82,16 @@ export default class Util {
             }
         })
     }
+    postForm1(url, params) {
+        return axios({
+            method: 'post',
+            url,
+            data: params,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+    }
     getCookieAll() {
         var obj = {};
         var arr = document.cookie.split('; ');
