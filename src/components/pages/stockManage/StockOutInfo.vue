@@ -1,112 +1,104 @@
 <template>
-  <div class="stock-out-info">
+  <div class="stock-out-info content-one">
     <div class="content-header">
       <div class="crumb">
+        <img src="../../../assets/img/order-h.png" alt srcset />
         <span class="parent" @click="close">出库列表</span>
-        <span class="el-breadcrumb__separator">/</span>
-        <span class="current">出库单详情</span>
+        <img src="../../../assets/img/arrow-h.png" alt srcset />
+        <span class="current">出库单信息</span>
       </div>
       <i class="close-btn el-icon el-icon-close" @click="close"></i>
     </div>
-    <el-steps :active="stepActive" finish-status="success" simple>
-      <el-step title="填写物流"></el-step>
-      <el-step title="已出库"></el-step>
-    </el-steps>
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
-      <el-row>
-        <el-col :span="24">
-          <div class="title">
-            <span>基本信息</span>
-          </div>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="操作员：">
-            <span>{{ruleForm.userName}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="订单编号：">
-            <span>{{ruleForm.orderNo}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="产品内容：">
-            <el-table :data="ruleForm.productList" style="width:420px;">
-              <el-table-column prop="productName" label="产品名称"></el-table-column>
-              <el-table-column prop="productNo" label="产品编码"></el-table-column>
-              <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-              <el-table-column prop="quantity" label="数量"></el-table-column>
-            </el-table>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="备注：">
-            <span>{{ruleForm.remark}}</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24">
-          <div class="title">
+    <div class="content-main">
+      <div class="item-title">
+        <span class="line"></span>
+        <span>基本信息</span>
+      </div>
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="操作员：">
+              <span>{{ruleForm.userName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="订单编号：">
+              <span>{{ruleForm.orderNo}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="产品内容：">
+              <el-table :data="ruleForm.productList" class="detail-table" size="small">
+                <el-table-column prop="productName" label="产品名称"></el-table-column>
+                <el-table-column prop="productNo" label="产品编码"></el-table-column>
+                <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
+                <el-table-column prop="quantity" label="数量"></el-table-column>
+              </el-table>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注：">
+              <span>{{ruleForm.remark}}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <div class="item-title">
+            <span class="line"></span>
             <span>配送信息</span>
           </div>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="收件人：">
-            <span>{{ruleForm.receiverName}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="联系电话：">
-            <span>{{ruleForm.receiverMobile}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="收件地址：">
-            <span>{{ruleForm.receiverAddress}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="邮政编码：">
-            <span>{{ruleForm.postalCode}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="发货仓库：">
-            <span>{{storehouseName}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="物流公司：">
-            <span>{{ruleForm.designatedLogistics}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="物流单号：" prop="expressNo">
-            <el-input v-model="ruleForm.expressNo"></el-input>
-          </el-form-item>
-        </el-col>
-        <!-- <el-col :span="24" v-else>
-          <el-form-item label="单号：">
-            <span>{{ruleForm.expressNo}}</span>
-          </el-form-item>
-        </el-col>-->
-      </el-row>
-      <el-row>
-        <el-col :span="24">
-          <div class="buttons" v-if="stepActive ==0">
-            <el-button type="primary" @click="submitForm" size="small">确认</el-button>
-            <el-button type="error" @click="handleDelete" size="small">驳回</el-button>
-            <el-button type="info" size="small" @click="close">返回</el-button>
-          </div>
-          <div class="buttons" v-else>
-            <el-button type="warning" size="small" @click="modifyExpressNo">确认</el-button>
-            <!-- <el-button type="success" size="small" disabled v-else>已确认到货</el-button>-->
-            <el-button type="info" size="small" @click="close">返回</el-button>
-          </div>
-        </el-col>
-      </el-row>
-    </el-form>
+          <el-col :span="12">
+            <el-form-item label="收件人：">
+              <span>{{ruleForm.receiverName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="联系电话：">
+              <span>{{ruleForm.receiverMobile}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="收件地址：">
+              <span>{{ruleForm.receiverAddress}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="邮政编码：">
+              <span>{{ruleForm.postalCode}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="发货仓库：">
+              <span>{{storehouseName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="物流公司：">
+              <span>{{ruleForm.designatedLogistics}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="物流单号：" prop="expressNo">
+              <el-input v-model="ruleForm.expressNo"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <div class="buttons" v-if="stepActive ==0">
+              <el-button type="primary" @click="submitForm" size="small">确认</el-button>
+              <el-button type="error" @click="handleDelete" size="small">驳回</el-button>
+              <el-button type="info" size="small" @click="close">返回</el-button>
+            </div>
+            <div class="buttons" v-else>
+              <el-button type="warning" size="small" @click="modifyExpressNo">确认</el-button>
+              <!-- <el-button type="success" size="small" disabled v-else>已确认到货</el-button>-->
+              <el-button type="info" size="small" @click="close">返回</el-button>
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
@@ -281,41 +273,45 @@ export default {
   height: 100%;
   width: 100%;
   position: absolute;
-  padding: 40px 40px;
   left: 0;
   top: 0;
   z-index: 10;
-  overflow: auto;
+  padding-top: 60px;
+  overflow: hidden;
   .content-header {
-    position: relative;
-    height: 40px;
-    line-height: 40px;
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
     .crumb {
+      display: flex;
+      align-items: center;
       .parent {
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
         cursor: pointer;
+        margin-left: 10px;
       }
       .current {
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
       }
     }
     .close-btn {
-      position: absolute;
-      right: 0;
-      top: 0;
       cursor: pointer;
     }
   }
   .form {
-    margin-top: 20px;
-    .title {
-      height: 40px;
-      line-height: 40px;
-      border-bottom: 1px solid #f2f2f2;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
     .buttons {
       text-align: center;
       margin-top: 30px;

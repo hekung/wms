@@ -1,72 +1,84 @@
 <template>
-  <div class="stock-content">
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
-      <div class="title">
+  <div class="stock-content content-one">
+    <div class="content-header">
+      <div class="crumb">
+        <img src="../../../assets/img/order-h.png" alt srcset />
+        <span class="parent" @click="cancel">入库列表</span>
+        <img src="../../../assets/img/arrow-h.png" alt srcset />
+        <span class="current">新建入库单</span>
+      </div>
+      <i class="close-btn el-icon el-icon-close" @click="cancel"></i>
+    </div>
+    <div class="content-main">
+      <div class="item-title">
+        <span class="line"></span>
         <span>基本信息</span>
       </div>
-      <el-form-item label="入库类型：" prop="category">
-        <el-select v-model="ruleForm.category" placeholder="入库类型" size="small">
-          <el-option
-            v-for="(item) in categoryList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="入库仓：" prop="storehouseId">
-        <el-select v-model="ruleForm.storehouseId" placeholder="请选择入库仓" size="small">
-          <el-option
-            v-for="(item) in storeHouseList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="入库产品：">
-        <el-select v-model="selectProductId" placeholder="请选择" size="small">
-          <el-option
-            v-for="(item) in productList"
-            :key="item.id"
-            :label="item.productName"
-            :value="item.id"
-          ></el-option>
-        </el-select>
-        <el-button @click="addProduct" type="primary" size="small" style="margin-left:20px;">添加</el-button>
-      </el-form-item>
-      <el-form-item label="产品内容：" prop="commodityItemSaveFormList">
-        <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
-          <el-table-column prop="productName" label="内容名称"></el-table-column>
-          <el-table-column prop="productNo" label="内容编码"></el-table-column>
-          <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-          <el-table-column prop="quantity" label="数量">
-            <template slot-scope="scope">
-              <el-input v-model="scope.row.quantity"></el-input>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作">
-            <template slot-scope="scope">
-              <el-button
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-form-item>
-      <el-form-item label="货品来源：" prop="origin">
-        <el-input v-model="ruleForm.origin" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="备注：">
-        <el-input v-model="ruleForm.remark" size="small"></el-input>
-      </el-form-item>
-      <div class="buttons">
-        <el-button type="primary" @click="submitForm">确认</el-button>
-        <el-button @click="cancel">返回</el-button>
-      </div>
-    </el-form>
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="form">
+        <el-form-item label="入库类型：" prop="category">
+          <el-select v-model="ruleForm.category" placeholder="入库类型" size="small">
+            <el-option
+              v-for="(item) in categoryList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="入库仓：" prop="storehouseId">
+          <el-select v-model="ruleForm.storehouseId" placeholder="请选择入库仓" size="small">
+            <el-option
+              v-for="(item) in storeHouseList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="入库产品：">
+          <el-select v-model="selectProductId" placeholder="请选择" size="small">
+            <el-option
+              v-for="(item) in productList"
+              :key="item.id"
+              :label="item.productName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+          <el-button @click="addProduct" type="primary" size="small" style="margin-left:20px;">添加</el-button>
+        </el-form-item>
+        <el-form-item label="产品内容：" prop="commodityItemSaveFormList">
+          <el-table :data="ruleForm.commodityItemSaveFormList" class="detail-table" size="small">
+            <el-table-column prop="productName" label="内容名称"></el-table-column>
+            <el-table-column prop="productNo" label="内容编码"></el-table-column>
+            <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
+            <el-table-column prop="quantity" label="数量">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.quantity"></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button
+                  type="text"
+                  icon="el-icon-delete"
+                  @click="handleDelete(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+        <el-form-item label="货品来源：" prop="origin">
+          <el-input v-model="ruleForm.origin" size="small"></el-input>
+        </el-form-item>
+        <el-form-item label="备注：">
+          <el-input v-model="ruleForm.remark" size="small"></el-input>
+        </el-form-item>
+        <div class="buttons">
+          <el-button type="primary" @click="submitForm">确认</el-button>
+          <el-button @click="cancel">返回</el-button>
+        </div>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
@@ -215,18 +227,45 @@ export default {
   height: 100%;
   width: 100%;
   position: absolute;
-  padding: 40px 40px;
   left: 0;
   top: 0;
   z-index: 10;
-  overflow: auto;
-  .form {
-    .title {
-      height: 40px;
-      line-height: 40px;
-      border-bottom: 1px solid #f2f2f2;
-      margin-bottom: 20px;
+  padding-top: 60px;
+  overflow: hidden;
+  .content-header {
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
+    .crumb {
+      display: flex;
+      align-items: center;
+      .parent {
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      .current {
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
+      }
     }
+    .close-btn {
+      cursor: pointer;
+    }
+  }
+  .form {
     .buttons {
       text-align: center;
       margin-top: 30px;

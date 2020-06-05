@@ -14,12 +14,14 @@
       </li>
     </ul>
     <div class="tags-close-box">
-      <el-dropdown @command="handleTags">
-        <el-button size="mini" type="primary">
-          标签选项
-          <i class="el-icon-arrow-down el-icon--right"></i>
+      <el-dropdown @command="handleTags" class="drop-tags">
+        <el-button size="mini" type="text" class="tags-btn-sel">
+          <div class="btn-inner">
+            <span>标签选项</span>
+            <i class="el-icon-arrow-down el-icon--right"></i>
+          </div>
         </el-button>
-        <el-dropdown-menu size="small" slot="dropdown">
+        <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="other">关闭其他</el-dropdown-item>
           <el-dropdown-item command="all">关闭所有</el-dropdown-item>
         </el-dropdown-menu>
@@ -122,36 +124,32 @@ export default {
 <style lang="less" scped>
 .tags {
   position: relative;
-  height: 30px;
+  height: 58px;
   overflow: hidden;
-  background: #fff;
   padding-right: 120px;
-  box-shadow: 0 5px 10px #ddd;
+  padding: 10px 30px;
 }
 
 .tags ul {
-  box-sizing: border-box;
   width: 100%;
   height: 100%;
+  display: flex;
 }
-.tags-li.active {
-  border: 1px solid #409eff;
-  background-color: #409eff;
-}
+
 .tags-li {
   float: left;
-  margin: 3px 5px 2px 3px;
-  border-radius: 3px;
-  font-size: 12px;
+  height: 100%;
+  border-radius: 4px;
+  font-size: 14px;
   overflow: hidden;
   cursor: pointer;
-  height: 23px;
-  line-height: 23px;
+  line-height: 36px;
   border: 1px solid #e9eaec;
+  margin-right: 10px;
   background: #fff;
-  padding: 0 5px 0 12px;
+  padding: 0 15px;
   vertical-align: middle;
-  color: #666;
+  color: #999;
   -webkit-transition: all 0.3s ease-in;
   -moz-transition: all 0.3s ease-in;
   transition: all 0.3s ease-in;
@@ -163,6 +161,8 @@ export default {
 
 .tags-li.active {
   color: #fff;
+  border: 0 none;
+  line-height: 38px;
 }
 
 .tags-li-title {
@@ -172,7 +172,7 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   margin-right: 5px;
-  color: #666;
+  color: #999;
 }
 
 .tags-li.active .tags-li-title {
@@ -181,15 +181,29 @@ export default {
 
 .tags-close-box {
   position: absolute;
-  right: 0;
-  top: 0;
-  box-sizing: border-box;
-  padding-top: 1px;
-  text-align: center;
-  width: 110px;
-  height: 30px;
-  background: #fff;
-  box-shadow: -3px 0 15px 3px rgba(0, 0, 0, 0.1);
+  right: 30px;
+  top: 10px;
   z-index: 10;
+  text-align: center;
+  width: 120px;
+  height: 38px;
+  border-radius: 4px;
+  box-shadow: 0px 5px 25px 0px rgba(0, 0, 0, 0.08);
+  background-color: #fff;
+}
+.tags-close-box .drop-tags {
+  width: 100%;
+  height: 100%;
+}
+.tags-btn-sel {
+  width: 120px;
+  height: 38px;
+}
+.btn-inner {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  color: #696974;
 }
 </style>

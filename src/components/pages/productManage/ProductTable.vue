@@ -1,69 +1,71 @@
 <template>
-  <div class="product-manage">
-    <el-row style="position:relative;height:40px;">
-      <el-button type="warning" size="medium" @click="addNew">新建</el-button>
-      <!-- <el-button type="primary" size="medium" @click="exportOut">导出</el-button> -->
+  <div class="product-manage table-page">
+    <div class="table-selector">
+      <el-button type="warning" size="small" class="clear-btn" @click="addNew">新建</el-button>
       <el-button
         type="danger"
-        size="medium"
+        size="small"
         :disabled="multipleSelection.length<1"
+        class="clear-btn"
         @click="handleDelete"
       >删除</el-button>
-    </el-row>
-    <el-row class="table-content">
-      <el-table
-        :data="productList"
-        stripe
-        ref="multipleTable"
-        style="height:100%;"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55"></el-table-column>
-        <el-table-column type="index" label="序号" width="50" :index="getIndex"></el-table-column>
-        <el-table-column prop="mainImage" label="产品图片" align="center">
-          <template slot-scope="scope">
-            <div>
-              <img :src="scope.row.mainImage" alt srcset style="height:80px;" />
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="skuNo" label="SKU编码" align="center"></el-table-column>
-        <el-table-column prop="productName" label="产品名称" align="center">
-          <template slot-scope="scope">
-            <div>
+    </div>
+    <div class="main-content">
+      <div class="table-content">
+        <el-table
+          :data="productList"
+          stripe
+          ref="multipleTable"
+          style="height:100%;"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column type="index" label="序号" width="50" :index="getIndex"></el-table-column>
+          <el-table-column prop="mainImage" label="产品图片" align="center">
+            <template slot-scope="scope">
+              <div>
+                <img :src="scope.row.mainImage" alt srcset style="height:80px;" />
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="skuNo" label="SKU编码" align="center"></el-table-column>
+          <el-table-column prop="productName" label="产品名称" align="center">
+            <template slot-scope="scope">
+              <div>
+                <el-button
+                  type="text"
+                  @click="showDetail(scope.$index, scope.row)"
+                >{{scope.row.productName}}</el-button>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="productSpecification" label="规格" align="center"></el-table-column>
+          <el-table-column label="操作" width="180" align="center">
+            <template slot-scope="scope">
               <el-button
-                type="text"
-                @click="showDetail(scope.$index, scope.row)"
-              >{{scope.row.productName}}</el-button>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="productSpecification" label="规格" align="center"></el-table-column>
-        <el-table-column label="操作" width="180" align="center">
-          <template slot-scope="scope">
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              @click="handleDelete(scope.row)"
-            ></el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-row>
-    <el-row>
-      <div style="margin-top:20px;float:right;">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10,30,50]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalRows"
-        ></el-pagination>
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                @click="handleDelete(scope.row)"
+              ></el-button>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-    </el-row>
+      <div class="page-shift-container">
+        <div class="page-shift">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10,30,50]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalRows"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
     <product-info v-if="showInfo" :id="detailId" @close="closeInfoPage"></product-info>
   </div>
 </template>
@@ -162,28 +164,22 @@ export default {
 </script>
 <style lang="less" scoped>
 .product-manage {
-  background-color: #fff;
-  height: 100%;
-  padding: 40px;
-  position: relative;
-  .create {
-    float: right;
-  }
-  .table-content {
-    height: calc(~'100% - 100px');
-    /deep/.el-table__body-wrapper {
-      height: calc(~'100% - 50px');
-      overflow: auto;
+  .table-selector {
+    padding: 10px;
+    .clear-btn {
+      font-size: 14px;
+      padding-left: 40px;
+      padding-right: 40px;
     }
   }
-  .item-head {
-    background-color: #ccc;
-    border: 1px solid #bbb;
-    height: 40px;
-    line-height: 40px;
-    span {
-      display: inline-block;
-      margin-right: 20px;
+  .main-content {
+    height: calc(~'100% - 100px');
+    .table-content {
+      height: calc(~'100% - 100px');
+      /deep/.el-table__body-wrapper {
+        height: calc(~'100% - 48px');
+        overflow: auto;
+      }
     }
   }
 }

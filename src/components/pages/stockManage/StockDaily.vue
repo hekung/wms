@@ -1,6 +1,6 @@
 <template>
-  <div class="stock-daily">
-    <el-row style="position:relative;height:40px;">
+  <div class="stock-daily table-page">
+    <div class="table-selector">
       <el-form :model="form" :inline="true">
         <el-form-item label="下单日期：">
           <el-date-picker
@@ -13,16 +13,12 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
-            size="mini"
+            size="small"
             @change="pickChange"
           ></el-date-picker>
-          <el-select
-            v-model="form.stockId"
-            placeholder="仓库"
-            size="mini"
-            style="margin:0 12px;"
-            @change="stockChange"
-          >
+        </el-form-item>
+        <el-form-item label="仓库：">
+          <el-select v-model="form.stockId" placeholder="仓库" size="small" @change="stockChange">
             <el-option
               v-for="(item) in stockList"
               :key="item.id"
@@ -30,11 +26,12 @@
               :value="item.id"
             ></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="产品名称">
           <el-select
             v-model="form.productId"
             placeholder="产品名称"
-            size="mini"
-            style="margin:0 12px;"
+            size="small"
             @change="productChange"
           >
             <el-option
@@ -44,39 +41,60 @@
               :value="item.id"
             ></el-option>
           </el-select>
-          <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
-          <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
         </el-form-item>
       </el-form>
-    </el-row>
-    <el-row class="table-content">
-      <el-table
-        :data="dataList"
-        stripe
-        ref="multipleTable"
-        style="height:100%;width:100%;"
-        v-if="!form.productId"
-      >
-        <el-table-column :label="storehouseName" align="center">
-          <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
-          <el-table-column label="SKU编码" prop="skuNo"></el-table-column>
-          <el-table-column label="产品名称" prop="productName"></el-table-column>
-          <el-table-column label="入库" prop="inStock"></el-table-column>
-          <el-table-column label="出库" prop="outStock"></el-table-column>
-          <el-table-column label="库存" prop="quantity"></el-table-column>
-        </el-table-column>
-      </el-table>
-      <div v-else>
-        <el-table ref="multipleTable" :data="dataList">
-          <el-table-column label="仓库" prop="storeHouseName"></el-table-column>
-          <el-table-column label="SKU编码" prop="skuNo"></el-table-column>z
-          <el-table-column label="产品名称" prop="productName"></el-table-column>z
-          <el-table-column label="入库" prop="inStock"></el-table-column>
-          <el-table-column label="出库" prop="outStock"></el-table-column>
-          <el-table-column label="库存" prop="quantity"></el-table-column>
-        </el-table>
+    </div>
+    <div class="main-content">
+      <div class="btn-container">
+        <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
+        <el-button
+          class="clear-btn"
+          size="small"
+          type="primary"
+          style="margin-left:30px;"
+          @click="exportOut"
+        >导出</el-button>
       </div>
-    </el-row>
+      <el-row class="table-content">
+        <el-table
+          :data="dataList"
+          ref="multipleTable"
+          style="height:100%;width:100%;"
+          v-if="!form.productId"
+        >
+          <el-table-column :label="storehouseName" align="center">
+            <template slot="empty">
+              <div>
+                <img src="../../../assets/img/none.svg" alt />
+                <p>暂无数据</p>
+              </div>
+            </template>
+            <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
+            <el-table-column label="SKU编码" prop="skuNo"></el-table-column>
+            <el-table-column label="产品名称" prop="productName"></el-table-column>
+            <el-table-column label="入库" prop="inStock"></el-table-column>
+            <el-table-column label="出库" prop="outStock"></el-table-column>
+            <el-table-column label="库存" prop="quantity"></el-table-column>
+          </el-table-column>
+        </el-table>
+        <div v-else>
+          <el-table ref="multipleTable" :data="dataList">
+            <template slot="empty">
+              <div>
+                <img src="../../../assets/img/none.svg" alt />
+                <p>暂无数据</p>
+              </div>
+            </template>
+            <el-table-column label="仓库" prop="storeHouseName"></el-table-column>
+            <el-table-column label="SKU编码" prop="skuNo"></el-table-column>z
+            <el-table-column label="产品名称" prop="productName"></el-table-column>z
+            <el-table-column label="入库" prop="inStock"></el-table-column>
+            <el-table-column label="出库" prop="outStock"></el-table-column>
+            <el-table-column label="库存" prop="quantity"></el-table-column>
+          </el-table>
+        </div>
+      </el-row>
+    </div>
     <!-- <el-row>
       <div style="margin-top:20px;float:right;">
         <el-pagination
@@ -331,34 +349,34 @@ export default {
 </script>
 <style lang="less" scoped>
 .stock-daily {
-  background-color: #fff;
-  height: 100%;
-  padding: 40px;
-  position: relative;
-  overflow: hidden;
-  /deep/ .el-range-editor--mini .el-range-separator {
-    width: 30px;
+  .table-selector {
+    padding: 10px;
   }
-  /deep/ .el-date-editor--daterange.el-input__inner {
-    width: 240px;
-  }
-  .table-content {
-    margin-top: 20px;
-    max-height: calc(~'100% - 60px');
-    min-height: 500px;
-    overflow: auto;
-    /deep/.el-table__body-wrapper {
-      height: calc(~'100% - 100px');
-      overflow: auto;
+  .main-content {
+    height: calc(~'100% - 100px');
+    .btn-container {
+      padding: 10px;
+      padding-left: 18px;
+      border-bottom: 1px solid #f1f1f1;
+      .clear-btn {
+        padding: 10px 40px;
+      }
     }
-    // /deep/ .el-table__body-wrapper::-webkit-scrollbar {
-    //   width: 10px; // 横向滚动条
-    //   height: 10px; // 纵向滚动条 必写
-    // }
-    // /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
-    //   background-color: #ddd;
-    //   border-radius: 4px;
-    // }
+    .table-content {
+      height: calc(~'100% - 100px');
+      /deep/.el-table__body-wrapper {
+        height: calc(~'100% - 50px');
+        overflow: auto;
+      }
+    }
   }
+  // /deep/ .el-table__body-wrapper::-webkit-scrollbar {
+  //   width: 10px; // 横向滚动条
+  //   height: 10px; // 纵向滚动条 必写
+  // }
+  // /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
+  //   background-color: #ddd;
+  //   border-radius: 4px;
+  // }
 }
 </style>

@@ -1,74 +1,82 @@
 
 <template>
-  <div class="stock-into-info">
+  <div class="stock-into-info content-one">
     <div class="content-header">
       <div class="crumb">
+        <img src="../../../assets/img/order-h.png" alt srcset />
         <span class="parent" @click="close">入库列表</span>
-        <span class="el-breadcrumb__separator">/</span>
+        <img src="../../../assets/img/arrow-h.png" alt srcset />
         <span class="current">入库单信息</span>
       </div>
       <i class="close-btn el-icon el-icon-close" @click="close"></i>
     </div>
-    <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
-      <el-row>
-        <el-form-item label="操作人：" v-if="ruleForm.category==1">
-          <span>{{userName}}</span>
-        </el-form-item>
-        <el-col :span="24">
-          <el-form-item label="入库编号：">
-            <span>{{orderNo}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="关联订单编号：" v-if="saleOrderNo">
-            <span>{{saleOrderNo}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="入库仓：">
-            <span>{{sotoreHouseName}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="入库类型：">
-            <span>{{categoryMap[ruleForm.category]||''}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="产品内容：">
-            <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
-              <el-table-column prop="productName" label="产品名称"></el-table-column>
-              <el-table-column prop="productNo" label="产品编码"></el-table-column>
-              <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-              <!-- <el-table-column prop="stock" label="当前库存">
-                <template slot-scope="scope">
-                  <div>{{getStokCanUse(scope.row.productStockPileInfo)}}</div>
-                </template>
-              </el-table-column>-->
-              <el-table-column prop="quantity" label="数量"></el-table-column>
-            </el-table>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="货品来源：">
-            <span>{{ruleForm.origin}}</span>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="备注：">
-            <span>{{ruleForm.remark}}</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="24">
-          <div class="buttons">
-            <el-button type="danger" @click="deleteThis" size="small">删除</el-button>
-            <el-button type="info" size="small" @click="close">返回</el-button>
-          </div>
-        </el-col>
-      </el-row>
-    </el-form>
+    <div class="content-main">
+      <div class="item-title">
+        <span class="line"></span>
+        <span>基本信息</span>
+      </div>
+      <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="操作人：" v-if="ruleForm.category==1">
+              <span>{{userName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="入库编号：">
+              <span>{{orderNo}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="关联订单编号：" v-if="saleOrderNo">
+              <span>{{saleOrderNo}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="入库仓：">
+              <span>{{sotoreHouseName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="入库类型：">
+              <span>{{categoryMap[ruleForm.category]||''}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="产品内容：">
+              <el-table
+                :data="ruleForm.commodityItemSaveFormList"
+                class="detail-table"
+                size="small"
+              >
+                <el-table-column prop="productName" label="产品名称"></el-table-column>
+                <el-table-column prop="productNo" label="产品编码"></el-table-column>
+                <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
+                <el-table-column prop="quantity" label="数量"></el-table-column>
+              </el-table>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="货品来源：">
+              <span>{{ruleForm.origin}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="备注：">
+              <span>{{ruleForm.remark}}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <div class="buttons">
+              <el-button size="small" type="danger" @click="deleteThis">删除</el-button>
+              <el-button size="small" type="info" @click="close">返回</el-button>
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
@@ -266,41 +274,45 @@ export default {
   height: 100%;
   width: 100%;
   position: absolute;
-  padding: 40px 40px;
   left: 0;
   top: 0;
   z-index: 10;
-  overflow: auto;
+  padding-top: 60px;
+  overflow: hidden;
   .content-header {
-    position: relative;
-    height: 40px;
-    line-height: 40px;
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
     .crumb {
+      display: flex;
+      align-items: center;
       .parent {
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
         cursor: pointer;
+        margin-left: 10px;
       }
       .current {
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
       }
     }
     .close-btn {
-      position: absolute;
-      right: 0;
-      top: 0;
       cursor: pointer;
     }
   }
   .form {
-    margin-top: 20px;
-    .title {
-      height: 40px;
-      line-height: 40px;
-      border-bottom: 1px solid #f2f2f2;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
     .buttons {
       text-align: center;
       margin-top: 30px;

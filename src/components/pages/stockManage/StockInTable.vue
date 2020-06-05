@@ -1,31 +1,32 @@
 <template>
-  <div class="in-manage">
-    <el-row style="position:relative;height:50px;">
-      <div style="display:flex;justify-content:space-between;">
-        <el-button type="warning" size="medium" @click="addNew">新建入库单</el-button>
-        <div style="width:400px;">
-          <el-select placeholder="入库编号" size="mini" value="1" style="width:100px;">
-            <el-option label="入库编号" value="1" size="mini"></el-option>
-          </el-select>
-          <el-input
-            v-model="orderNo"
-            size="mini"
-            style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
-          ></el-input>
+  <div class="in-manage table-page">
+    <div class="table-selector">
+      <el-form :model="form" :inline="true" class="form" label-width="120px">
+        <div class="top-blur-search">
+          <el-form-item label="入库单查询：">
+            <el-input
+              v-model="orderNo"
+              size="small"
+              placeholder="请输入入库编号"
+              style="width:300px;display:inline-block;"
+            ></el-input>
+            <el-button
+              type="primary"
+              icon="el-icon-search"
+              @click="blurSearch"
+              size="small"
+              style="display:inline-block;margin-left:10px;"
+            ></el-button>
+          </el-form-item>
           <el-button
-            type="primary"
-            icon="el-icon-search"
-            @click="blurSearch"
-            size="mini"
-            style="position:absolute;;margin-left:190px;"
-          ></el-button>
+            type="warning"
+            size="medium"
+            @click="addNew"
+            style="float:right;margin-right:30px;"
+          >新建入库单</el-button>
         </div>
-      </div>
-    </el-row>
-    <el-row>
-      <el-col :span="24">
-        <el-form :model="form" :inline="true" class="form">
-          <el-form-item label="入库单筛选：">
+        <div>
+          <el-form-item label="日期筛选：">
             <el-date-picker
               v-model="form.datePickVal"
               type="daterange"
@@ -36,13 +37,15 @@
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
               @change="pickChange"
-              size="mini"
+              size="small"
             ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="入库类型：">
             <el-select
               v-model="form.category"
               @change="screening"
               placeholder="入库类型"
-              size="mini"
+              size="small"
               style="margin:0 12px;"
             >
               <el-option
@@ -52,11 +55,13 @@
                 :value="item.id"
               ></el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item label="入库仓">
             <el-select
               v-model="form.storeHouseId"
               @change="screening"
               placeholder="入库仓"
-              size="mini"
+              size="small"
               style="margin:0 12px;"
             >
               <el-option
@@ -66,58 +71,74 @@
                 :value="item.id"
               ></el-option>
             </el-select>
-            <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
-            <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
           </el-form-item>
-        </el-form>
-      </el-col>
-    </el-row>
-    <el-row class="table-content">
-      <el-table
-        :data="entryOrderList"
-        stripe
-        ref="multipleTable"
-        style="height:100%;"
-        @sort-change="sortChange"
-      >
-        <el-table-column prop="createTime" label="创建日期" align="center" sortable="custom">
-          <!-- <template slot-scope="scope">
+        </div>
+        <div class="btn-container">
+          <el-button class="clear-btn" size="small" type="info" @click="clearScreen" plain>清空筛选条件</el-button>
+          <el-button
+            class="clear-btn"
+            size="small"
+            type="primary"
+            style="margin-left:30px;"
+            @click="exportOut"
+          >导出</el-button>
+        </div>
+      </el-form>
+    </div>
+    <div class="main-content">
+      <div class="table-content">
+        <el-table
+          :data="entryOrderList"
+          stripe
+          ref="multipleTable"
+          style="height:100%;"
+          @sort-change="sortChange"
+        >
+          <template slot="empty">
+            <div>
+              <img src="../../../assets/img/none.svg" alt />
+              <p>暂无数据</p>
+            </div>
+          </template>
+          <el-table-column prop="createTime" label="创建日期" align="center" sortable="custom">
+            <!-- <template slot-scope="scope">
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
-          </template>-->
-        </el-table-column>
-        <el-table-column prop="category" label="入库类型" align="center">
-          <template slot-scope="scope">
-            <span>{{scope.row.orderStatus=='待入库'?'':scope.row.category}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="rate" label="入库编号" align="center">
-          <template slot-scope="scope">
-            <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="storehouseName" label="入库仓"></el-table-column>
-        <el-table-column prop="origin" label="货品来源"></el-table-column>
-        <el-table-column prop="productInfoList" label="产品名称*数量">
-          <template slot-scope="scope">
-            <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="remark" label="备注"></el-table-column>
-      </el-table>
-    </el-row>
-    <el-row>
-      <div style="margin-top:40px;float:right;">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10, 30, 50]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalRows"
-        ></el-pagination>
+            </template>-->
+          </el-table-column>
+          <el-table-column prop="category" label="入库类型" align="center">
+            <template slot-scope="scope">
+              <span>{{scope.row.orderStatus=='待入库'?'':scope.row.category}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="rate" label="入库编号" align="center">
+            <template slot-scope="scope">
+              <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column prop="storehouseName" label="入库仓"></el-table-column>
+          <el-table-column prop="origin" label="货品来源"></el-table-column>
+          <el-table-column prop="productInfoList" label="产品名称*数量">
+            <template slot-scope="scope">
+              <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="备注"></el-table-column>
+        </el-table>
       </div>
-    </el-row>
+      <div class="page-shift-container">
+        <div class="page-shift">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 30, 50]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalRows"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
     <create-stock-in v-if="showCreatePage" @close="closeCreatePage"></create-stock-in>
     <stock-into-info v-if="showInfoPage" :id="detailId" @close="closeInfoPage"></stock-into-info>
     <stock-into-draft v-if="showDraftPage" :id="detailId" @close="closeDraftPage"></stock-into-draft>
@@ -343,24 +364,29 @@ export default {
 </script>
 <style lang="less" scoped>
 .in-manage {
-  background-color: #fff;
-  height: 100%;
-  padding: 40px;
-  position: relative;
-  /deep/ .el-range-editor--mini .el-range-separator {
-    width: 30px;
+  .main-content {
+    height: calc(~'100% - 100px');
+    .table-content {
+      height: calc(~'100% - 100px');
+      /deep/.el-table__body-wrapper {
+        height: calc(~'100% - 50px');
+        overflow: auto;
+      }
+    }
   }
-  /deep/ .el-date-editor--daterange.el-input__inner {
-    width: 240px;
-  }
-  /deep/ .el-tabs__nav-wrap {
-    width: 100%;
-  }
-  .table-content {
-    height: calc(~'100% - 160px');
-    /deep/.el-table__body-wrapper {
-      height: calc(~'100% - 50px');
-      overflow: auto;
+  .table-selector {
+    .top-blur-search {
+      border-bottom: 1px dashed #e8e8e8;
+      padding: 10px 0;
+      margin-bottom: 10px;
+    }
+    .btn-container {
+      padding: 10px;
+      padding-left: 18px;
+      .clear-btn {
+        font-size: 14px;
+        padding: 10px 40px;
+      }
     }
   }
 }

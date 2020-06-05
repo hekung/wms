@@ -1,46 +1,52 @@
 <template>
-  <div class="account-manage">
-    <el-row style="position:relative;height:40px;">
-      <el-button type="warning" size="medium" @click="createAccount">新建账号</el-button>
-    </el-row>
-    <el-row class="table-content">
-      <el-table :data="accountList" stripe ref="multipleTable" style="height:100%;">
-        <el-table-column prop="open_code" label="用户账号"></el-table-column>
-        <el-table-column prop="name" label="真实姓名"></el-table-column>
-        <el-table-column prop="headImg" label="头像" align="center">
-          <template slot-scope="scope">
-            <img :src="scope.row.headImg" alt style="height:60px;" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="roleName" label="角色"></el-table-column>
-        <el-table-column prop="createTime" label="注册时间"></el-table-column>
-        <el-table-column label="操作" width="180" align="center">
-          <template slot-scope="scope">
-            <div v-if="scope.row.state==0">
-              <el-button type="text" @click="modifyOne(scope.row)">修改信息</el-button>
-              <el-button type="text" @click="modifyPwd(scope.row)">修改密码</el-button>
-              <el-button type="text" @click="changeStatus(scope.row)">停用</el-button>
-            </div>
-            <div v-else>
-              <el-link type="primary" @click="changeStatus(scope.row)">启用</el-link>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-row>
-    <el-row>
-      <div style="margin-top:40px;float:right;">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10, 30, 50]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalRows"
-        ></el-pagination>
+  <div class="account-manage table-page">
+    <div class="table-selector">
+      <el-button type="warning" size="small" class="clear-btn" @click="createAccount">新建账号</el-button>
+    </div>
+    <div class="main-content">
+      <div class="table-content">
+        <el-table :data="accountList" stripe ref="multipleTable" style="height:100%;">
+          <el-table-column prop="open_code" label="用户账号"></el-table-column>
+          <el-table-column prop="name" label="真实姓名"></el-table-column>
+          <el-table-column prop="headImg" label="头像" align="center">
+            <template slot-scope="scope">
+              <img :src="scope.row.headImg" alt style="height:60px;" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="roleName" label="角色">
+            <template slot-scope="scope">
+              <span>{{scope.row.roleName}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="注册时间"></el-table-column>
+          <el-table-column label="操作" width="180" align="center">
+            <template slot-scope="scope">
+              <div v-if="scope.row.state==0">
+                <el-button type="text" @click="modifyOne(scope.row)">修改信息</el-button>
+                <el-button type="text" @click="modifyPwd(scope.row)">修改密码</el-button>
+                <el-button type="text" @click="changeStatus(scope.row)">停用</el-button>
+              </div>
+              <div v-else>
+                <el-link type="primary" @click="changeStatus(scope.row)">启用</el-link>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
-    </el-row>
+      <div class="page-shift-container">
+        <div class="page-shift">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 30, 50]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalRows"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
     <add-account :detail="selectItem" v-if="createStatus" @detailStatus="changeCreateStatus"></add-account>
   </div>
 </template>
@@ -175,28 +181,22 @@ export default {
 </script>
 <style lang="less" scoped>
 .account-manage {
-  background-color: #fff;
-  height: 100%;
-  padding: 40px;
-  position: relative;
-  // .create {
-  //   float: right;
-  // }
-  .table-content {
-    height: calc(~'100% - 100px');
-    /deep/.el-table__body-wrapper {
-      height: calc(~'100% - 48px');
-      overflow: auto;
+  .table-selector {
+    padding: 10px;
+    .clear-btn {
+      font-size: 14px;
+      padding-left: 40px;
+      padding-right: 40px;
     }
   }
-  .item-head {
-    background-color: #ccc;
-    border: 1px solid #bbb;
-    height: 40px;
-    line-height: 40px;
-    span {
-      display: inline-block;
-      margin-right: 20px;
+  .main-content {
+    height: calc(~'100% - 100px');
+    .table-content {
+      height: calc(~'100% - 100px');
+      /deep/.el-table__body-wrapper {
+        height: calc(~'100% - 48px');
+        overflow: auto;
+      }
     }
   }
 }

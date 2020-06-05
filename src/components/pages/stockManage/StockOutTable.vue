@@ -1,105 +1,141 @@
 <template>
-  <div class="out-manage">
-    <el-row style="position:relative;height:50px;">
-      <el-form :model="form" :inline="true">
-        <el-form-item label="下单日期：">
-          <el-date-picker
-            v-model="form.datePickVal"
-            type="daterange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            @change="pickChange"
-            :picker-options="pickerOptions"
-            size="mini"
-          ></el-date-picker>
-          <el-select
-            v-model="form.stockId"
-            @change="screening"
-            placeholder="出库仓"
-            size="mini"
-            style="margin:0 12px;"
-          >
-            <el-option
-              v-for="(item) in stockList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-          <el-button size="mini" type="primary" @click="exportOut">导出</el-button>
-          <el-button type="text" @click="clearScreen" style="margin-left:20px;">清空筛选条件</el-button>
-        </el-form-item>
+  <div class="out-manage table-page">
+    <div class="table-selector">
+      <el-form :model="form" :inline="true" label-width="120px">
+        <div class="top-blur-search">
+          <el-form-item label="出库单查询：">
+            <el-input
+              v-model="orderNo"
+              size="small"
+              placeholder="请输入出库编号"
+              style="width:300px;display:inline-block;"
+            ></el-input>
+            <el-button
+              type="primary"
+              icon="el-icon-search"
+              @click="blurSearch"
+              size="small"
+              style="display:inline-block;margin-left:10px;"
+            ></el-button>
+          </el-form-item>
+        </div>
+        <div>
+          <el-form-item label="下单日期：">
+            <el-date-picker
+              v-model="form.datePickVal"
+              type="daterange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="pickChange"
+              :picker-options="pickerOptions"
+              size="small"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="出库仓">
+            <el-select
+              v-model="form.stockId"
+              @change="screening"
+              placeholder="出库仓"
+              size="small"
+              style="margin:0 12px;"
+            >
+              <el-option
+                v-for="(item) in stockList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+        <div class="btn-container">
+          <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
+          <el-button
+            class="clear-btn"
+            size="small"
+            type="primary"
+            style="margin-left:30px;"
+            @click="exportOut"
+          >导出</el-button>
+        </div>
       </el-form>
-    </el-row>
-    <el-row>
-      <el-col :span="24" style="position:relative;">
-        <el-select placeholder="出库编号" size="mini" value="1" style="width:100px;">
-          <el-option label="出库编号" value="1" size="mini"></el-option>
-        </el-select>
-        <el-input
-          v-model="orderNo"
-          size="mini"
-          style="position:absolute;overflow:hidden;width:200px;margin-left:-4px;"
-        ></el-input>
-        <el-button
-          type="primary"
-          icon="el-icon-search"
-          @click="blurSearch"
-          size="mini"
-          style="position:absolute;;margin-left:190px;"
-        ></el-button>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-tabs v-model="type">
-        <el-tab-pane label="全部出库单" name="2"></el-tab-pane>
-        <el-tab-pane label="待出库" name="0"></el-tab-pane>
-        <el-tab-pane label="已出库" name="1"></el-tab-pane>
-      </el-tabs>
-    </el-row>
-    <el-row class="table-content">
-      <el-table
-        :data="stockOutList"
-        stripe
-        ref="multipleTable"
-        style="height:100%;"
-        @sort-change="sortChange"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" v-if="type=='0'"></el-table-column>
-        <el-table-column prop="createTime" label="下单时间" sortable="custom"></el-table-column>
-        <el-table-column prop="orderNo" label="订单编号">
-          <template slot-scope="scope">
-            <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="receiverName" label="收货人"></el-table-column>
-        <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
-        <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
-        <el-table-column prop="expressNo" label="物流单号"></el-table-column>
-        <el-table-column prop="orderStatus" label="出库状态">
-          <template slot-scope="scope">
-            <span :class="scope.row.orderStatus==='已完成'?'orange':''">{{scope.row.orderStatus}}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-row>
-    <el-row>
-      <div style="margin-top:20px;float:right;">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[10, 30, 50]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalRows"
-        ></el-pagination>
+    </div>
+    <div class="main-content">
+      <div>
+        <el-tabs v-model="type">
+          <el-tab-pane name="2">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/all.png" alt v-if="type!=='2'" />
+              <img src="../../../assets/img/all-1.png" alt v-else />
+              <span>全部</span>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane name="0">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/waitDone.png" alt v-if="type!=='0'" />
+              <img src="../../../assets/img/waitDone-1.png" alt v-else />
+              <span>待出库</span>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane name="1">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/finish.png" alt v-if="type!=='1'" />
+              <img src="../../../assets/img/finish-1.png" alt v-else />
+              <span>已完成</span>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
       </div>
-    </el-row>
+      <div class="table-content">
+        <el-table
+          :data="stockOutList"
+          stripe
+          ref="multipleTable"
+          style="height:100%;"
+          @sort-change="sortChange"
+          @selection-change="handleSelectionChange"
+        >
+          <template slot="empty">
+            <div>
+              <img src="../../../assets/img/none.svg" alt />
+              <p>暂无数据</p>
+            </div>
+          </template>
+          <el-table-column type="selection" width="55" v-if="type=='0'"></el-table-column>
+          <el-table-column prop="createTime" label="下单时间" sortable="custom" align="center"></el-table-column>
+          <el-table-column prop="orderNo" label="订单编号" align="center">
+            <template slot-scope="scope">
+              <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column prop="receiverName" label="收货人" align="center"></el-table-column>
+          <el-table-column prop="storeHouseName" label="出库仓库" align="center"></el-table-column>
+          <el-table-column prop="expressCompanys" label="物流公司" align="center"></el-table-column>
+          <el-table-column prop="expressNo" label="物流单号" align="center"></el-table-column>
+          <el-table-column prop="orderStatus" label="出库状态" align="center">
+            <template slot-scope="scope">
+              <span :class="scope.row.orderStatus==='已完成'?'orange':''">{{scope.row.orderStatus}}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="page-shift-container">
+        <div class="page-shift">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[10, 30, 50]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="totalRows"
+          ></el-pagination>
+        </div>
+      </div>
+    </div>
     <stock-out-info v-if="showDetail" :id="detailId" @close="toggleShowDetail"></stock-out-info>
     <el-dialog
       title="请选择导出报表："
@@ -379,16 +415,6 @@ export default {
 </script>
 <style lang="less" scoped>
 .out-manage {
-  background-color: #fff;
-  height: 100%;
-  padding: 40px;
-  position: relative;
-  /deep/ .el-range-editor--mini .el-range-separator {
-    width: 30px;
-  }
-  /deep/ .el-date-editor--daterange.el-input__inner {
-    width: 240px;
-  }
   .orange {
     color: orange;
   }
@@ -396,11 +422,29 @@ export default {
     display: block;
     line-height: 30px;
   }
-  .table-content {
-    height: calc(~'100% - 150px');
-    /deep/.el-table__body-wrapper {
-      height: calc(~'100% - 50px');
-      overflow: auto;
+  .main-content {
+    height: calc(~'100% - 100px');
+    .table-content {
+      height: calc(~'100% - 100px');
+      /deep/.el-table__body-wrapper {
+        height: calc(~'100% - 50px');
+        overflow: auto;
+      }
+    }
+  }
+  .table-selector {
+    .top-blur-search {
+      border-bottom: 1px dashed #e8e8e8;
+      padding: 10px 0;
+      margin-bottom: 10px;
+    }
+    .btn-container {
+      padding: 10px;
+      padding-left: 18px;
+      .clear-btn {
+        font-size: 14px;
+        padding: 10px 40px;
+      }
     }
   }
 }

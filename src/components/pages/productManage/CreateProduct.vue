@@ -1,115 +1,178 @@
 <template>
-  <div class="product-content">
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="160px" class="form">
-      <div class="title">
-        <span>基本信息</span>
+  <div class="product-content content-one">
+    <div class="content-header">
+      <div class="crumb">
+        <img src="../../../assets/img/order-h.png" alt srcset />
+        <span class="current">创建产品</span>
       </div>
-      <el-form-item label="产品名称：" prop="productName">
-        <el-input v-model="ruleForm.productName" placeholder="请输入产品名称" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="产品编码：" prop="productNo">
-        <el-input v-model="ruleForm.productNo" placeholder="请输入产品编码" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="产品图片：">
-        <el-upload
-          class="avatar-uploader"
-          :show-file-list="false"
-          :on-success="onSuccessPC"
-          :before-upload="beforeUpload"
-          action="/innobeautywms/imgUpload"
-        >
-          <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
-          <div v-else style="height:100%;line-height:120px;">
-            <i class="el-icon-plus avatar-uploader-icon"></i>
-          </div>
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="Sku编码：" prop="skuNo">
-        <el-input v-model="ruleForm.skuNo" placeholder="请输入Sku编码" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="产地：" prop="productArea">
-        <el-select v-model="ruleForm.productArea" placeholder="请选择产地" size="small">
-          <el-option label="加拿大" value="加拿大"></el-option>
-          <el-option label="日本" value="日本"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="规格：" prop="productSpecification">
-        <el-input v-model="ruleForm.productSpecification" placeholder="请输入规格" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="产品批号：" prop="productBatchNumber">
-        <el-input v-model="ruleForm.productBatchNumber" placeholder="请输入产品批号" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="单品毛重(g)：" prop="singleWeight">
-        <el-input v-model="ruleForm.singleWeight" size="small"></el-input>
-      </el-form-item>
-      <div class="title">
-        <span>扩展信息</span>
-      </div>
-      <el-form-item label="单品尺寸mm(长宽高)：">
-        <div class="df">
-          <el-input v-model="length" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="width" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="height" size="small"></el-input>
+    </div>
+    <div class="content-main">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="160px" class="form">
+        <div class="item-title">
+          <span class="line"></span>
+          <span>基本信息</span>
         </div>
-      </el-form-item>
-      <el-form-item label="内盒尺寸mm(长宽高)：">
-        <div class="df">
-          <el-input v-model="binLength" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="binWidth" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="binHeight" size="small"></el-input>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="产品名称：" prop="productName">
+              <el-input v-model="ruleForm.productName" placeholder="请输入产品名称" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="产品编码：" prop="productNo">
+              <el-input v-model="ruleForm.productNo" placeholder="请输入产品编码" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="Sku编码：" prop="skuNo">
+              <el-input v-model="ruleForm.skuNo" placeholder="请输入Sku编码" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="产品图片：">
+              <el-upload
+                class="avatar-uploader"
+                :show-file-list="false"
+                :on-success="onSuccessPC"
+                :before-upload="beforeUpload"
+                action="/innobeautywms/imgUpload"
+              >
+                <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
+                <div v-else style="height:100%;line-height:120px;">
+                  <i class="el-icon-plus avatar-uploader-icon"></i>
+                </div>
+              </el-upload>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="产地：" prop="productArea">
+              <el-select
+                v-model="ruleForm.productArea"
+                placeholder="请选择产地"
+                style="width:300px;"
+                size="small"
+              >
+                <el-option label="加拿大" value="加拿大"></el-option>
+                <el-option label="日本" value="日本"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="规格：" prop="productSpecification">
+              <el-input
+                v-model="ruleForm.productSpecification"
+                style="width:300px;"
+                placeholder="请输入规格"
+                size="small"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="产品批号：" prop="productBatchNumber">
+              <el-input
+                v-model="ruleForm.productBatchNumber"
+                style="width:300px;"
+                placeholder="请输入产品批号"
+                size="small"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="单品毛重(g)：" prop="singleWeight">
+              <el-input v-model="ruleForm.singleWeight" style="width:300px;" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <div class="item-title">
+          <span class="line"></span>
+          <span>扩展信息</span>
         </div>
-      </el-form-item>
-      <el-form-item label="内盒产品数(个)：">
-        <el-input v-model="ruleForm.innerProductNumber" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="内盒数(盒/箱)：">
-        <el-input v-model="ruleForm.innerBoxProductNumber" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="箱产品数(产品数/箱)：">
-        <el-input v-model="ruleForm.caseProductNumber" size="small"></el-input>
-      </el-form-item>
-      <el-form-item label="箱规mm(长宽高)：">
-        <div class="df">
-          <el-input v-model="binLength2" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="binWidth2" size="small"></el-input>
-          <span>*</span>
-          <el-input v-model="binHeight2" size="small"></el-input>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="单品尺寸mm(长宽高)：">
+              <div class="df">
+                <el-input v-model="length" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="width" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="height" size="small"></el-input>
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="内盒尺寸mm(长宽高)：">
+              <div class="df">
+                <el-input v-model="binLength" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="binWidth" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="binHeight" size="small"></el-input>
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="内盒产品数(个)：">
+              <el-input v-model="ruleForm.innerProductNumber" style="width:300px;" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="内盒数(盒/箱)：">
+              <el-input v-model="ruleForm.innerBoxProductNumber" style="width:300px;" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="箱产品数(产品数/箱)：">
+              <el-input v-model="ruleForm.caseProductNumber" style="width:300px;" size="small"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="箱规mm(长宽高)：">
+              <div class="df">
+                <el-input v-model="binLength2" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="binWidth2" size="small"></el-input>
+                <span>*</span>
+                <el-input v-model="binHeight2" size="small"></el-input>
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="最小发货数：" prop="minShipNumber">
+              <el-input v-model="ruleForm.minShipNumber" size="small" class="ib"></el-input>
+              <el-select v-model="ruleForm.deliveryUnit" placeholder="单位" size="small" class="ib">
+                <el-option
+                  v-for="(item,index) in minShipNumberUnitList"
+                  :key="index"
+                  :label="item"
+                  :value="item"
+                >
+                  <div class="sel-box">
+                    <span>{{item}}</span>
+                    <i
+                      class="el-icon-close del-icon"
+                      @click="deleteUnit(index)"
+                      v-show="item!=='其他'"
+                    ></i>
+                  </div>
+                </el-option>
+              </el-select>
+              <el-input
+                v-model="newUnit"
+                placeholder="输入新单位"
+                size="small"
+                class="ib"
+                v-if="ruleForm.deliveryUnit=='其他'"
+                @keyup.enter.native="saveNewUnit"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <div class="buttons">
+          <el-button size="small" type="primary" @click="submitForm">保存</el-button>
+          <el-button size="small" @click="cancel">取消</el-button>
         </div>
-      </el-form-item>
-      <el-form-item label="最小发货数：" prop="minShipNumber">
-        <el-input v-model="ruleForm.minShipNumber" size="small" class="ib"></el-input>
-        <el-select v-model="ruleForm.deliveryUnit" placeholder="单位" size="small" class="ib">
-          <el-option
-            v-for="(item,index) in minShipNumberUnitList"
-            :key="index"
-            :label="item"
-            :value="item"
-          >
-            <div class="sel-box">
-              <span>{{item}}</span>
-              <i class="el-icon-close del-icon" @click="deleteUnit(index)" v-show="item!=='其他'"></i>
-            </div>
-          </el-option>
-        </el-select>
-        <el-input
-          v-model="newUnit"
-          placeholder="输入新单位"
-          size="small"
-          class="ib"
-          v-if="ruleForm.deliveryUnit=='其他'"
-          @keyup.enter.native="saveNewUnit"
-        ></el-input>
-      </el-form-item>
-      <div class="buttons">
-        <el-button type="primary" @click="submitForm">保存</el-button>
-        <el-button @click="cancel">取消</el-button>
-      </div>
-    </el-form>
+      </el-form>
+    </div>
   </div>
 </template>
 <script>
@@ -381,13 +444,36 @@ export default {
 .product-content {
   background-color: #fff;
   height: 100%;
-  padding: 20px 40px;
+  padding-top: 60px;
+  overflow: hidden;
   position: relative;
-  overflow: auto;
   .ib {
     display: inline-block;
     width: 100px;
     margin-right: 10px;
+  }
+  .content-header {
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
+    .crumb {
+      display: flex;
+      align-items: center;
+      .current {
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
+      }
+    }
   }
   .form {
     .avatar-uploader {
@@ -399,12 +485,6 @@ export default {
           height: 100%;
         }
       }
-    }
-    .title {
-      height: 40px;
-      line-height: 40px;
-      border-bottom: 1px solid #f2f2f2;
-      margin-bottom: 20px;
     }
     .buttons {
       text-align: center;

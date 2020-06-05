@@ -1,57 +1,66 @@
 <template>
-  <div class="add-account">
-    <div class="el-dialog__header">
-      <span class="el-dialog__title">新建账号</span>
-      <button type="button" aria-label="Close" class="el-dialog__headerbtn">
-        <i class="el-dialog__close el-icon el-icon-close" @click="handleClose"></i>
-      </button>
+  <div class="add-account content-one">
+    <div class="content-header">
+      <div class="crumb">
+        <img src="../../../../assets/img/order-h.png" alt srcset />
+        <span class="parent" @click="handleClose">账号管理</span>
+        <img src="../../../../assets/img/arrow-h.png" alt srcset />
+        <span class="current">账号信息</span>
+      </div>
+      <i class="close-btn el-icon el-icon-close" @click="handleClose"></i>
     </div>
-    <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px">
-      <el-row>
-        <el-col :span="24">
-          <el-form-item label="用户账号：" prop="open_code" style="width:360px;">
-            <el-input v-model="ruleForm.open_code" placeholder="请输入"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="用户姓名：" style="width:360px;" prop="name">
-            <el-input v-model="ruleForm.name" placeholder="请输入"></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="用户头像：" prop="headImg">
-            <el-upload
-              class="avatar-uploader"
-              :show-file-list="false"
-              :on-success="onSuccessPC"
-              :before-upload="beforeUpload"
-              :on-change="onImgChangePC"
-              action="/innobeautywms/imgUpload"
-            >
-              <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
-              <div v-else style="height:100%;line-height:120px;">
-                <i class="el-icon-plus avatar-uploader-icon"></i>
-              </div>
-            </el-upload>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-form-item label="用户角色：" prop="roleId">
-            <el-select v-model="ruleForm.roleId" placeholder="请选择">
-              <el-option
-                v-for="(item) in roleArr"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-form>
-    <div slot="footer" style="text-align: center;">
-      <el-button type="primary" @click="submit">提 交</el-button>
-      <el-button @click="$emit('detailStatus', false)">取 消</el-button>
+    <div class="content-main">
+      <div class="item-title">
+        <span class="line"></span>
+        <span>所有信息</span>
+      </div>
+      <el-form :model="ruleForm" :rules="rules" label-width="120px" ref="ruleForm">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="用户账号：" prop="open_code" style="width:360px;">
+              <el-input v-model="ruleForm.open_code" size="small" placeholder="请输入"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="用户姓名：" style="width:360px;" prop="name">
+              <el-input v-model="ruleForm.name" size="small" placeholder="请输入"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="用户头像：" prop="headImg">
+              <el-upload
+                class="avatar-uploader"
+                :show-file-list="false"
+                :on-success="onSuccessPC"
+                :before-upload="beforeUpload"
+                :on-change="onImgChangePC"
+                action="/innobeautywms/imgUpload"
+              >
+                <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
+                <div v-else style="height:100%;line-height:120px;">
+                  <i class="el-icon-plus avatar-uploader-icon"></i>
+                </div>
+              </el-upload>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="用户角色：" prop="roleId">
+              <el-select v-model="ruleForm.roleId" size="small" placeholder="请选择">
+                <el-option
+                  v-for="(item) in roleArr"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" style="text-align: center;">
+        <el-button size="small" type="primary" @click="submit">提 交</el-button>
+        <el-button size="small" @click="$emit('detailStatus', false)">取 消</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -145,9 +154,9 @@ export default {
       let url = '/innobeautywms/role/list'
       this.util.get(url).then(res => {
         let { date, status } = res.data
-       if(status === 0){
+        if (status === 0) {
           this.roleArr = date
-       }
+        }
       })
     },
     handleClose(done) {
@@ -213,8 +222,41 @@ export default {
   height: 100%;
   background-color: #fff;
   z-index: 1;
-  padding: 20px;
-  overflow: auto;
+  padding-top: 60px;
+  overflow: hidden;
+  .content-header {
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
+    .crumb {
+      display: flex;
+      align-items: center;
+      .parent {
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      .current {
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
+      }
+    }
+    .close-btn {
+      cursor: pointer;
+    }
+  }
   .avatar-uploader {
     /deep/ .el-upload--text {
       width: 120px;

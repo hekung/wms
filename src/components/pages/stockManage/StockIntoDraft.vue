@@ -1,52 +1,79 @@
 <template>
-  <div class="stock-content">
+  <div class="stock-content content-one">
     <div class="content-header">
       <div class="crumb">
+        <img src="../../../assets/img/order-h.png" alt srcset />
         <span class="parent" @click="cancel">入库列表</span>
-        <span class="el-breadcrumb__separator">/</span>
+        <img src="../../../assets/img/arrow-h.png" alt srcset />
         <span class="current">入库单信息</span>
       </div>
       <i class="close-btn el-icon el-icon-close" @click="cancel"></i>
     </div>
-    <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
-      <div class="title">
+    <div class="content-main">
+      <div class="item-title">
+        <span class="line"></span>
         <span>基本信息</span>
       </div>
-      <el-form-item label="操作人：" v-if="categoryName=='退货入库'">
-        <span>{{userName}}</span>
-      </el-form-item>
-      <el-form-item label="入库编号：">
-        <span>{{orderNo}}</span>
-      </el-form-item>
-      <el-form-item label="关联订单编号：" v-if="saleOrderNo">
-        <span>{{saleOrderNo}}</span>
-      </el-form-item>
-      <el-form-item label="入库仓：">
-        <span>{{sotoreHouseName}}</span>
-      </el-form-item>
-      <el-form-item label="入库类型：">
-        <span>{{categoryName}}</span>
-      </el-form-item>
-      <el-form-item label="产品内容：">
-        <el-table :data="ruleForm.commodityItemSaveFormList" style="width:420px;">
-          <el-table-column prop="productName" label="内容名称"></el-table-column>
-          <el-table-column prop="productNo" label="内容编码"></el-table-column>
-          <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-          <el-table-column prop="quantity" label="数量"></el-table-column>
-        </el-table>
-      </el-form-item>
-      <el-form-item label="货品来源：">
-        <span>{{ruleForm.origin}}</span>
-      </el-form-item>
-      <el-form-item label="备注：">
-        <el-input v-model="ruleForm.remark" size="small"></el-input>
-      </el-form-item>
-      <div class="buttons">
-        <el-button type="primary" @click="submitForm">确认</el-button>
-        <el-button type="warning" @click="reject">驳回</el-button>
-        <el-button @click="cancel">返回</el-button>
-      </div>
-    </el-form>
+    </div>
+    <el-row>
+      <el-form :model="ruleForm" ref="ruleForm" label-width="120px" class="form">
+        <el-col :span="12">
+          <el-form-item label="操作人：" v-if="categoryName=='退货入库'">
+            <span>{{userName}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="入库编号：">
+            <span>{{orderNo}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="关联订单编号：" v-if="saleOrderNo">
+            <span>{{saleOrderNo}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="入库仓：">
+            <span>{{sotoreHouseName}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="入库类型：">
+            <span>{{categoryName}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="产品内容：">
+            <el-table
+              :data="ruleForm.commodityItemSaveFormList"
+              style="width:420px;"
+              class="detail-table"
+              size="small"
+            >
+              <el-table-column prop="productName" label="内容名称"></el-table-column>
+              <el-table-column prop="productNo" label="内容编码"></el-table-column>
+              <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
+              <el-table-column prop="quantity" label="数量"></el-table-column>
+            </el-table>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="货品来源：">
+            <span>{{ruleForm.origin}}</span>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-form-item label="备注：">
+            <el-input v-model="ruleForm.remark" size="small"></el-input>
+          </el-form-item>
+        </el-col>
+        <div class="buttons">
+          <el-button size="small" type="primary" @click="submitForm">确认</el-button>
+          <el-button size="small" type="warning" @click="reject">驳回</el-button>
+          <el-button size="small" @click="cancel">返回</el-button>
+        </div>
+      </el-form>
+    </el-row>
   </div>
 </template>
 <script>
@@ -181,39 +208,45 @@ export default {
   height: 100%;
   width: 100%;
   position: absolute;
-  padding: 40px 40px;
   left: 0;
   top: 0;
   z-index: 10;
-  overflow: auto;
+  padding-top: 60px;
+  overflow: hidden;
   .content-header {
-    position: relative;
-    height: 40px;
-    line-height: 40px;
+    height: 60px;
+    line-height: 60px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0px 1px 0px 0px rgba(240, 240, 240, 1);
     .crumb {
+      display: flex;
+      align-items: center;
       .parent {
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
         cursor: pointer;
+        margin-left: 10px;
       }
       .current {
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: bold;
+        color: rgba(50, 65, 87, 1);
       }
     }
     .close-btn {
-      position: absolute;
-      right: 0;
-      top: 0;
       cursor: pointer;
     }
   }
   .form {
-    .title {
-      height: 40px;
-      line-height: 40px;
-      border-bottom: 1px solid #f2f2f2;
-      margin-bottom: 20px;
-    }
     .buttons {
       text-align: center;
       margin-top: 30px;
