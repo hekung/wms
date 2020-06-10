@@ -28,11 +28,17 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="产品内容：">
-              <el-table :data="ruleForm.productList" class="detail-table" size="small">
-                <el-table-column prop="productName" label="产品名称"></el-table-column>
-                <el-table-column prop="productNo" label="产品编码"></el-table-column>
-                <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-                <el-table-column prop="quantity" label="数量"></el-table-column>
+              <el-table
+                :data="ruleForm.productList"
+                style="width:800px;"
+                class="detail-table"
+                size="small"
+                border
+              >
+                <el-table-column prop="productName" label="产品名称" width="400px"></el-table-column>
+                <el-table-column prop="productNo" label="产品编码" width="100px"></el-table-column>
+                <el-table-column prop="skuNo" label="Sku编码" width="200px"></el-table-column>
+                <el-table-column prop="quantity" label="数量" width="100px"></el-table-column>
               </el-table>
             </el-form-item>
           </el-col>

@@ -70,8 +70,8 @@
               </div>
             </template>
             <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
-            <el-table-column label="SKU编码" prop="skuNo"></el-table-column>
-            <el-table-column label="产品名称" prop="productName"></el-table-column>
+            <el-table-column label="SKU编码" prop="skuNo" min-width="120px"></el-table-column>
+            <el-table-column label="产品名称" prop="productName" min-width="200px"></el-table-column>
             <el-table-column label="入库" prop="inStock"></el-table-column>
             <el-table-column label="出库" prop="outStock"></el-table-column>
             <el-table-column label="库存" prop="quantity"></el-table-column>

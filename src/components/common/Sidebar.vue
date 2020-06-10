@@ -82,6 +82,10 @@ export default {
               title: '入库列表'
             },
             {
+              index: 'createStockIn',
+              title: '新建入库单'
+            },
+            {
               index: 'stockOutTable',
               title: '出库列表'
             },

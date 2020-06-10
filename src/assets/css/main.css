@@ -26,10 +26,13 @@ i {
     font-style: normal;
 }
 
-/* .el-table thead .cell {
-    font-weight: normal;
-    color: #000;
-} */
+.el-table {
+    font-size: 12px;
+}
+
+.el-form-item__label {
+    font-size: 12px;
+}
 
 .el-button--primary:hover {
     background-color: #3684D5;
@@ -42,6 +45,34 @@ i {
 .el-form-item__label {
     color: #333;
     font-weight: bold;
+}
+
+.el-form-item__content {
+    font-size: 12px;
+}
+
+.el-dropdown-menu__item {
+    font-size: 12px;
+}
+
+.el-input__inner {
+    font-size: 12px;
+}
+
+.el-cascader-panel {
+    font-size: 12px;
+}
+
+.el-button--medium {
+    font-size: 12px;
+}
+
+.el-select-dropdown__item {
+    font-size: 12px;
+}
+
+.el-select-dropdown__empty {
+    font-size: 12px;
 }
 
 .el-button--mini,
@@ -82,6 +113,18 @@ i {
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+.el-table {
+    font-size: 12px;
+}
+
+.el-button {
+    font-size: 12px;
+}
+
+.el-form-item__label {
+    font-size: 12px;
 }
 
 .table-page .main-content {
@@ -214,7 +257,7 @@ i {
 
 .detail-table.el-table thead tr th {
     color: #999;
-    font-size: 14px;
+    font-size: 12px;
     background-color: #f5f5f5;
 }
 

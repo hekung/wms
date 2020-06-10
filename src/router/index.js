@@ -5,16 +5,18 @@ import VueRouter from "vue-router"
 Vue.use(VueRouter)
 // 1. 定义 (路由) 组件。
 // 可以从其他文件 import 进来
-const login = r => require.ensure([], () => r(require('@/components/login')), 'login')
-const ResetPwd = r => require.ensure([], () => r(require('@/components/common/ResetPwd')), 'resetPwd')
-const home = r => require.ensure([], () => r(require('@/components/common/Home')), 'home')
-const productTable = r => require.ensure([], () => r(require('@/components/pages/productManage/ProductTable')), 'ProductTable')
-const createProduct = r => require.ensure([], () => r(require('@/components/pages/productManage/CreateProduct')), 'CreateProduct')
-const stockOutTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockOutTable')), 'stockOutTable')
-const stockInTable = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockInTable')), 'stockInTable')
-const stockDaily = r => require.ensure([], () => r(require('@/components/pages/stockManage/StockDaily')), 'stockDaily')
-const roleManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/roleManage/RoleManage')), 'roleManage')
-const accountManage = r => require.ensure([], () => r(require('@/components/pages/systemManage/accountManage/AccountManage')), 'accountManage')
+const login = () => import('@/components/login')
+const ResetPwd = () => import('@/components/common/ResetPwd')
+const home = () => import('@/components/common/Home')
+const productTable = () => import('@/components/pages/productManage/ProductTable')
+const createProduct = () => import('@/components/pages/productManage/CreateProduct')
+const stockOutTable = () => import('@/components/pages/stockManage/StockOutTable')
+const stockInTable = () => import('@/components/pages/stockManage/StockInTable')
+const createStockIn = () => import('@/components/pages/stockManage/CreateStockIn')
+
+const stockDaily = () => import('@/components/pages/stockManage/StockDaily')
+const roleManage = () => import('@/components/pages/systemManage/roleManage/RoleManage')
+const accountManage = () => import('@/components/pages/systemManage/accountManage/AccountManage')
 // 2. 定义路由
 // 每个路由应该映射一个组件。 其中"component" 可以是
 // 通过 Vue.extend() 创建的组件构造器，
@@ -60,6 +62,11 @@ const routes = [
         path: '/stockInTable',
         component: stockInTable,
         meta: { title: '入库列表' }
+      },
+      {
+        path: '/createStockIn',
+        component: createStockIn,
+        meta: { title: '新建入库单' }
       },
       {
         path: '/stockDaily',

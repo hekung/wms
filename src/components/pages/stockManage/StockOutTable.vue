@@ -423,7 +423,7 @@ export default {
     line-height: 30px;
   }
   .main-content {
-    height: calc(~'100% - 100px');
+    height: calc(~'100% - 180px');
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {

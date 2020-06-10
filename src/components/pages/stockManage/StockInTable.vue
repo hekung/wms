@@ -100,29 +100,35 @@
               <p>暂无数据</p>
             </div>
           </template>
-          <el-table-column prop="createTime" label="创建日期" align="center" sortable="custom">
+          <el-table-column
+            prop="createTime"
+            label="创建日期"
+            align="center"
+            sortable="custom"
+            min-width="120px"
+          >
             <!-- <template slot-scope="scope">
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
             </template>-->
           </el-table-column>
-          <el-table-column prop="category" label="入库类型" align="center">
+          <el-table-column prop="category" label="入库类型" align="center" min-width="60px">
             <template slot-scope="scope">
               <span>{{scope.row.orderStatus=='待入库'?'':scope.row.category}}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="rate" label="入库编号" align="center">
+          <el-table-column prop="rate" label="入库编号" align="center" min-width="120px">
             <template slot-scope="scope">
               <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
             </template>
           </el-table-column>
-          <el-table-column prop="storehouseName" label="入库仓"></el-table-column>
-          <el-table-column prop="origin" label="货品来源"></el-table-column>
-          <el-table-column prop="productInfoList" label="产品名称*数量">
+          <el-table-column prop="storehouseName" label="入库仓" min-width="100px"></el-table-column>
+          <el-table-column prop="origin" label="货品来源" min-width="100px"></el-table-column>
+          <el-table-column prop="productInfoList" label="产品名称*数量" min-width="300px">
             <template slot-scope="scope">
               <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
             </template>
           </el-table-column>
-          <el-table-column prop="remark" label="备注"></el-table-column>
+          <el-table-column prop="remark" label="备注" min-width="120px"></el-table-column>
         </el-table>
       </div>
       <div class="page-shift-container">
@@ -139,7 +145,6 @@
         </div>
       </div>
     </div>
-    <create-stock-in v-if="showCreatePage" @close="closeCreatePage"></create-stock-in>
     <stock-into-info v-if="showInfoPage" :id="detailId" @close="closeInfoPage"></stock-into-info>
     <stock-into-draft v-if="showDraftPage" :id="detailId" @close="closeDraftPage"></stock-into-draft>
   </div>
@@ -163,7 +168,6 @@ export default {
       totalRows: 0,
       detailId: '',
       timeOrder: '',
-      showCreatePage: false,
       showInfoPage: false,
       showDraftPage: false,
       entryOrderList: [],
@@ -258,13 +262,8 @@ export default {
       this.detailId = rowData.id
     },
     closeAndGetInfo(id) {
-      this.showCreatePage = false
       this.detailId = id
       this.showInfoPage = true
-    },
-    closeCreatePage() {
-      this.showCreatePage = false
-      this.search()
     },
     closeInfoPage() {
       this.showInfoPage = false
@@ -281,7 +280,7 @@ export default {
       this.search()
     },
     addNew() {
-      this.showCreatePage = true
+      this.$router.push('/createStockIn')
     },
     screening() {
       this.currentPage = 1
@@ -365,7 +364,7 @@ export default {
 <style lang="less" scoped>
 .in-manage {
   .main-content {
-    height: calc(~'100% - 100px');
+    height: calc(~'100% - 220px');
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {

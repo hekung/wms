@@ -48,11 +48,15 @@
                 :data="ruleForm.commodityItemSaveFormList"
                 class="detail-table"
                 size="small"
+                :summary-method="getSummaries"
+                show-summary
+                style="width:800px;"
+                border
               >
-                <el-table-column prop="productName" label="产品名称"></el-table-column>
-                <el-table-column prop="productNo" label="产品编码"></el-table-column>
-                <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-                <el-table-column prop="quantity" label="数量"></el-table-column>
+                <el-table-column prop="productName" label="产品名称" width="400px"></el-table-column>
+                <el-table-column prop="productNo" label="产品编码" width="100px"></el-table-column>
+                <el-table-column prop="skuNo" label="Sku编码" width="200px"></el-table-column>
+                <el-table-column prop="quantity" label="数量" width="100px"></el-table-column>
               </el-table>
             </el-form-item>
           </el-col>
@@ -118,6 +122,33 @@ export default {
     this.getproductList()
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
+        }
+        if (index == 3) {
+          const values = data.map(item => Number(item[column.property]))
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr)
+              if (!isNaN(value)) {
+                return prev + curr
+              } else {
+                return prev
+              }
+            }, 0)
+          }
+        } else {
+          sums[index] = 'N/A'
+        }
+      })
+
+      return sums
+    },
     async deleteThis() {
       this.$prompt('是否确认删除该入库单?', '提示', {
         confirmButtonText: '确定',

@@ -1,13 +1,10 @@
 <template>
-  <div class="stock-content content-one">
+  <div class="stock-content table-page">
     <div class="content-header">
       <div class="crumb">
         <img src="../../../assets/img/order-h.png" alt srcset />
-        <span class="parent" @click="cancel">入库列表</span>
-        <img src="../../../assets/img/arrow-h.png" alt srcset />
         <span class="current">新建入库单</span>
       </div>
-      <i class="close-btn el-icon el-icon-close" @click="cancel"></i>
     </div>
     <div class="content-main">
       <div class="item-title">
@@ -47,16 +44,24 @@
           <el-button @click="addProduct" type="primary" size="small" style="margin-left:20px;">添加</el-button>
         </el-form-item>
         <el-form-item label="产品内容：" prop="commodityItemSaveFormList">
-          <el-table :data="ruleForm.commodityItemSaveFormList" class="detail-table" size="small">
-            <el-table-column prop="productName" label="内容名称"></el-table-column>
-            <el-table-column prop="productNo" label="内容编码"></el-table-column>
-            <el-table-column prop="skuNo" label="Sku编码"></el-table-column>
-            <el-table-column prop="quantity" label="数量">
+          <el-table
+            border
+            :data="ruleForm.commodityItemSaveFormList"
+            class="detail-table"
+            size="small"
+            :summary-method="getSummaries"
+            show-summary
+            style="width:880px;"
+          >
+            <el-table-column prop="productName" label="内容名称" width="400px"></el-table-column>
+            <el-table-column prop="productNo" label="产品编码" width="100px"></el-table-column>
+            <el-table-column prop="skuNo" label="Sku编码" width="200px"></el-table-column>
+            <el-table-column prop="quantity" label="数量" width="100px">
               <template slot-scope="scope">
                 <el-input v-model="scope.row.quantity"></el-input>
               </template>
             </el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="操作" width="80">
               <template slot-scope="scope">
                 <el-button
                   type="text"
@@ -74,14 +79,15 @@
           <el-input v-model="ruleForm.remark" size="small"></el-input>
         </el-form-item>
         <div class="buttons">
-          <el-button type="primary" @click="submitForm">确认</el-button>
-          <el-button @click="cancel">返回</el-button>
+          <el-button size="small" type="primary" @click="submitForm">确认</el-button>
+          <el-button size="small" @click="cancel">取消</el-button>
         </div>
       </el-form>
     </div>
   </div>
 </template>
 <script>
+import { mapState } from 'vuex'
 export default {
   data() {
     const validateProducts = (rule, value, callback) => {
@@ -96,6 +102,7 @@ export default {
       selectProductId: '',
       productList: [],
       storeHouseList: [],
+      needSaveDraft: true,
       categoryList: [
         { id: 0, name: '出厂入库' },
         { id: 2, name: '移货入库' }
@@ -127,8 +134,46 @@ export default {
   created() {
     this.getproductList()
     this.getStockList()
+    Object.assign(this.ruleForm, this.draftData)
+  },
+  computed: {
+    ...mapState({
+      draftData: state => state.stockIn.draftData
+    })
+  },
+  beforeDestroy() {
+    if (this.needSaveDraft) {
+      this.$store.commit('stockIn/setDraftData', this.ruleForm)
+    }
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
+        }
+        if (index == 3) {
+          const values = data.map(item => Number(item[column.property]))
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr)
+              if (!isNaN(value)) {
+                return prev + curr
+              } else {
+                return prev
+              }
+            }, 0)
+          }
+        } else {
+          sums[index] = 'N/A'
+        }
+      })
+
+      return sums
+    },
     async getStockList() {
       const url = `/innobeautywms/storehouseVo`
       try {
@@ -207,16 +252,18 @@ export default {
       })
       let { status } = res.data
       if (status === 0) {
+        this.needSaveDraft = false
+        this.$store.commit('product/setDraftData', {})
         this.$message.success('创建入库单成功')
         setTimeout(() => {
-          this.$emit('close')
+          this.$router.push('/stockInTable')
         }, 1000)
       } else {
         this.$message.error('创建入库单失败，请联系技术人员')
       }
     },
     cancel() {
-      this.$emit('close')
+      this.$router.go(-1)
     }
   }
 }
@@ -224,12 +271,6 @@ export default {
 <style lang="less" scoped>
 .stock-content {
   background-color: #fff;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 10;
   padding-top: 60px;
   overflow: hidden;
   .content-header {
@@ -264,6 +305,10 @@ export default {
     .close-btn {
       cursor: pointer;
     }
+  }
+  .content-main {
+    padding: 0 50px;
+    overflow: auto;
   }
   .form {
     .buttons {
