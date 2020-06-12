@@ -125,7 +125,21 @@
           <el-table-column prop="origin" label="货品来源" min-width="100px"></el-table-column>
           <el-table-column prop="productInfoList" label="产品名称*数量" min-width="300px">
             <template slot-scope="scope">
-              <div v-for="(item,index) in scope.row.productInfoList" :key="index">{{item}}</div>
+              <div
+                v-for="(item,index) in scope.row.productInfoList"
+                :class="index>3&&!showMorePro?'no-show':''"
+                :key="index"
+              >{{item}}</div>
+              <el-button
+                type="text"
+                v-if="scope.row.productInfoList.length>4&&!showMorePro"
+                @click="showMorePro=!showMorePro"
+              >......</el-button>
+              <el-button
+                type="text"
+                v-if="scope.row.productInfoList.length>4&&showMorePro"
+                @click="showMorePro=!showMorePro"
+              >收起</el-button>
             </template>
           </el-table-column>
           <el-table-column prop="remark" label="备注" min-width="120px"></el-table-column>
@@ -151,12 +165,10 @@
 </template>
 
 <script>
-import CreateStockIn from './CreateStockIn'
 import StockIntoInfo from './StockIntoInfo'
 import StockIntoDraft from './StockIntoDraft'
 export default {
   components: {
-    CreateStockIn,
     StockIntoInfo,
     StockIntoDraft
   },
@@ -172,6 +184,7 @@ export default {
       showDraftPage: false,
       entryOrderList: [],
       orderNo: '',
+      showMorePro: false,
       stockList: [{ id: undefined, name: '全部' }],
       categoryList: [
         { id: undefined, name: '全部' },
@@ -366,9 +379,12 @@ export default {
   .main-content {
     height: calc(~'100% - 220px');
     .table-content {
+      .no-show {
+        display: none;
+      }
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
-        height: calc(~'100% - 50px');
+        height: calc(~'100% - 60px');
         overflow: auto;
       }
     }

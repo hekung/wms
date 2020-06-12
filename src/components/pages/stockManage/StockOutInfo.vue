@@ -33,6 +33,8 @@
                 style="width:800px;"
                 class="detail-table"
                 size="small"
+                :summary-method="getSummaries"
+                show-summary
                 border
               >
                 <el-table-column prop="productName" label="产品名称" width="400px"></el-table-column>
@@ -80,7 +82,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="物流公司：">
-              <span>{{ruleForm.designatedLogistics}}</span>
+              <span>{{ruleForm.expressCompanys}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -127,6 +129,7 @@ export default {
       ruleForm: {
         productList: [],
         expressNo: '',
+        expressCompanys: '',
         receiverName: '',
         postalCode: '',
         receiverMobile: '',
@@ -149,6 +152,33 @@ export default {
     this.getDetail()
   },
   methods: {
+    getSummaries(param) {
+      const { columns, data } = param
+      const sums = []
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '总计'
+          return
+        }
+        if (index == 3) {
+          const values = data.map(item => Number(item[column.property]))
+          if (!values.every(value => isNaN(value))) {
+            sums[index] = values.reduce((prev, curr) => {
+              const value = Number(curr)
+              if (!isNaN(value)) {
+                return prev + curr
+              } else {
+                return prev
+              }
+            }, 0)
+          }
+        } else {
+          sums[index] = '——'
+        }
+      })
+
+      return sums
+    },
     handleDelete() {
       this.$prompt('是否确认驳回该出库单', '提示', {
         confirmButtonText: '确定',
@@ -212,10 +242,10 @@ export default {
           }
         }
         let designatedLogisticsObj = this.expressCompanysList.find(
-          e => e.id == date.designatedLogistics
+          e => e.id == date.expressCompanys
         )
         if (designatedLogisticsObj) {
-          this.ruleForm.designatedLogistics = designatedLogisticsObj.name
+          this.ruleForm.expressCompanys = designatedLogisticsObj.name
         }
         if (!this.ruleForm.expressNo) {
           this.stepActive = 0

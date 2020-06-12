@@ -427,7 +427,7 @@ export default {
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
-        height: calc(~'100% - 50px');
+        height: calc(~'100% - 60px');
         overflow: auto;
       }
     }

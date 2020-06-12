@@ -134,7 +134,7 @@ export default {
   created() {
     this.getproductList()
     this.getStockList()
-    Object.assign(this.ruleForm, this.draftData)
+    Object.assign(this.ruleForm, JSON.parse(JSON.stringify(this.draftData)))
   },
   computed: {
     ...mapState({
@@ -168,7 +168,7 @@ export default {
             }, 0)
           }
         } else {
-          sums[index] = 'N/A'
+          sums[index] = '——'
         }
       })
 
