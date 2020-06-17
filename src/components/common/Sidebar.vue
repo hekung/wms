@@ -5,8 +5,8 @@
       :default-active="onRoutes"
       :collapse="collapse"
       background-color="#242f42"
-      text-color="#bfcbd9"
-      active-text-color="#20a0ff"
+      text-color="#f2f2f2"
+      active-text-color="#ffd04b"
       @select="select"
       unique-opened
       router
@@ -58,42 +58,34 @@ export default {
       userData: JSON.parse(localStorage.getItem('userData')) || {},
       items: [
         {
-          icon: 'el-icon-s-grid',
-          index: '1',
-          title: '产品管理',
-          subs: [
-            {
-              index: 'index',
-              title: '产品列表'
-            },
-            {
-              index: 'createProduct',
-              title: '创建产品'
-            }
-          ]
+          index: 'index',
+          title: '产品列表',
+          icon: 'el-icon-s-grid'
         },
         {
-          icon: 'el-icon-tickets',
-          index: '2',
-          title: '库存管理',
-          subs: [
-            {
-              index: 'stockInTable',
-              title: '入库列表'
-            },
-            {
-              index: 'createStockIn',
-              title: '新建入库单'
-            },
-            {
-              index: 'stockOutTable',
-              title: '出库列表'
-            },
-            {
-              index: 'stockDaily',
-              title: '库存统计'
-            }
-          ]
+          index: 'createProduct',
+          title: '新建产品',
+          icon: 'no-icon'
+        },
+        {
+          index: 'stockInTable',
+          title: '入库列表',
+          icon: 'el-icon-document'
+        },
+        {
+          index: 'createStockIn',
+          title: '新建入库单',
+          icon: 'no-icon'
+        },
+        {
+          index: 'stockOutTable',
+          title: '出库列表',
+          icon: 'el-icon-tickets'
+        },
+        {
+          index: 'stockDaily',
+          title: '库存统计',
+          icon: 'el-icon-edit-outline'
         },
         {
           icon: 'el-icon-user',
@@ -142,12 +134,10 @@ export default {
   top: 70px;
   bottom: 0;
   overflow-y: scroll;
+  width: 200px;
 }
 .sidebar::-webkit-scrollbar {
   width: 0;
-}
-.sidebar-el-menu:not(.el-menu--collapse) {
-  width: 250px;
 }
 .sidebar > ul.el-menu {
   height: 100%;
@@ -155,5 +145,11 @@ export default {
 }
 .menu-item-sub {
   margin-left: 10px;
+}
+.no-icon {
+  margin-right: 29px;
+}
+li.el-menu-item.is-active {
+  color: burlywood;
 }
 </style>

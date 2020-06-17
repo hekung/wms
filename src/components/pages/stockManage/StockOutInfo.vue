@@ -45,8 +45,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="备注：">
-              <span>{{ruleForm.remark}}</span>
+            <el-form-item label="销售单备注：">
+              <span>{{ruleForm.saleOrderRemark}}</span>
             </el-form-item>
           </el-col>
         </el-row>
@@ -85,9 +85,18 @@
               <span>{{ruleForm.expressCompanys}}</span>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="物流单号：" prop="expressNo">
-              <el-input v-model="ruleForm.expressNo"></el-input>
+              <el-input
+                v-model="ruleForm.expressNo"
+                size="small"
+                placeholder="支持输入多个物流单号,以英文逗号“,”隔开"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="出库备注：" prop="shippingOrderRemark">
+              <el-input v-model="ruleForm.shippingOrderRemark" size="small" placeholder="请输入出库备注"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -100,7 +109,6 @@
             </div>
             <div class="buttons" v-else>
               <el-button type="warning" size="small" @click="modifyExpressNo">确认</el-button>
-              <!-- <el-button type="success" size="small" disabled v-else>已确认到货</el-button>-->
               <el-button type="info" size="small" @click="close">返回</el-button>
             </div>
           </el-col>
@@ -134,12 +142,13 @@ export default {
         postalCode: '',
         receiverMobile: '',
         receiverAddress: '',
-        remark: '',
         orderNo: '',
         storehouseId: '',
         storehouseName: '',
         designatedLogistics: '',
-        userName: ''
+        userName: '',
+        saleOrderRemark: '',
+        shippingOrderRemark: ''
       },
       rules: {
         expressNo: [
@@ -268,8 +277,8 @@ export default {
         if (!valid) return
         const url = `/innobeautywms/shippingOrder/express`
         let id = this.id
-        let { expressNo } = this.ruleForm
-        let params = { id, expressNo }
+        let { expressNo, shippingOrderRemark } = this.ruleForm
+        let params = { id, expressNo, remark: shippingOrderRemark }
         this.util.post(url, params).then(res => {
           let { status } = res.data
           if (status == 0) {
@@ -286,8 +295,8 @@ export default {
         if (valid) {
           const url = `/innobeautywms/shippingOrder`
           let id = this.id
-          let { expressNo } = this.ruleForm
-          let params = { id, expressNo }
+          let { expressNo, shippingOrderRemark } = this.ruleForm
+          let params = { id, expressNo, remark: shippingOrderRemark }
           this.util.post(url, params).then(res => {
             let { status } = res.data
             if (status == 0) {

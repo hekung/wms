@@ -105,16 +105,36 @@
             </div>
           </template>
           <el-table-column type="selection" width="55" v-if="type=='0'"></el-table-column>
-          <el-table-column prop="createTime" label="下单时间" sortable="custom" align="center"></el-table-column>
-          <el-table-column prop="orderNo" label="订单编号" align="center">
+          <el-table-column prop="createTime" label="下单时间" sortable="custom"></el-table-column>
+          <el-table-column prop="orderNo" label="订单编号">
             <template slot-scope="scope">
               <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
             </template>
           </el-table-column>
-          <el-table-column prop="receiverName" label="收货人" align="center"></el-table-column>
-          <el-table-column prop="storeHouseName" label="出库仓库" align="center"></el-table-column>
-          <el-table-column prop="expressCompanys" label="物流公司" align="center"></el-table-column>
-          <el-table-column prop="expressNo" label="物流单号" align="center"></el-table-column>
+          <el-table-column prop="receiverName" label="收货人"></el-table-column>
+          <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
+          <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
+          <el-table-column prop="expressNoList" label="物流单号">
+            <template slot-scope="scope">
+              <div
+                v-for="(expressNo,index) in scope.row.expressNoList"
+                :key="index"
+                :class="index>3&&!showMorePro?'no-show':''"
+              >
+                <span>{{expressNo}}</span>
+              </div>
+              <el-button
+                type="text"
+                v-if="scope.row.expressNoList.length>4&&!showMorePro"
+                @click="showMorePro=!showMorePro"
+              >......</el-button>
+              <el-button
+                type="text"
+                v-if="scope.row.expressNoList.length>4&&showMorePro"
+                @click="showMorePro=!showMorePro"
+              >收起</el-button>
+            </template>
+          </el-table-column>
           <el-table-column prop="orderStatus" label="出库状态" align="center">
             <template slot-scope="scope">
               <span :class="scope.row.orderStatus==='已完成'?'orange':''">{{scope.row.orderStatus}}</span>
@@ -171,6 +191,7 @@ export default {
       totalRows: 0,
       orderNo: '',
       timeOrder: '',
+      showMorePro: false,
       showDetail: false,
       dialogVisible: false,
       exportOutType: '',
@@ -401,7 +422,13 @@ export default {
         let { status, date } = res.data
         if (status == 0) {
           this.stockOutList = date.list
+          this.stockOutList.forEach(e => {
+            let expressNo = e.expressNo || ''
+            let expressNoList = expressNo.split(',')
+            e.expressNoList = expressNoList
+          })
           this.totalRows = date.total
+          console.log(this.stockOutList)
         }
       } catch (error) {
         return Promise.reject(error)
@@ -430,6 +457,9 @@ export default {
         height: calc(~'100% - 60px');
         overflow: auto;
       }
+      .no-show {
+        display: none;
+      }
     }
   }
   .table-selector {
@@ -442,7 +472,7 @@ export default {
       padding: 10px;
       padding-left: 18px;
       .clear-btn {
-        font-size: 14px;
+        font-size: 12px;
         padding: 10px 40px;
       }
     }

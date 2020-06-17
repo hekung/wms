@@ -124,10 +124,10 @@ export default {
 <style lang="less" scped>
 .tags {
   position: relative;
-  height: 58px;
+  height: 46px;
   overflow: hidden;
   padding-right: 120px;
-  padding: 10px 30px;
+  padding: 4px 10px;
 }
 
 .tags ul {
@@ -181,8 +181,8 @@ export default {
 
 .tags-close-box {
   position: absolute;
-  right: 30px;
-  top: 10px;
+  right: 10px;
+  top: 4px;
   z-index: 10;
   text-align: center;
   width: 120px;

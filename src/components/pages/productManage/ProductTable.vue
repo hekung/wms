@@ -1,7 +1,7 @@
 <template>
   <div class="product-manage table-page">
     <div class="table-selector">
-      <el-button type="warning" size="small" class="clear-btn" @click="addNew">新建</el-button>
+      <el-button type="warning" size="small" class="clear-btn" @click="addNew">新建产品</el-button>
       <el-button
         type="danger"
         size="small"
@@ -167,7 +167,7 @@ export default {
   .table-selector {
     padding: 10px;
     .clear-btn {
-      font-size: 14px;
+      font-size: 12px;
       padding-left: 40px;
       padding-right: 40px;
     }

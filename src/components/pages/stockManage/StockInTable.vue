@@ -399,7 +399,7 @@ export default {
       padding: 10px;
       padding-left: 18px;
       .clear-btn {
-        font-size: 14px;
+        font-size: 12px;
         padding: 10px 40px;
       }
     }

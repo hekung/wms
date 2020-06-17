@@ -13,6 +13,8 @@ const createProduct = () => import('@/components/pages/productManage/CreateProdu
 const stockOutTable = () => import('@/components/pages/stockManage/StockOutTable')
 const stockInTable = () => import('@/components/pages/stockManage/StockInTable')
 const createStockIn = () => import('@/components/pages/stockManage/CreateStockIn')
+const stockIntoDraft = () => import('@/components/pages/stockManage/StockIntoDraft')
+const stockIntoInfo = () => import('@/components/pages/stockManage/StockIntoInfo')
 
 const stockDaily = () => import('@/components/pages/stockManage/StockDaily')
 const roleManage = () => import('@/components/pages/systemManage/roleManage/RoleManage')
@@ -41,7 +43,7 @@ const routes = [
       {
         path: '/createProduct',
         component: createProduct,
-        meta: { title: '创建产品' }
+        meta: { title: '新建产品' }
       },
       {
         path: '/roleManage',
@@ -61,7 +63,23 @@ const routes = [
       {
         path: '/stockInTable',
         component: stockInTable,
-        meta: { title: '入库列表' }
+        meta: { title: '入库列表' },
+        children: [
+          {
+            path: '/draft/:id',
+            component: stockIntoDraft,
+            meta: {
+              title: '入库详情'
+            }
+          },
+          {
+            path: '/info/:id',
+            component: stockIntoInfo,
+            meta: {
+              title: '入库详情'
+            }
+          }
+        ]
       },
       {
         path: '/createStockIn',

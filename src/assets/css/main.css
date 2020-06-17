@@ -180,7 +180,7 @@ i {
 
 .content-box {
     position: absolute;
-    left: 250px;
+    left: 200px;
     right: 0;
     top: 70px;
     bottom: 0;
@@ -194,7 +194,7 @@ i {
 .content {
     width: auto;
     height: 100%;
-    padding: 0 30px 10px 30px;
+    padding: 0 10px 10px 10px;
     overflow-y: scroll;
     box-sizing: border-box;
     flex: 1;
@@ -325,7 +325,7 @@ figcaption {
 
 .el-upload--text {
     color: #97a8be;
-    font-size: 14px;
+    font-size: 12px;
     text-align: center;
 }
 

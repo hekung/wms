@@ -3,7 +3,7 @@
     <div class="content-header">
       <div class="crumb">
         <img src="../../../assets/img/order-h.png" alt srcset />
-        <span class="current">创建产品</span>
+        <span class="current">新建产品</span>
       </div>
     </div>
     <div class="content-main">
@@ -419,7 +419,7 @@ export default {
         this.binLength2 + '*' + this.binWidth2 + '*' + this.binHeight2
       let res = await this.util.post(url, params)
       if (res.data.status == 0) {
-        this.$message.success('创建产品成功')
+        this.$message.success('新建产品成功')
         this.needSaveDraft = false
         this.$store.commit('product/setDraftData', {})
         setTimeout(() => {

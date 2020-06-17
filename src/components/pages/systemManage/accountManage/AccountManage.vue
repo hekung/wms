@@ -184,7 +184,7 @@ export default {
   .table-selector {
     padding: 10px;
     .clear-btn {
-      font-size: 14px;
+      font-size: 12px;
       padding-left: 40px;
       padding-right: 40px;
     }

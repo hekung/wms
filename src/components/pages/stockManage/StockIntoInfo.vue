@@ -67,7 +67,7 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="备注：">
-              <span>{{ruleForm.remark}}</span>
+              <el-input size="small" v-model="ruleForm.remark"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -75,6 +75,7 @@
           <el-col :span="24">
             <div class="buttons">
               <el-button size="small" type="danger" @click="deleteThis">删除</el-button>
+              <el-button size="small" type="primary" @click="confirmModify">确认</el-button>
               <el-button size="small" type="info" @click="close">返回</el-button>
             </div>
           </el-col>
@@ -274,6 +275,23 @@ export default {
       delete item.id
       item.quantity = ''
       this.ruleForm.commodityItemSaveFormList.push(item)
+    },
+    async confirmModify() {
+      let params = {
+        id: this.id,
+        remark: this.ruleForm.remark
+      }
+      const url = '/innobeautywms/entryOrder/updateRemark'
+      let res = await this.util.post(url, params)
+      let { status, msg } = res.data
+      if (status === 0) {
+        this.$message.success('操作成功')
+        setTimeout(() => {
+          this.$emit('close')
+        }, 1000)
+      } else {
+        this.$message.error(msg)
+      }
     },
     handleDelete(index) {
       this.ruleForm.commodityItemSaveFormList.splice(index, 1)
