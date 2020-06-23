@@ -40,6 +40,16 @@
         </el-dropdown>
       </div>
     </div>
+    <div class="count-order">
+      <div class="count-item">
+        <span>待审核订单</span>
+        <span>{{statistics.saleOrderAuditCount}}</span>
+      </div>
+      <div class="count-item">
+        <span>待出库订单</span>
+        <span>{{statistics.shippingCountForWait}}</span>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -56,7 +66,8 @@ export default {
     }
   },
   computed: mapState({
-    userData: state => state.user.userData
+    userData: state => state.user.userData,
+    statistics: state => state.order.statistics
   }),
   methods: {
     // 用户名下拉菜单选择事件
@@ -190,6 +201,21 @@ export default {
   cursor: pointer;
 }
 .el-dropdown-menu__item {
+  text-align: center;
+}
+.count-order {
+  height: 100%;
+  float: right;
+  margin-right: 30px;
+  display: flex;
+  flex-direction: row;
+  font-size: 14px;
+}
+.count-order .count-item {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 20px;
+  justify-content: space-around;
   text-align: center;
 }
 </style>

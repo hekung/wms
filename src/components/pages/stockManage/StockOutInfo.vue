@@ -120,7 +120,7 @@
 <script>
 export default {
   props: {
-    id: Number
+    id: String
   },
   data() {
     return {
@@ -159,6 +159,11 @@ export default {
   },
   created() {
     this.getDetail()
+  },
+  watch: {
+    id: function() {
+      this.getDetail()
+    }
   },
   methods: {
     getSummaries(param) {
@@ -250,12 +255,15 @@ export default {
             this.ruleForm[key] = date[key]
           }
         }
-        let designatedLogisticsObj = this.expressCompanysList.find(
-          e => e.id == date.expressCompanys
-        )
-        if (designatedLogisticsObj) {
-          this.ruleForm.expressCompanys = designatedLogisticsObj.name
+        if (date.expressCompanys) {
+          let designatedLogisticsObj = this.expressCompanysList.find(
+            e => e.id == date.expressCompanys
+          )
+          if (designatedLogisticsObj) {
+            this.ruleForm.expressCompanys = designatedLogisticsObj.name
+          }
         }
+
         if (!this.ruleForm.expressNo) {
           this.stepActive = 0
         } else {
@@ -270,7 +278,7 @@ export default {
       }
     },
     close() {
-      this.$emit('close', false)
+      this.$router.push({ path: '/stockOutTable' })
     },
     async modifyExpressNo() {
       this.$refs['ruleForm'].validate(async valid => {

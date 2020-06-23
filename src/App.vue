@@ -5,6 +5,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+import bus from './components/common/bus.js'
 export default {
   name: 'app',
   created() {
@@ -19,9 +21,55 @@ export default {
     let sid = this.util.getCookie('sid')
     if (!sid) {
       this.$router.push('/login')
+    } else {
+      let userData = localStorage.getItem('userData')
+      userData = JSON.parse(userData)
+      this.$store.commit('user/setUserData', userData)
+      this.socketConnect()
     }
+    bus.$on('socket-connect', () => {
+      this.socketConnect()
+    })
+  },
+  computed: {
+    ...mapState({
+      userData: state => state.user.userData
+    })
   },
   methods: {
+    socketConnect() {
+      const socket = new WebSocket(
+        'ws://localhost' + `/innobeautywms/websocket/${this.userData.userId}`
+      )
+      socket.addEventListener('open', function(event) {
+        socket.send(
+          JSON.stringify({
+            action: 'getCount'
+          })
+        )
+      })
+      socket.addEventListener('message', event => {
+        console.log(event.data)
+        if (event.data.includes('shippingCountForWait')) {
+          // {shippingCountForWait=6, saleOrderAuditCount=0}
+          let resMessage = event.data.substring(1, event.data.length - 1)
+          let arr = resMessage.split(',')
+          let arr1 = arr[0].split('=')
+          let arr2 = arr[1].split('=')
+          let normalData = {}
+
+          let attr1 = arr1[0].trim()
+          let attr2 = arr2[0].trim()
+          Object.defineProperty(normalData, attr1, {
+            value: arr1[1]
+          })
+          Object.defineProperty(normalData, attr2, {
+            value: arr2[1]
+          })
+          this.$store.commit('order/setStatistics', normalData)
+        }
+      })
+    },
     login(username, password) {
       this.util
         .postForm('/innobeautywms/auth/login', {

@@ -9,8 +9,10 @@ const login = () => import('@/components/login')
 const ResetPwd = () => import('@/components/common/ResetPwd')
 const home = () => import('@/components/common/Home')
 const productTable = () => import('@/components/pages/productManage/ProductTable')
+const productInfo = () => import('@/components/pages/productManage/ProductInfo')
 const createProduct = () => import('@/components/pages/productManage/CreateProduct')
 const stockOutTable = () => import('@/components/pages/stockManage/StockOutTable')
+const stockOutInfo = () => import('@/components/pages/stockManage/StockOutInfo')
 const stockInTable = () => import('@/components/pages/stockManage/StockInTable')
 const createStockIn = () => import('@/components/pages/stockManage/CreateStockIn')
 const stockIntoDraft = () => import('@/components/pages/stockManage/StockIntoDraft')
@@ -38,7 +40,17 @@ const routes = [
       {
         path: '/index',
         component: productTable,
-        meta: { title: '产品列表' }
+        meta: { title: '产品列表' },
+        children: [
+          {
+            path: 'info/:id',
+            component: productInfo,
+            props: true,
+            meta: {
+              title: '产品详情'
+            }
+          }
+        ]
       },
       {
         path: '/createProduct',
@@ -58,23 +70,40 @@ const routes = [
       {
         path: '/stockOutTable',
         component: stockOutTable,
-        meta: { title: '出库列表' }
+        meta: { title: '出库列表' },
+        name: 'stockOutTable',
+        children: [
+          {
+            path: 'info/:id',
+            component: stockOutInfo,
+            name: 'stockOutInfo',
+            props: true,
+            meta: {
+              title: '出库详情'
+            }
+          }
+        ]
       },
       {
         path: '/stockInTable',
         component: stockInTable,
         meta: { title: '入库列表' },
+        name: 'stockInTable',
         children: [
           {
-            path: '/draft/:id',
+            path: 'draft/:id',
             component: stockIntoDraft,
+            props: true,
+            name: 'stockIntoDraft',
             meta: {
               title: '入库详情'
             }
           },
           {
-            path: '/info/:id',
+            path: 'info/:id',
             component: stockIntoInfo,
+            name: 'stockIntoInfo',
+            props: true,
             meta: {
               title: '入库详情'
             }

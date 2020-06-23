@@ -5,15 +5,16 @@
         <div class="top-blur-search">
           <el-form-item label="入库单查询：">
             <el-input
-              v-model="orderNo"
+              v-model="form.orderNo"
               size="small"
               placeholder="请输入入库编号"
               style="width:300px;display:inline-block;"
+              clearable
             ></el-input>
             <el-button
               type="primary"
               icon="el-icon-search"
-              @click="blurSearch"
+              @click="screening"
               size="small"
               style="display:inline-block;margin-left:10px;"
             ></el-button>
@@ -36,7 +37,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
-              @change="pickChange"
+              @change="screening"
               size="small"
             ></el-date-picker>
           </el-form-item>
@@ -159,19 +160,15 @@
         </div>
       </div>
     </div>
-    <stock-into-info v-if="showInfoPage" :id="detailId" @close="closeInfoPage"></stock-into-info>
-    <stock-into-draft v-if="showDraftPage" :id="detailId" @close="closeDraftPage"></stock-into-draft>
+    <!-- <stock-into-info v-if="showInfoPage" :id="detailId" @close="closeInfoPage"></stock-into-info>
+    <stock-into-draft v-if="showDraftPage" :id="detailId" @close="closeDraftPage"></stock-into-draft>-->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import StockIntoInfo from './StockIntoInfo'
-import StockIntoDraft from './StockIntoDraft'
 export default {
-  components: {
-    StockIntoInfo,
-    StockIntoDraft
-  },
+  components: {},
   data() {
     return {
       datePickVal: '',
@@ -183,7 +180,6 @@ export default {
       showInfoPage: false,
       showDraftPage: false,
       entryOrderList: [],
-      orderNo: '',
       showMorePro: false,
       stockList: [{ id: undefined, name: '全部' }],
       categoryList: [
@@ -227,13 +223,21 @@ export default {
       form: {
         datePickVal: '',
         storeHouseId: '',
-        category: ''
+        category: '',
+        orderNo: ''
       }
     }
   },
   created() {
     this.search()
     this.getStockList()
+  },
+  watch: {
+    $route(val) {
+      if (val.name === 'stockInTable') {
+        this.screening()
+      }
+    }
   },
   methods: {
     clearScreen() {
@@ -244,9 +248,6 @@ export default {
           this.form[key] = []
         }
       }
-      this.screening()
-    },
-    pickChange() {
       this.screening()
     },
     exportOut() {
@@ -269,8 +270,10 @@ export default {
     lookDetail(rowData) {
       if (rowData.orderStatus == '待入库') {
         this.showDraftPage = true
+        this.$router.push({ path: `/stockInTable/draft/${rowData.id}` })
       } else {
         this.showInfoPage = true
+        this.$router.push({ path: `/stockInTable/info/${rowData.id}` })
       }
       this.detailId = rowData.id
     },
@@ -286,7 +289,7 @@ export default {
       this.showDraftPage = false
       this.search()
     },
-    sortChange({ column, prop, order }) {
+    sortChange({ order }) {
       let val = order == 'descending' ? 1 : 0
       this.timeOrder = val
       this.currentPage = 1
@@ -330,10 +333,7 @@ export default {
         })
         .catch(() => {})
     },
-    blurSearch() {
-      this.search({ blur: true })
-    },
-    async search(addition) {
+    async search() {
       let url = '/innobeautywms/entryOrder/list'
       let params = {
         pageNo: this.currentPage,
@@ -342,8 +342,8 @@ export default {
       if (this.timeOrder === 0 || this.timeOrder === 1) {
         params.timeOrder = this.timeOrder
       }
-      if (addition && addition.blur && this.orderNo) {
-        params.orderNo = this.orderNo
+      if (this.form.orderNo) {
+        params.orderNo = this.form.orderNo
         url = '/innobeautywms/entryOrder/list/search'
       }
       if (this.form.datePickVal && this.form.datePickVal.length) {

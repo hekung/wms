@@ -9,7 +9,6 @@
       active-text-color="#ffd04b"
       @select="select"
       unique-opened
-      router
     >
       <template v-for="item in items">
         <template v-if="item.subs">
@@ -120,6 +119,8 @@ export default {
     select(index) {
       if (index === this.onRoutes) {
         window.location.reload()
+      } else {
+        this.$router.push({ path: `/${index}` })
       }
     }
   }

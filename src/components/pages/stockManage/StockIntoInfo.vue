@@ -87,7 +87,7 @@
 <script>
 export default {
   props: {
-    id: Number
+    id: String
   },
   data() {
     return {
@@ -121,6 +121,11 @@ export default {
   created() {
     this.getDetail()
     this.getproductList()
+  },
+  watch: {
+    id: function() {
+      this.getDetail()
+    }
   },
   methods: {
     getSummaries(param) {
@@ -184,7 +189,8 @@ export default {
       }
     },
     async getDetail() {
-      const url = ` /innobeautywms/entryOrder/${this.id}`
+      let id = this.id
+      const url = ` /innobeautywms/entryOrder/${id}`
       let res = await this.util.get(url)
       let { status, date } = res.data
       if (status == 0) {
@@ -243,7 +249,7 @@ export default {
         if (status === 0) {
           this.$message.success('操作成功')
           setTimeout(() => {
-            this.$emit('close')
+            this.$router.push({ path: '/stockInTable' })
           }, 1000)
         } else {
           this.$message.error('操作失败')
@@ -287,7 +293,7 @@ export default {
       if (status === 0) {
         this.$message.success('操作成功')
         setTimeout(() => {
-          this.$emit('close')
+          this.$router.push({ path: '/stockInTable' })
         }, 1000)
       } else {
         this.$message.error(msg)
@@ -297,7 +303,7 @@ export default {
       this.ruleForm.commodityItemSaveFormList.splice(index, 1)
     },
     close() {
-      this.$emit('close')
+      this.$router.push({ path: '/stockInTable' })
     },
     getStokCanUse(stockPileList) {
       stockPileList = stockPileList.map(e => JSON.parse(e))

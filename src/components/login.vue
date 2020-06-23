@@ -25,6 +25,7 @@
 
 <script>
 import { mapState } from 'vuex'
+import bus from './common/bus.js'
 export default {
   data() {
     return {
@@ -63,6 +64,7 @@ export default {
         .then(res => {
           if (res.data && res.data.status == 0) {
             this.$store.commit('user/setUserData', res.data.data)
+            bus.$emit('socket-connect')
             // this.util.setCookie('username', this.loginForm.username)
             // this.util.setCookie('password', this.loginForm.password)
             this.$router.push('/index').catch(() => {})

@@ -4,11 +4,22 @@
       <el-form :model="form" :inline="true" label-width="120px">
         <div class="top-blur-search">
           <el-form-item label="出库单查询：">
-            <el-input
-              v-model="orderNo"
+            <el-select
+              v-model="form.blurSearchType"
+              style="width:120px;display:inline-block;"
               size="small"
-              placeholder="请输入出库编号"
-              style="width:300px;display:inline-block;"
+              placeholder="选择搜索条件"
+            >
+              <el-option label="出库编号" value="orderNo"></el-option>
+              <el-option label="收件人" value="receiverName"></el-option>
+              <el-option label="物流单号" value="expressNo"></el-option>
+            </el-select>
+            <el-input
+              v-model="form.searchContent"
+              size="small"
+              :placeholder="placeholderValue"
+              clearable
+              style="width:200px;display:inline-block;"
             ></el-input>
             <el-button
               type="primary"
@@ -111,7 +122,7 @@
               <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
             </template>
           </el-table-column>
-          <el-table-column prop="receiverName" label="收货人"></el-table-column>
+          <el-table-column prop="receiverName" label="收件人"></el-table-column>
           <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
           <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
           <el-table-column prop="expressNoList" label="物流单号">
@@ -156,7 +167,8 @@
         </div>
       </div>
     </div>
-    <stock-out-info v-if="showDetail" :id="detailId" @close="toggleShowDetail"></stock-out-info>
+    <!-- <stock-out-info v-if="showDetail" :id="detailId" @close="toggleShowDetail"></stock-out-info> -->
+    <router-view></router-view>
     <el-dialog
       title="请选择导出报表："
       :visible.sync="dialogVisible"
@@ -178,18 +190,14 @@
 </template>
 
 <script>
-import StockOutInfo from './StockOutInfo'
 export default {
-  components: {
-    StockOutInfo
-  },
+  components: {},
   data() {
     return {
       datePickVal: '',
       currentPage: 1,
       pageSize: 10,
       totalRows: 0,
-      orderNo: '',
       timeOrder: '',
       showMorePro: false,
       showDetail: false,
@@ -233,7 +241,9 @@ export default {
       type: '2',
       form: {
         datePickVal: '',
-        stockId: ''
+        stockId: '',
+        blurSearchType: '',
+        searchContent: ''
       }
     }
   },
@@ -241,13 +251,31 @@ export default {
     this.search()
     this.getStockList()
   },
-  computed: {},
+  computed: {
+    placeholderValue() {
+      switch (this.form.blurSearchType) {
+        case 'orderNo':
+          return '请输入出库单号'
+        case 'receiverName':
+          return '请输入收件人姓名'
+        case 'expressNo':
+          return '请输入物流单号'
+        default:
+          return ''
+      }
+    }
+  },
   watch: {
     type(val) {
       this.currentPage = 1
       this.search()
       if (val !== '0') {
         this.multipleSelection = []
+      }
+    },
+    $route(val) {
+      if (val.name === 'stockOutTable') {
+        this.screening()
       }
     }
   },
@@ -346,6 +374,7 @@ export default {
     lookDetail(rowData) {
       this.showDetail = true
       this.detailId = rowData.id
+      this.$router.push({ path: `/stockOutTable/info/${rowData.id}` })
     },
     toggleShowDetail(isShow) {
       this.showDetail = isShow
@@ -364,7 +393,7 @@ export default {
       this.currentPage = val
       this.search()
     },
-    sortChange({ column, prop, order }) {
+    sortChange({ order }) {
       let val = order == 'descending' ? 1 : 0
       this.timeOrder = val
       this.currentPage = 1
@@ -393,9 +422,13 @@ export default {
         .catch(() => {})
     },
     blurSearch() {
-      this.search({ blur: true })
+      if (!this.form.blurSearchType) {
+        this.$message.error('请选择搜索条件')
+      }
+      this.currentPage = 1
+      this.search()
     },
-    async search(addition) {
+    async search() {
       let url = '/innobeautywms/shippingOrder/list'
       let params = {
         type: this.type,
@@ -405,9 +438,15 @@ export default {
       if (this.timeOrder === 0 || this.timeOrder === 1) {
         params.timeOrder = this.timeOrder
       }
-      if (addition && addition.blur && this.orderNo) {
-        params.orderNo = this.orderNo
+      if (this.form.blurSearchType && this.form.searchContent) {
+        const map = {
+          orderNo: 0,
+          receiverName: 1,
+          expressNo: 2
+        }
         url = '/innobeautywms/shippingOrder/list/search'
+        params.searchType = map[this.form.blurSearchType]
+        params.searchContent = this.form.searchContent.trim()
       }
       if (this.form.datePickVal && this.form.datePickVal.length) {
         let startTime = this.form.datePickVal[0].getTime()
@@ -428,7 +467,6 @@ export default {
             e.expressNoList = expressNoList
           })
           this.totalRows = date.total
-          console.log(this.stockOutList)
         }
       } catch (error) {
         return Promise.reject(error)

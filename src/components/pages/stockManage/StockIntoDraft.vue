@@ -52,8 +52,8 @@
                 :summary-method="getSummaries"
                 show-summary
               >
-                <el-table-column prop="productName" label="内容名称" width="400px"></el-table-column>
-                <el-table-column prop="productNo" label="内容编码" width="100px"></el-table-column>
+                <el-table-column prop="productName" label="产品名称" width="400px"></el-table-column>
+                <el-table-column prop="productNo" label="产品编码" width="100px"></el-table-column>
                 <el-table-column prop="skuNo" label="Sku编码" width="200px"></el-table-column>
                 <el-table-column prop="quantity" label="数量" width="100px"></el-table-column>
               </el-table>
@@ -84,7 +84,7 @@
 <script>
 export default {
   props: {
-    id: Number
+    id: String
   },
   data() {
     return {
@@ -112,6 +112,11 @@ export default {
   created() {
     this.getproductList()
     this.getDetail()
+  },
+  watch: {
+    id: function() {
+      this.getDetail()
+    }
   },
   methods: {
     getSummaries(param) {
@@ -197,7 +202,7 @@ export default {
           if (status === 0) {
             this.$message.success('操作成功')
             setTimeout(() => {
-              this.$emit('close')
+              this.$router.push({ path: '/stockInTable' })
             }, 1000)
           } else {
             this.$message.error(res.data.msg)
@@ -221,7 +226,7 @@ export default {
         if (status === 0) {
           this.$message.success('操作成功')
           setTimeout(() => {
-            this.$emit('close')
+            this.$router.push({ path: '/stockInTable' })
           }, 1000)
         } else {
           this.$message.error(res.data.msg)
@@ -229,7 +234,7 @@ export default {
       })
     },
     cancel() {
-      this.$emit('close')
+      this.$router.push({ path: '/stockInTable' })
     }
   }
 }

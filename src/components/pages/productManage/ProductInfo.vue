@@ -181,7 +181,7 @@
 <script>
 export default {
   props: {
-    id: Number
+    id: String
   },
   data() {
     const validateFixedTo = (rule, value, callback) => {
@@ -262,6 +262,11 @@ export default {
     this.getStoreHouseList()
     this.getDeliveryUnitList()
     if (this.id) {
+      this.getDetail()
+    }
+  },
+  watch: {
+    id: function() {
       this.getDetail()
     }
   },
@@ -418,7 +423,7 @@ export default {
       }
     },
     cancel() {
-      this.$emit('close')
+      this.$router.push({ path: `/index` })
     }
   }
 }

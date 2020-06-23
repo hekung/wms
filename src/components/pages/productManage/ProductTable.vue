@@ -66,16 +66,13 @@
         </div>
       </div>
     </div>
-    <product-info v-if="showInfo" :id="detailId" @close="closeInfoPage"></product-info>
+    <!-- <product-info v-if="showInfo" :id="detailId" @close="closeInfoPage"></product-info> -->
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import ProductInfo from './ProductInfo'
 export default {
-  components: {
-    ProductInfo
-  },
   data() {
     return {
       currentPage: 1,
@@ -100,6 +97,7 @@ export default {
     showDetail(index, rowData) {
       this.detailId = rowData.id
       this.showInfo = true
+      this.$router.push({ path: `/index/info/${rowData.id}` })
     },
     closeInfoPage() {
       this.showInfo = false
