@@ -1,16 +1,16 @@
 <template>
   <div class="account-manage table-page">
-    <div class="table-selector">
-      <el-button type="warning" size="small" class="clear-btn" @click="createAccount">新建账号</el-button>
-    </div>
     <div class="main-content">
+      <div class="btn-container">
+        <el-button type="warning" size="small" class="clear-btn" @click="createAccount">新建账号</el-button>
+      </div>
       <div class="table-content">
         <el-table :data="accountList" stripe ref="multipleTable" style="height:100%;">
           <el-table-column prop="open_code" label="用户账号"></el-table-column>
           <el-table-column prop="name" label="真实姓名"></el-table-column>
           <el-table-column prop="headImg" label="头像" align="center">
             <template slot-scope="scope">
-              <img :src="scope.row.headImg" alt style="height:60px;" />
+              <img :src="scope.row.headImg" alt style="height:30px;" />
             </template>
           </el-table-column>
           <el-table-column prop="roleName" label="角色">
@@ -181,21 +181,31 @@ export default {
 </script>
 <style lang="less" scoped>
 .account-manage {
-  .table-selector {
-    padding: 10px;
-    .clear-btn {
-      font-size: 12px;
-      padding-left: 40px;
-      padding-right: 40px;
-    }
-  }
   .main-content {
     height: calc(~'100% - 100px');
+    margin-top: 0;
+    .btn-container {
+      padding: 10px;
+      padding-left: 18px;
+      .clear-btn {
+        font-size: 12px;
+        padding-left: 40px;
+        padding-right: 40px;
+      }
+    }
+
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
         height: calc(~'100% - 48px');
         overflow: auto;
+      }
+      /deep/ .el-table td,
+      .el-table th {
+        padding: 7px 0 !important;
+      }
+      .el-button {
+        padding: 6px 6px !important;
       }
     }
   }

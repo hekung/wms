@@ -38,7 +38,7 @@
                 action="/innobeautywms/imgUpload"
               >
                 <img v-if="imageUrlPC" :src="imageUrlPC" class="avatar" />
-                <div v-else style="height:100%;line-height:120px;">
+                <div v-else style="height:100%;line-height:80px;">
                   <i class="el-icon-plus avatar-uploader-icon"></i>
                 </div>
               </el-upload>
@@ -478,8 +478,8 @@ export default {
   .form {
     .avatar-uploader {
       /deep/ .el-upload--text {
-        width: 120px;
-        height: 120px;
+        width: 80px;
+        height: 80px;
         img {
           width: 100%;
           height: 100%;

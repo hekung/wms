@@ -30,47 +30,49 @@
             ></el-button>
           </el-form-item>
         </div>
-        <div>
-          <el-form-item label="下单日期：">
-            <el-date-picker
-              v-model="form.datePickVal"
-              type="daterange"
-              align="right"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              @change="pickChange"
-              :picker-options="pickerOptions"
+        <div class="screen-area">
+          <div>
+            <el-form-item label="下单日期：">
+              <el-date-picker
+                v-model="form.datePickVal"
+                type="daterange"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                @change="pickChange"
+                :picker-options="pickerOptions"
+                size="small"
+              ></el-date-picker>
+            </el-form-item>
+            <el-form-item label="出库仓">
+              <el-select
+                v-model="form.stockId"
+                @change="screening"
+                placeholder="出库仓"
+                size="small"
+                style="margin:0 12px;"
+              >
+                <el-option
+                  v-for="(item) in stockList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div class="btn-container">
+            <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
+            <el-button
+              class="clear-btn"
               size="small"
-            ></el-date-picker>
-          </el-form-item>
-          <el-form-item label="出库仓">
-            <el-select
-              v-model="form.stockId"
-              @change="screening"
-              placeholder="出库仓"
-              size="small"
-              style="margin:0 12px;"
-            >
-              <el-option
-                v-for="(item) in stockList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="btn-container">
-          <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
-          <el-button
-            class="clear-btn"
-            size="small"
-            type="primary"
-            style="margin-left:30px;"
-            @click="exportOut"
-          >导出</el-button>
+              type="primary"
+              style="margin-left:30px;"
+              @click="exportOut"
+            >导出</el-button>
+          </div>
         </div>
       </el-form>
     </div>
@@ -95,7 +97,7 @@
             <div slot="label" class="tab-title">
               <img src="../../../assets/img/finish.png" alt v-if="type!=='1'" />
               <img src="../../../assets/img/finish-1.png" alt v-else />
-              <span>已完成</span>
+              <span>已出库</span>
             </div>
           </el-tab-pane>
         </el-tabs>
@@ -159,7 +161,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage"
-            :page-sizes="[10, 30, 50]"
+            :page-sizes="[20, 30, 50]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="totalRows"
@@ -180,6 +182,7 @@
         <el-radio :label="1" class="db">香港发货单</el-radio>
         <el-radio :label="2" class="db">日本发货单</el-radio>
         <el-radio :label="3" class="db">日本发货单JP</el-radio>
+        <el-radio :label="4" class="db">上海邮政仓发货单</el-radio>
       </el-radio-group>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelExport">取 消</el-button>
@@ -196,7 +199,7 @@ export default {
     return {
       datePickVal: '',
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 20,
       totalRows: 0,
       timeOrder: '',
       showMorePro: false,
@@ -344,7 +347,8 @@ export default {
             0: '昆山发货单模板',
             1: '香港发货单模板',
             2: '日本发货单模板',
-            3: '日本发货单JP模板'
+            3: '日本发货单JP模板',
+            4: '上海邮政仓发货单'
           }
           const content = res.data
           const blob = new Blob([content])
@@ -498,20 +502,34 @@ export default {
       .no-show {
         display: none;
       }
+      /deep/ .el-table td,
+      /deep/ .el-table th {
+        padding: 7px 0 !important;
+      }
+      /deep/ .el-button {
+        padding: 6px 6px !important;
+      }
     }
   }
   .table-selector {
     .top-blur-search {
       border-bottom: 1px dashed #e8e8e8;
-      padding: 10px 0;
-      margin-bottom: 10px;
+      padding: 6px 0;
+      margin-bottom: 6px;
     }
-    .btn-container {
-      padding: 10px;
-      padding-left: 18px;
-      .clear-btn {
-        font-size: 12px;
-        padding: 10px 40px;
+    .screen-area {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      .btn-container {
+        padding: 6px;
+        padding-left: 18px;
+        margin-left: 30px;
+        .clear-btn {
+          font-size: 12px;
+          padding: 10px 40px;
+        }
       }
     }
   }

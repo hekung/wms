@@ -33,7 +33,15 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="入库仓：">
-              <span>{{sotoreHouseName}}</span>
+              <span v-if="ruleForm.category!=2">{{sotoreHouseName}}</span>
+              <el-select v-else v-model="ruleForm.storehouseId" placeholder="请选择入库仓" size="small">
+                <el-option
+                  v-for="(item) in storeHouseList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -48,7 +56,8 @@
                 style="width:800px;"
                 border
                 class="detail-table"
-                size="small"
+                max-height="360"
+                size="mini"
                 :summary-method="getSummaries"
                 show-summary
               >
@@ -59,9 +68,14 @@
               </el-table>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="货品来源：">
               <span>{{ruleForm.origin}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="预期到货时间：">
+              <span>{{this.$moment(this.ruleForm.expectReceiveTime).format(' YYYY-MM-DD')}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -72,7 +86,7 @@
           <el-col :span="24">
             <div class="buttons">
               <el-button size="small" type="primary" @click="submitForm">确认</el-button>
-              <el-button size="small" type="warning" @click="reject">驳回</el-button>
+              <el-button size="small" type="warning" @click="reject" v-if="ruleForm.category!=2">驳回</el-button>
               <el-button size="small" @click="cancel">返回</el-button>
             </div>
           </el-col>
@@ -105,12 +119,14 @@ export default {
         category: '',
         remark: '',
         storehouseId: '',
-        origin: ''
+        origin: '',
+        expectReceiveTime: ''
       }
     }
   },
   created() {
     this.getproductList()
+    // this.getStockList()
     this.getDetail()
   },
   watch: {
@@ -124,7 +140,7 @@ export default {
       const sums = []
       columns.forEach((column, index) => {
         if (index === 0) {
-          sums[index] = '总计'
+          sums[index] = '总计' + '（' + data.length + '）'
           return
         }
         if (index == 3) {
@@ -162,14 +178,19 @@ export default {
         let stockItem = this.storeHouseList.find(e => e.id == date.storehouseId)
         if (stockItem) {
           this.sotoreHouseName = stockItem.name
+        } else {
+          this.sotoreHouseName = ''
         }
         this.orderNo = date.orderNo
         this.userName = date.userName
         let categoryItem = this.categoryList.find(e => e.id == date.category)
         if (categoryItem) {
           this.categoryName = categoryItem.name
+        } else {
+          this.categoryName = ''
         }
         this.saleOrderNo = date.saleOrderNo
+        this.ruleForm.expectReceiveTime = date.expectReceiveTime
       }
     },
     async getproductList() {
@@ -183,7 +204,11 @@ export default {
       this.ruleForm.commodityItemSaveFormList.splice(index, 1)
     },
     submitForm() {
-      this.createStockIn()
+      if (this.ruleForm.category == 2) {
+        this.changeStockIn()
+      } else {
+        this.returnStockIn()
+      }
     },
     async reject() {
       this.$prompt('是否确认驳回该入库单?', '提示', {
@@ -210,7 +235,26 @@ export default {
         })
         .catch(() => {})
     },
-    async createStockIn() {
+    async changeStockIn() {
+      this.$confirm('是否确认入库').then(async () => {
+        const url = '/innobeautywms/entryOrder/transfer/submit'
+        let res = await this.util.post(url, {
+          id: this.id,
+          remark: this.ruleForm.remark,
+          storehouseId: this.ruleForm.storehouseId
+        })
+        let { status } = res.data
+        if (status === 0) {
+          this.$message.success('操作成功')
+          setTimeout(() => {
+            this.$router.push({ path: '/stockInTable' })
+          }, 1000)
+        } else {
+          this.$message.error(res.data.msg)
+        }
+      })
+    },
+    async returnStockIn() {
       this.$prompt('是否确认入库', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

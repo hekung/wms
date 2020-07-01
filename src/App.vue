@@ -9,6 +9,11 @@ import { mapState } from 'vuex'
 import bus from './components/common/bus.js'
 export default {
   name: 'app',
+  data() {
+    return {
+      timeId: ''
+    }
+  },
   created() {
     // let username = this.util.getCookie('username')
     // if (!username) {
@@ -39,34 +44,45 @@ export default {
   methods: {
     socketConnect() {
       const socket = new WebSocket(
-        'ws://localhost' + `/innobeautywms/websocket/${this.userData.userId}`
+        this.util.getSocketBase() +
+          `/innobeautywms/websocket/${this.userData.userId}`
       )
-      socket.addEventListener('open', function(event) {
+      socket.addEventListener('open', () => {
         socket.send(
           JSON.stringify({
             action: 'getCount'
           })
         )
+        if (this.timeId) {
+          clearInterval(this.timeId)
+        }
+        this.timeId = setInterval(() => {
+          socket.send(
+            JSON.stringify({
+              action: 'heartbeat'
+            })
+          )
+        }, 25 * 60 * 1000)
       })
       socket.addEventListener('message', event => {
         console.log(event.data)
         if (event.data.includes('shippingCountForWait')) {
           // {shippingCountForWait=6, saleOrderAuditCount=0}
-          let resMessage = event.data.substring(1, event.data.length - 1)
-          let arr = resMessage.split(',')
-          let arr1 = arr[0].split('=')
-          let arr2 = arr[1].split('=')
-          let normalData = {}
+          // let resMessage = event.data.substring(1, event.data.length - 1)
+          // let arr = resMessage.split(',')
+          // let arr1 = arr[0].split('=')
+          // let arr2 = arr[1].split('=')
+          // let normalData = {}
 
-          let attr1 = arr1[0].trim()
-          let attr2 = arr2[0].trim()
-          Object.defineProperty(normalData, attr1, {
-            value: arr1[1]
-          })
-          Object.defineProperty(normalData, attr2, {
-            value: arr2[1]
-          })
-          this.$store.commit('order/setStatistics', normalData)
+          // let attr1 = arr1[0].trim()
+          // let attr2 = arr2[0].trim()
+          // Object.defineProperty(normalData, attr1, {
+          //   value: arr1[1]
+          // })
+          // Object.defineProperty(normalData, attr2, {
+          //   value: arr2[1]
+          // })
+          this.$store.commit('order/setStatistics', JSON.parse(event.data))
         }
       })
     },

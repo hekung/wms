@@ -30,10 +30,11 @@
             <el-form-item label="产品内容：">
               <el-table
                 :data="ruleForm.productList"
-                style="width:800px;"
                 class="detail-table"
-                size="small"
+                size="mini"
+                max-height="250"
                 :summary-method="getSummaries"
+                ref="table"
                 show-summary
                 border
               >
@@ -77,7 +78,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="发货仓库：">
-              <span>{{storehouseName}}</span>
+              <span>{{ruleForm.storehouseName}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="isEntry">
+            <el-form-item label="入库仓库：">
+              <span>{{ruleForm.inStorehouseName}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -85,7 +91,23 @@
               <span>{{ruleForm.expressCompanys}}</span>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12" v-if="isEntry&&stepActive ==0">
+            <el-form-item label="预期到货时间：" prop="expectReceiveTime">
+              <el-date-picker
+                v-model="ruleForm.expectReceiveTime"
+                size="small"
+                type="date"
+                placeholder="选择日期"
+                value-format="timestamp"
+              ></el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="isEntry&&stepActive ==1">
+            <el-form-item label="预期到货时间：" prop="expectReceiveTime">
+              <span>{{this.$moment(this.ruleForm.expectReceiveTime).format('YYYY-MM-DD')}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="物流单号：" prop="expressNo">
               <el-input
                 v-model="ruleForm.expressNo"
@@ -94,7 +116,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="出库备注：" prop="shippingOrderRemark">
               <el-input v-model="ruleForm.shippingOrderRemark" size="small" placeholder="请输入出库备注"></el-input>
             </el-form-item>
@@ -133,7 +155,7 @@ export default {
         { id: 4, name: '顺丰' }
       ],
       storeHouseList: [],
-      storehouseName: '',
+      isEntry: false,
       ruleForm: {
         productList: [],
         expressNo: '',
@@ -145,14 +167,20 @@ export default {
         orderNo: '',
         storehouseId: '',
         storehouseName: '',
+        entryStorehouseName: '',
         designatedLogistics: '',
         userName: '',
         saleOrderRemark: '',
-        shippingOrderRemark: ''
+        shippingOrderRemark: '',
+        inStorehouseName: '',
+        expectReceiveTime: ''
       },
       rules: {
         expressNo: [
           { required: true, message: '请输入物流单号', trigger: 'blur' }
+        ],
+        expectReceiveTime: [
+          { required: true, message: '请选择预期到货时间', trigger: 'change' }
         ]
       }
     }
@@ -171,7 +199,7 @@ export default {
       const sums = []
       columns.forEach((column, index) => {
         if (index === 0) {
-          sums[index] = '总计'
+          sums[index] = '总计' + '（' + data.length + '）'
           return
         }
         if (index == 3) {
@@ -255,25 +283,52 @@ export default {
             this.ruleForm[key] = date[key]
           }
         }
-        if (date.expressCompanys) {
-          let designatedLogisticsObj = this.expressCompanysList.find(
-            e => e.id == date.expressCompanys
-          )
-          if (designatedLogisticsObj) {
-            this.ruleForm.expressCompanys = designatedLogisticsObj.name
-          }
-        }
-
         if (!this.ruleForm.expressNo) {
           this.stepActive = 0
         } else {
           this.stepActive = 1
         }
+        if (date.expectReceiveTime) {
+          this.ruleForm.expectReceiveTime = new Date(
+            date.expectReceiveTime
+          ).getTime()
+        }
         let item = this.storeHouseList.find(
           e => e.id === this.ruleForm.storehouseId
         )
         if (item) {
-          this.storehouseName = item.name
+          this.ruleForm.storehouseName = item.name
+        }
+        let inStoreItem = this.storeHouseList.find(
+          e => e.id === date.inStorehouseId
+        )
+        if (inStoreItem) {
+          this.isEntry = true
+          this.ruleForm.inStorehouseName = inStoreItem.name
+        } else {
+          this.isEntry = false
+        }
+        if (this.stepActive == 0) {
+          this.$nextTick(() => {
+            this.ruleForm.productList.forEach((product, index) => {
+              if (!product.enough) {
+                let item = document.querySelectorAll(
+                  '.content-main .el-table__row'
+                )
+                item[index].classList.add('errornum')
+              }
+            })
+            let firstErrItem = document.querySelector('.errornum')
+            if (firstErrItem.offsetTop >= 144) {
+              this.$refs.table.bodyWrapper.scrollTop =
+                firstErrItem.offsetTop - 144 + 20
+            }
+            if (firstErrItem) {
+              this.$message.error(
+                '出库单中存在产品库存不足，请添加库存后再进行出库'
+              )
+            }
+          })
         }
       }
     },
@@ -303,14 +358,41 @@ export default {
         if (valid) {
           const url = `/innobeautywms/shippingOrder`
           let id = this.id
-          let { expressNo, shippingOrderRemark } = this.ruleForm
-          let params = { id, expressNo, remark: shippingOrderRemark }
+          let {
+            expressNo,
+            shippingOrderRemark,
+            expectReceiveTime
+          } = this.ruleForm
+          let params = {
+            id,
+            expressNo,
+            remark: shippingOrderRemark,
+            expectReceiveTime
+          }
           this.util.post(url, params).then(res => {
-            let { status } = res.data
+            let { status, date } = res.data
             if (status == 0) {
               this.$message.success('操作成功')
               this.close()
             } else {
+              if (date) {
+                let ids = date.split(',')
+                ids.forEach(id => {
+                  let index = this.ruleForm.productList.findIndex(
+                    e => e.id == id
+                  )
+                  let item = document.querySelectorAll(
+                    '.content-main .el-table__row'
+                  )
+                  item[index].classList.add('errornum')
+                })
+                let firstErrItem = document.querySelector('.errornum')
+                // this.$refs.table.bodyWrapper.scrollTop = firstErrItem.offsetTop
+                if (firstErrItem.offsetTop >= 144) {
+                  this.$refs.table.bodyWrapper.scrollTop =
+                    firstErrItem.offsetTop - 144 + 20
+                }
+              }
               this.$message.error(res.data.msg)
             }
           })
@@ -331,6 +413,9 @@ export default {
   z-index: 10;
   padding-top: 60px;
   overflow: hidden;
+  .errornum {
+    background: rgb(255, 215, 215);
+  }
   .content-header {
     height: 60px;
     line-height: 60px;
@@ -367,7 +452,10 @@ export default {
   .form {
     .buttons {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 10px;
+    }
+    .detail-table {
+      width: 800px;
     }
   }
 }

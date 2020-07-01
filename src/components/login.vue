@@ -63,12 +63,12 @@ export default {
         })
         .then(res => {
           if (res.data && res.data.status == 0) {
-            this.$store.commit('user/setUserData', res.data.data)
+            this.$store.commit('user/setUserData', res.data.date)
+            localStorage.setItem('userData', JSON.stringify(res.data.date))
             bus.$emit('socket-connect')
             // this.util.setCookie('username', this.loginForm.username)
             // this.util.setCookie('password', this.loginForm.password)
             this.$router.push('/index').catch(() => {})
-            localStorage.setItem('userData', JSON.stringify(res.data.date))
           } else {
             this.$message({
               type: 'error',
@@ -120,5 +120,8 @@ export default {
 .form-fade-leave-active {
   transform: translate3d(0, -50px, 0);
   opacity: 0;
+}
+.el-form-item {
+  margin-bottom: 20px;
 }
 </style>

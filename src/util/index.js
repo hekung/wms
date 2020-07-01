@@ -8,6 +8,13 @@ export default class Util {
             return location.origin + '/'
         }
     }
+    getSocketBase() {
+        if (process.env.NODE_ENV === 'development') {
+            return 'ws://' + location.host
+        } else {
+            return 'wss://' + location.host
+        }
+    }
     getOrderAddress({ prov, city, area, address }) {
         let provinceName, cityName, areaName, addressRes
         // 获取省

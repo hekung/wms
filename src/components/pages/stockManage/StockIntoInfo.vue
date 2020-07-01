@@ -51,6 +51,7 @@
                 :summary-method="getSummaries"
                 show-summary
                 style="width:800px;"
+                max-height="320"
                 border
               >
                 <el-table-column prop="productName" label="产品名称" width="400px"></el-table-column>
@@ -60,9 +61,14 @@
               </el-table>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="货品来源：">
               <span>{{ruleForm.origin}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="ruleForm.category==1||ruleForm.category==2">
+            <el-form-item label="预期到货时间：">
+              <span>{{this.$moment(this.ruleForm.expectReceiveTime).format(' YYYY-MM-DD')}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -114,7 +120,8 @@ export default {
         remark: '',
         storehouseId: '',
         category: '',
-        origin: ''
+        origin: '',
+        expectReceiveTime: ''
       }
     }
   },
@@ -133,7 +140,7 @@ export default {
       const sums = []
       columns.forEach((column, index) => {
         if (index === 0) {
-          sums[index] = '总计'
+          sums[index] = '总计' + '（' + data.length + '）'
           return
         }
         if (index == 3) {
@@ -207,6 +214,7 @@ export default {
         this.ruleForm.category = date.category
         this.ruleForm.storehouseId = date.storehouseId || ''
         this.saleOrderNo = date.saleOrderNo
+        this.ruleForm.expectReceiveTime = date.expectReceiveTime
         this.orderNo = date.orderNo
         this.userName = date.userName
       }

@@ -1,50 +1,50 @@
 <template>
   <div class="stock-daily table-page">
     <div class="table-selector">
-      <el-form :model="form" :inline="true">
-        <el-form-item label="下单日期：">
-          <el-date-picker
-            v-model="form.datePickVal"
-            type="daterange"
-            align="right"
-            unlink-panels
-            range-separator="至"
-            :clearable="false"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
-            size="small"
-            @change="pickChange"
-          ></el-date-picker>
-        </el-form-item>
-        <el-form-item label="仓库：">
-          <el-select v-model="form.stockId" placeholder="仓库" size="small" @change="stockChange">
-            <el-option
-              v-for="(item) in stockList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="产品名称">
-          <el-select
-            v-model="form.productId"
-            placeholder="产品名称"
-            size="small"
-            @change="productChange"
-          >
-            <el-option
-              v-for="(item) in productList"
-              :key="item.id"
-              :label="item.productName"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-    </div>
-    <div class="main-content">
+      <div>
+        <el-form :model="form" :inline="true" label-width="90px">
+          <el-form-item label="下单日期：">
+            <el-date-picker
+              v-model="form.datePickVal"
+              type="daterange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              :clearable="false"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
+              size="small"
+              @change="pickChange"
+            ></el-date-picker>
+          </el-form-item>
+          <el-form-item label="仓库：">
+            <el-select v-model="form.stockId" placeholder="仓库" size="small" @change="stockChange">
+              <el-option
+                v-for="(item) in stockList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="产品名称">
+            <el-select
+              v-model="form.productId"
+              placeholder="产品名称"
+              size="small"
+              @change="productChange"
+            >
+              <el-option
+                v-for="(item) in productList"
+                :key="item.id"
+                :label="item.productName"
+                :value="item.id"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
       <div class="btn-container">
         <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
         <el-button
@@ -55,6 +55,8 @@
           @click="exportOut"
         >导出</el-button>
       </div>
+    </div>
+    <div class="main-content">
       <el-row class="table-content">
         <el-table
           :data="dataList"
@@ -350,23 +352,30 @@ export default {
 <style lang="less" scoped>
 .stock-daily {
   .table-selector {
-    padding: 10px;
-  }
-  .main-content {
-    height: calc(~'100% - 100px');
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     .btn-container {
       padding: 10px;
       padding-left: 18px;
-      border-bottom: 1px solid #f1f1f1;
+      margin-left: 0px;
       .clear-btn {
         padding: 10px 40px;
       }
     }
+  }
+  .main-content {
+    height: calc(~'100% - 100px');
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
         height: calc(~'100% - 100px');
         overflow: auto;
+      }
+      /deep/ .el-table td,
+      .el-table th {
+        padding: 7px 0 !important;
       }
     }
   }

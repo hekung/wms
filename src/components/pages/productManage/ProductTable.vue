@@ -1,16 +1,16 @@
 <template>
   <div class="product-manage table-page">
-    <div class="table-selector">
-      <el-button type="warning" size="small" class="clear-btn" @click="addNew">新建产品</el-button>
-      <el-button
-        type="danger"
-        size="small"
-        :disabled="multipleSelection.length<1"
-        class="clear-btn"
-        @click="handleDelete"
-      >删除</el-button>
-    </div>
     <div class="main-content">
+      <div class="btn-container">
+        <el-button type="warning" size="small" class="clear-btn" @click="addNew">新建产品</el-button>
+        <el-button
+          type="danger"
+          size="small"
+          :disabled="multipleSelection.length<1"
+          class="clear-btn"
+          @click="handleDelete"
+        >删除</el-button>
+      </div>
       <div class="table-content">
         <el-table
           :data="productList"
@@ -24,12 +24,12 @@
           <el-table-column prop="mainImage" label="产品图片" align="center">
             <template slot-scope="scope">
               <div>
-                <img :src="scope.row.mainImage" alt srcset style="height:80px;" />
+                <img :src="scope.row.mainImage" alt srcset style="height:20px;" />
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="skuNo" label="SKU编码" align="center"></el-table-column>
-          <el-table-column prop="productName" label="产品名称" align="center">
+          <el-table-column prop="skuNo" label="SKU编码" min-width="120"></el-table-column>
+          <el-table-column prop="productName" label="产品名称" min-width="150">
             <template slot-scope="scope">
               <div>
                 <el-button
@@ -39,7 +39,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column prop="productSpecification" label="规格" align="center"></el-table-column>
+          <el-table-column prop="productSpecification" label="规格" width="120"></el-table-column>
           <el-table-column label="操作" width="180" align="center">
             <template slot-scope="scope">
               <el-button
@@ -58,7 +58,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage"
-            :page-sizes="[10,30,50]"
+            :page-sizes="[20,30,50]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="totalRows"
@@ -66,7 +66,6 @@
         </div>
       </div>
     </div>
-    <!-- <product-info v-if="showInfo" :id="detailId" @close="closeInfoPage"></product-info> -->
     <router-view></router-view>
   </div>
 </template>
@@ -76,7 +75,7 @@ export default {
   data() {
     return {
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 20,
       showInfo: false,
       detailId: '',
       totalRows: 0,
@@ -172,12 +171,28 @@ export default {
   }
   .main-content {
     height: calc(~'100% - 100px');
+    margin-top: 0;
+    .btn-container {
+      padding: 10px;
+      padding-left: 18px;
+      border-bottom: 1px solid #f1f1f1;
+      .clear-btn {
+        padding: 10px 40px;
+      }
+    }
     .table-content {
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
         height: calc(~'100% - 48px');
         overflow: auto;
       }
+    }
+    /deep/ .el-table td,
+    /deep/ .el-table th {
+      padding: 7px 0 !important;
+    }
+    /deep/ .el-table .el-button {
+      padding: 6px 6px !important;
     }
   }
 }

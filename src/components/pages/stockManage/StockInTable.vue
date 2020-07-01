@@ -26,67 +26,94 @@
             style="float:right;margin-right:30px;"
           >新建入库单</el-button>
         </div>
-        <div>
-          <el-form-item label="日期筛选：">
-            <el-date-picker
-              v-model="form.datePickVal"
-              type="daterange"
-              align="right"
-              unlink-panels
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :picker-options="pickerOptions"
-              @change="screening"
+        <div class="screen-area">
+          <div>
+            <el-form-item label="日期筛选：">
+              <el-date-picker
+                v-model="form.datePickVal"
+                type="daterange"
+                align="right"
+                unlink-panels
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions"
+                @change="screening"
+                size="small"
+              ></el-date-picker>
+            </el-form-item>
+            <el-form-item label="入库类型：">
+              <el-select
+                v-model="form.category"
+                @change="screening"
+                placeholder="入库类型"
+                size="small"
+                style="margin:0 12px;"
+              >
+                <el-option
+                  v-for="(item) in categoryList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="入库仓">
+              <el-select
+                v-model="form.storeHouseId"
+                @change="screening"
+                placeholder="入库仓"
+                size="small"
+                style="margin:0 12px;"
+              >
+                <el-option
+                  v-for="(item) in stockList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </div>
+          <div class="btn-container">
+            <el-button class="clear-btn" size="small" type="info" @click="clearScreen" plain>清空筛选条件</el-button>
+            <el-button
+              class="clear-btn"
               size="small"
-            ></el-date-picker>
-          </el-form-item>
-          <el-form-item label="入库类型：">
-            <el-select
-              v-model="form.category"
-              @change="screening"
-              placeholder="入库类型"
-              size="small"
-              style="margin:0 12px;"
-            >
-              <el-option
-                v-for="(item) in categoryList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="入库仓">
-            <el-select
-              v-model="form.storeHouseId"
-              @change="screening"
-              placeholder="入库仓"
-              size="small"
-              style="margin:0 12px;"
-            >
-              <el-option
-                v-for="(item) in stockList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="btn-container">
-          <el-button class="clear-btn" size="small" type="info" @click="clearScreen" plain>清空筛选条件</el-button>
-          <el-button
-            class="clear-btn"
-            size="small"
-            type="primary"
-            style="margin-left:30px;"
-            @click="exportOut"
-          >导出</el-button>
+              type="primary"
+              style="margin-left:30px;"
+              @click="exportOut"
+            >导出</el-button>
+          </div>
         </div>
       </el-form>
     </div>
     <div class="main-content">
+      <div>
+        <el-tabs v-model="type">
+          <el-tab-pane name="0">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/all.png" alt v-if="type!=='0'" />
+              <img src="../../../assets/img/all-1.png" alt v-else />
+              <span>全部</span>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane name="1">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/waitDone.png" alt v-if="type!=='1'" />
+              <img src="../../../assets/img/waitDone-1.png" alt v-else />
+              <span>待入库</span>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane name="2">
+            <div slot="label" class="tab-title">
+              <img src="../../../assets/img/finish.png" alt v-if="type!=='2'" />
+              <img src="../../../assets/img/finish-1.png" alt v-else />
+              <span>已入库</span>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
       <div class="table-content">
         <el-table
           :data="entryOrderList"
@@ -112,11 +139,7 @@
             <span>{{$moment(new Date(scope.row.createTime)).format('YYYY-MM-DD HH:mm')}}</span>
             </template>-->
           </el-table-column>
-          <el-table-column prop="category" label="入库类型" align="center" min-width="60px">
-            <template slot-scope="scope">
-              <span>{{scope.row.orderStatus=='待入库'?'':scope.row.category}}</span>
-            </template>
-          </el-table-column>
+          <el-table-column prop="category" label="入库类型" align="center" min-width="60px"></el-table-column>
           <el-table-column prop="rate" label="入库编号" align="center" min-width="120px">
             <template slot-scope="scope">
               <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
@@ -143,6 +166,11 @@
               >收起</el-button>
             </template>
           </el-table-column>
+          <el-table-column prop="orderStatus" label="入库状态" min-width="120px">
+            <template slot-scope="scope">
+              <span :class="scope.row.orderStatus=='已入库'?'green':'orange'">{{scope.row.orderStatus}}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="remark" label="备注" min-width="120px"></el-table-column>
         </el-table>
       </div>
@@ -152,7 +180,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="currentPage"
-            :page-sizes="[10, 30, 50]"
+            :page-sizes="[20, 30, 50]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="totalRows"
@@ -173,7 +201,8 @@ export default {
     return {
       datePickVal: '',
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 20,
+      type: '0',
       totalRows: 0,
       detailId: '',
       timeOrder: '',
@@ -237,6 +266,9 @@ export default {
       if (val.name === 'stockInTable') {
         this.screening()
       }
+    },
+    type() {
+      this.screening()
     }
   },
   methods: {
@@ -336,6 +368,7 @@ export default {
     async search() {
       let url = '/innobeautywms/entryOrder/list'
       let params = {
+        type: this.type,
         pageNo: this.currentPage,
         pageSize: this.pageSize
       }
@@ -377,30 +410,50 @@ export default {
 <style lang="less" scoped>
 .in-manage {
   .main-content {
-    height: calc(~'100% - 220px');
+    height: calc(~'100% - 180px');
     .table-content {
       .no-show {
         display: none;
+      }
+      .green {
+        color: green;
+      }
+      .orange {
+        color: orange;
       }
       height: calc(~'100% - 100px');
       /deep/.el-table__body-wrapper {
         height: calc(~'100% - 60px');
         overflow: auto;
       }
+      /deep/ .el-table td,
+      /deep/ .el-table th {
+        padding: 7px 0 !important;
+      }
+      /deep/ .el-button {
+        padding: 6px 6px !important;
+      }
     }
   }
   .table-selector {
     .top-blur-search {
       border-bottom: 1px dashed #e8e8e8;
-      padding: 10px 0;
-      margin-bottom: 10px;
+      padding: 6px 0;
+      margin-bottom: 6px;
     }
-    .btn-container {
-      padding: 10px;
-      padding-left: 18px;
-      .clear-btn {
-        font-size: 12px;
-        padding: 10px 40px;
+    .screen-area {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      .btn-container {
+        padding: 6px;
+        padding-left: 18px;
+        margin-left: 30px;
+        .clear-btn {
+          font-size: 12px;
+          padding: 10px 40px;
+        }
       }
     }
   }
