@@ -91,7 +91,7 @@
               <span>{{ruleForm.expressCompanys}}</span>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="isEntry&&stepActive ==0">
+          <el-col :span="12" v-if="isEntry&&ruleForm.orderStatus==0">
             <el-form-item label="预期到货时间：" prop="expectReceiveTime">
               <el-date-picker
                 v-model="ruleForm.expectReceiveTime"
@@ -102,34 +102,45 @@
               ></el-date-picker>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="isEntry&&stepActive ==1">
+          <el-col :span="12" v-if="isEntry&&ruleForm.orderStatus!=0">
             <el-form-item label="预期到货时间：" prop="expectReceiveTime">
               <span>{{this.$moment(this.ruleForm.expectReceiveTime).format('YYYY-MM-DD')}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="物流单号：" prop="expressNo">
+            <el-form-item label="物流单号：" prop="expressNo" v-if="ruleForm.storehouseId!=2">
               <el-input
                 v-model="ruleForm.expressNo"
                 size="small"
                 placeholder="支持输入多个物流单号,以英文逗号“,”隔开"
               ></el-input>
             </el-form-item>
+            <el-form-item label="物流单号：" v-if="ruleForm.orderStatus!=0 && ruleForm.storehouseId==2">
+              <span>{{ruleForm.expressNo}}</span>
+            </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="出库备注：" prop="shippingOrderRemark">
+            <el-form-item label="出库备注：" v-if="ruleForm.orderStatus==3&&ruleForm.storehouseId==2">
+              <span>{{ruleForm.shippingOrderRemark}}</span>
+            </el-form-item>
+            <el-form-item label="出库备注：" prop="shippingOrderRemark" v-else>
               <el-input v-model="ruleForm.shippingOrderRemark" size="small" placeholder="请输入出库备注"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="24">
-            <div class="buttons" v-if="stepActive ==0">
+            <div class="buttons" v-if="ruleForm.orderStatus==0">
               <el-button type="primary" @click="submitForm" size="small">确认</el-button>
               <el-button type="error" @click="handleDelete" size="small">驳回</el-button>
               <el-button type="info" size="small" @click="close">返回</el-button>
             </div>
-            <div class="buttons" v-else>
+            <div class="buttons" v-else-if="ruleForm.orderStatus==3">
+              <el-button type="primary" size="small" disabled>仓库出库中</el-button>
+              <el-button type="error" @click="handleBack" size="small">撤回</el-button>
+              <el-button type="info" size="small" @click="close">返回</el-button>
+            </div>
+            <div class="buttons" v-else-if="ruleForm.orderStatus==1">
               <el-button type="warning" size="small" @click="modifyExpressNo">确认</el-button>
               <el-button type="info" size="small" @click="close">返回</el-button>
             </div>
@@ -162,6 +173,7 @@ export default {
         expressCompanys: '',
         receiverName: '',
         postalCode: '',
+        orderStatus: '', //0:待出库 1：已完成  2：已取消   3：仓库出库中
         receiverMobile: '',
         receiverAddress: '',
         orderNo: '',
@@ -220,6 +232,24 @@ export default {
       })
 
       return sums
+    },
+    handleBack() {
+      this.$confirm('是否确认撤回该出库单？').then(async () => {
+        const url = `/innobeautywms/shippingOrder/withraw/${this.id}`
+        try {
+          let res = await this.util.post(url)
+          if (res.data.status == 0) {
+            this.$message.success('操作成功')
+            setTimeout(() => {
+              this.close()
+            }, 1000)
+          } else {
+            this.$message.error(res.data.msg)
+          }
+        } catch (error) {
+          return Promise.reject(error)
+        }
+      })
     },
     handleDelete() {
       this.$prompt('是否确认驳回该出库单', '提示', {
@@ -308,7 +338,7 @@ export default {
         } else {
           this.isEntry = false
         }
-        if (this.stepActive == 0) {
+        if (this.ruleForm.orderStatus == 0) {
           this.$nextTick(() => {
             this.ruleForm.productList.forEach((product, index) => {
               if (!product.enough) {
@@ -319,7 +349,7 @@ export default {
               }
             })
             let firstErrItem = document.querySelector('.errornum')
-            if (firstErrItem.offsetTop >= 144) {
+            if (firstErrItem && firstErrItem.offsetTop >= 144) {
               this.$refs.table.bodyWrapper.scrollTop =
                 firstErrItem.offsetTop - 144 + 20
             }
@@ -342,6 +372,9 @@ export default {
         let id = this.id
         let { expressNo, shippingOrderRemark } = this.ruleForm
         let params = { id, expressNo, remark: shippingOrderRemark }
+        if (this.ruleForm.storehouseId == 2) {
+          delete params.expressNo
+        }
         this.util.post(url, params).then(res => {
           let { status } = res.data
           if (status == 0) {
@@ -369,10 +402,25 @@ export default {
             remark: shippingOrderRemark,
             expectReceiveTime
           }
+          // 昆山仓确认入库时不需要物流单号，直接转给第三方处理
+          if (this.ruleForm.storehouseId == 2) {
+            delete params.expressNo
+          }
+          // 只有移货的出库单才有预期到货时间
+          if (!this.isEntry) {
+            delete params.expectReceiveTime
+          }
           this.util.post(url, params).then(res => {
             let { status, date } = res.data
             if (status == 0) {
-              this.$message.success('操作成功')
+              if (this.ruleForm.storehouseId == 2) {
+                this.$message.success(
+                  '出库仓为昆山仓，此单将流入第三方系统处理'
+                )
+              } else {
+                this.$message.success('操作成功')
+              }
+
               this.close()
             } else {
               if (date) {

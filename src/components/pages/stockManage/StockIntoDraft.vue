@@ -33,7 +33,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="入库仓：">
-              <span v-if="ruleForm.category!=2">{{sotoreHouseName}}</span>
+              <span v-if="ruleForm.category!=2||ruleForm.orderStatus==3">{{sotoreHouseName}}</span>
               <el-select v-else v-model="ruleForm.storehouseId" placeholder="请选择入库仓" size="small">
                 <el-option
                   v-for="(item) in storeHouseList"
@@ -80,13 +80,36 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="备注：">
-              <el-input v-model="ruleForm.remark" size="small"></el-input>
+              <el-input
+                v-model="ruleForm.remark"
+                size="small"
+                v-if="ruleForm.storehouseId!=2 && ruleForm.orderStatus!=3"
+              ></el-input>
+              <span v-else>{{ruleForm.remark}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <div class="buttons">
-              <el-button size="small" type="primary" @click="submitForm">确认</el-button>
-              <el-button size="small" type="warning" @click="reject" v-if="ruleForm.category!=2">驳回</el-button>
+              <el-button size="small" type="primary" disabled v-if="ruleForm.orderStatus==3">仓库入库中</el-button>
+              <el-button size="small" type="primary" @click="submitForm" v-else>确认</el-button>
+              <el-button
+                size="small"
+                type="warning"
+                @click="reject"
+                v-if="ruleForm.category==1&&ruleForm.orderStatus==0"
+              >驳回</el-button>
+              <el-button
+                size="small"
+                type="danger"
+                @click="abolish"
+                v-if="ruleForm.orderStatus==3"
+              >撤回</el-button>
+              <el-button
+                size="small"
+                type="danger"
+                @click="deleteThis"
+                v-if="ruleForm.category!=1&&ruleForm.orderStatus==0"
+              >删除</el-button>
               <el-button size="small" @click="cancel">返回</el-button>
             </div>
           </el-col>
@@ -120,13 +143,14 @@ export default {
         remark: '',
         storehouseId: '',
         origin: '',
-        expectReceiveTime: ''
+        expectReceiveTime: '',
+        orderStatus: '' // 0:'待入库' 1：'已入库'  2：'已取消'   3：'仓库入库中'
       }
     }
   },
   created() {
     this.getproductList()
-    // this.getStockList()
+    this.getStockList()
     this.getDetail()
   },
   watch: {
@@ -135,6 +159,61 @@ export default {
     }
   },
   methods: {
+    async deleteThis() {
+      this.$prompt('是否确认删除该入库单?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请添加备注信息'
+      })
+        .then(async ({ value }) => {
+          const url = '/innobeautywms/entryOrder/delete'
+          let params = {
+            id: this.id,
+            closeReason: value
+          }
+          let res = await this.util.post(url, params)
+          if (res.data.status == 0) {
+            this.$message.success('删除成功')
+            setTimeout(() => {
+              this.cancel()
+            }, 1000)
+          } else if (res.data.status > 0) {
+            this.$message.error(res.data.msg)
+          } else {
+            this.$message.error('请求错误')
+          }
+        })
+        .catch(() => {})
+    },
+    async abolish() {
+      const url = `/innobeautywms/entryOrder/withraw/${this.id}`
+      try {
+        let res = await this.util.post(url)
+        let { status, msg } = res.data
+        if (status == 0) {
+          this.$message.success('操作成功')
+          setTimeout(() => {
+            this.$router.push({ path: '/stockInTable' })
+          }, 1000)
+        } else if (msg) {
+          this.$message.error(msg)
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async getStockList() {
+      const url = `/innobeautywms/storehouseVo`
+      try {
+        let res = await this.util.get(url)
+        let { status, date } = res.data
+        if (status == 0) {
+          this.storeHouseList = date
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
     getSummaries(param) {
       const { columns, data } = param
       const sums = []
@@ -167,20 +246,14 @@ export default {
       let res = await this.util.get(url)
       let { status, date } = res.data
       if (status == 0) {
-        this.storeHouseList = date.storeHouseVoList
+        // this.storeHouseList = date.storeHouseVoList
         this.ruleForm.remark = date.remark
         this.ruleForm.origin = date.origin
-        this.ruleForm.commodityItemSaveFormList =
-          date.entryOrderProductWithStockVoList
-        this.originalProductList = [...date.entryOrderProductWithStockVoList]
+        this.ruleForm.commodityItemSaveFormList = date.entryOrderItemList
+        this.originalProductList = [...date.entryOrderItemList]
         this.ruleForm.category = date.category
         this.ruleForm.storehouseId = date.storehouseId || ''
-        let stockItem = this.storeHouseList.find(e => e.id == date.storehouseId)
-        if (stockItem) {
-          this.sotoreHouseName = stockItem.name
-        } else {
-          this.sotoreHouseName = ''
-        }
+        this.sotoreHouseName = date.storehouseName
         this.orderNo = date.orderNo
         this.userName = date.userName
         let categoryItem = this.categoryList.find(e => e.id == date.category)
@@ -191,6 +264,7 @@ export default {
         }
         this.saleOrderNo = date.saleOrderNo
         this.ruleForm.expectReceiveTime = date.expectReceiveTime
+        this.ruleForm.orderStatus = date.orderStatus
       }
     },
     async getproductList() {
@@ -206,8 +280,10 @@ export default {
     submitForm() {
       if (this.ruleForm.category == 2) {
         this.changeStockIn()
-      } else {
+      } else if (this.ruleForm.category == 1) {
         this.returnStockIn()
+      } else {
+        this.outFactoryStockIn()
       }
     },
     async reject() {
@@ -245,7 +321,11 @@ export default {
         })
         let { status } = res.data
         if (status === 0) {
-          this.$message.success('操作成功')
+          if (this.ruleForm.storehouseId == 2) {
+            this.$message.success('入库仓为昆山仓，此单将流入第三方系统处理')
+          } else {
+            this.$message.success('操作成功')
+          }
           setTimeout(() => {
             this.$router.push({ path: '/stockInTable' })
           }, 1000)
@@ -268,7 +348,30 @@ export default {
         })
         let { status } = res.data
         if (status === 0) {
-          this.$message.success('操作成功')
+          if (this.ruleForm.storehouseId == 2) {
+            this.$message.success('入库仓为昆山仓，此单将流入第三方系统处理')
+          } else {
+            this.$message.success('操作成功')
+          }
+          setTimeout(() => {
+            this.$router.push({ path: '/stockInTable' })
+          }, 1000)
+        } else {
+          this.$message.error(res.data.msg)
+        }
+      })
+    },
+    async outFactoryStockIn() {
+      this.$confirm('是否确认入库').then(async () => {
+        const url = `/innobeautywms/entryOrder/submit/${this.id}`
+        let res = await this.util.post(url)
+        let { status } = res.data
+        if (status === 0) {
+          if (this.ruleForm.storehouseId == 2) {
+            this.$message.success('入库仓为昆山仓，此单将流入第三方系统处理')
+          } else {
+            this.$message.success('操作成功')
+          }
           setTimeout(() => {
             this.$router.push({ path: '/stockInTable' })
           }, 1000)

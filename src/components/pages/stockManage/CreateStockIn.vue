@@ -37,7 +37,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="入库产品：">
               <el-select v-model="selectProductId" placeholder="请选择" size="small">
                 <el-option
@@ -53,6 +53,17 @@
                 size="small"
                 style="margin-left:20px;"
               >添加</el-button>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="ruleForm.storehouseId==2">
+            <el-form-item label="预期到货时间：">
+              <el-date-picker
+                v-model="ruleForm.expectReceiveTime"
+                size="small"
+                type="date"
+                placeholder="选择日期"
+                value-format="timestamp"
+              ></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -130,7 +141,8 @@ export default {
         category: 0,
         origin: '',
         remark: '',
-        storehouseId: ''
+        storehouseId: '',
+        expectReceiveTime: new Date().getTime() + 24 * 60 * 60 * 1000
       },
       rules: {
         category: [
@@ -258,24 +270,34 @@ export default {
         category,
         remark,
         storehouseId,
-        origin
+        origin,
+        expectReceiveTime
       } = this.ruleForm
       let entryOrderItemSaveFormList = commodityItemSaveFormList.map(item => ({
         productId: item.productId,
         quantity: item.quantity
       }))
-      let res = await this.util.post(url, {
+      let params = {
         category,
         remark,
         storehouseId,
         origin,
         entryOrderItemSaveFormList
-      })
+      }
+      if (this.ruleForm.storehouseId == 2) {
+        params.expectReceiveTime = expectReceiveTime
+      }
+      let res = await this.util.post(url, params)
       let { status } = res.data
       if (status === 0) {
         this.needSaveDraft = false
         this.$store.commit('product/setDraftData', {})
-        this.$message.success('创建入库单成功')
+        if (this.ruleForm.storehouseId == 2) {
+          this.$message.success('入库仓为昆山仓，此单将流入第三方系统处理')
+        } else {
+          this.$message.success('创建入库单成功')
+        }
+
         setTimeout(() => {
           this.$router.push('/stockInTable')
         }, 1000)

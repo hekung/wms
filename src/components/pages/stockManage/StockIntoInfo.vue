@@ -66,9 +66,12 @@
               <span>{{ruleForm.origin}}</span>
             </el-form-item>
           </el-col>
-          <el-col :span="12" v-if="ruleForm.category==1||ruleForm.category==2">
+          <el-col
+            :span="12"
+            v-if="ruleForm.category==1||ruleForm.category==2||ruleForm.storehouseId==2"
+          >
             <el-form-item label="预期到货时间：">
-              <span>{{this.$moment(this.ruleForm.expectReceiveTime).format(' YYYY-MM-DD')}}</span>
+              <span>{{timeReceive}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -80,7 +83,12 @@
         <el-row>
           <el-col :span="24">
             <div class="buttons">
-              <el-button size="small" type="danger" @click="deleteThis">删除</el-button>
+              <el-button
+                size="small"
+                type="danger"
+                @click="deleteThis"
+                v-if="ruleForm.storehouseId!=2"
+              >删除</el-button>
               <el-button size="small" type="primary" @click="confirmModify">确认</el-button>
               <el-button size="small" type="info" @click="close">返回</el-button>
             </div>
@@ -127,11 +135,21 @@ export default {
   },
   created() {
     this.getDetail()
-    this.getproductList()
   },
   watch: {
     id: function() {
       this.getDetail()
+    }
+  },
+  computed: {
+    timeReceive() {
+      if (this.ruleForm.expectReceiveTime) {
+        return this.$moment(new Date(this.ruleForm.expectReceiveTime)).format(
+          ' YYYY-MM-DD'
+        )
+      } else {
+        return ''
+      }
     }
   },
   methods: {
@@ -188,29 +206,18 @@ export default {
         })
         .catch(() => {})
     },
-    async getproductList() {
-      const url = '/innobeautywms/productWithStockPile'
-      let res = await this.util.get(url)
-      if (res.data.status == 0) {
-        this.productList = res.data.date
-      }
-    },
     async getDetail() {
       let id = this.id
       const url = ` /innobeautywms/entryOrder/${id}`
       let res = await this.util.get(url)
       let { status, date } = res.data
       if (status == 0) {
-        this.storeHouseList = date.storeHouseVoList
-        let stockItem = this.storeHouseList.find(e => e.id == date.storehouseId)
-        if (stockItem) {
-          this.sotoreHouseName = stockItem.name
-        }
+        // this.storeHouseList = date.storeHouseVoList
+        this.sotoreHouseName = date.storehouseName
         this.ruleForm.remark = date.remark
         this.ruleForm.origin = date.origin
-        this.ruleForm.commodityItemSaveFormList =
-          date.entryOrderProductWithStockVoList
-        this.originalProductList = [...date.entryOrderProductWithStockVoList]
+        this.ruleForm.commodityItemSaveFormList = date.entryOrderItemList
+        this.originalProductList = [...date.entryOrderItemList]
         this.ruleForm.category = date.category
         this.ruleForm.storehouseId = date.storehouseId || ''
         this.saleOrderNo = date.saleOrderNo
@@ -218,77 +225,6 @@ export default {
         this.orderNo = date.orderNo
         this.userName = date.userName
       }
-    },
-    async submitForm() {
-      this.$refs.ruleForm.validate(async valid => {
-        if (!valid) {
-          return
-        }
-        const url = `/innobeautywms/entryOrder/submit`
-        let {
-          commodityItemSaveFormList,
-          remark,
-          storehouseId,
-          category
-        } = this.ruleForm
-        let entryOrderItemSaveFormList = commodityItemSaveFormList.map(e => {
-          if (e.id) {
-            return {
-              productId: e.productId,
-              quantity: e.quantity,
-              id: e.id
-            }
-          } else {
-            return {
-              productId: e.productId,
-              quantity: e.quantity
-            }
-          }
-        })
-        let params = {
-          id: this.id,
-          remark,
-          category,
-          storehouseId,
-          entryOrderItemSaveFormList
-        }
-        let res = await this.util.post(url, params)
-        let { status } = res.data
-        if (status === 0) {
-          this.$message.success('操作成功')
-          setTimeout(() => {
-            this.$router.push({ path: '/stockInTable' })
-          }, 1000)
-        } else {
-          this.$message.error('操作失败')
-        }
-      })
-    },
-    async addProduct() {
-      let index = this.ruleForm.commodityItemSaveFormList.findIndex(
-        e => e.productId == this.selectProductId
-      )
-      if (index != -1) {
-        return
-      }
-      let hasItem = this.originalProductList.find(
-        e => e.productId == this.selectProductId
-      )
-      if (hasItem) {
-        hasItem.quantity = ''
-        this.ruleForm.commodityItemSaveFormList.push({ ...hasItem })
-        return
-      }
-      let item = this.productList.find(e => e.id == this.selectProductId)
-      if (!item) {
-        this.$message.error('请先选择产品')
-        return
-      }
-      item = Object.assign({}, item)
-      item.productId = item.id
-      delete item.id
-      item.quantity = ''
-      this.ruleForm.commodityItemSaveFormList.push(item)
     },
     async confirmModify() {
       let params = {

@@ -132,19 +132,19 @@
               <div
                 v-for="(expressNo,index) in scope.row.expressNoList"
                 :key="index"
-                :class="index>3&&!showMorePro?'no-show':''"
+                :class="index>3&&!scope.row.showMorePro?'no-show':''"
               >
                 <span>{{expressNo}}</span>
               </div>
               <el-button
                 type="text"
-                v-if="scope.row.expressNoList.length>4&&!showMorePro"
-                @click="showMorePro=!showMorePro"
+                v-if="scope.row.expressNoList.length>4&&!scope.row.showMorePro"
+                @click="showMoreExpressInfo(scope.$index)"
               >......</el-button>
               <el-button
                 type="text"
-                v-if="scope.row.expressNoList.length>4&&showMorePro"
-                @click="showMorePro=!showMorePro"
+                v-if="scope.row.expressNoList.length>4&&scope.row.showMorePro"
+                @click="hideExpressInfo(scope.$index)"
               >收起</el-button>
             </template>
           </el-table-column>
@@ -177,13 +177,23 @@
       width="30%"
       :before-close="cancelExport"
     >
-      <el-radio-group v-model="exportOutType">
-        <el-radio :label="0" class="db">昆山发货单</el-radio>
-        <el-radio :label="1" class="db">香港发货单</el-radio>
-        <el-radio :label="2" class="db">日本发货单</el-radio>
-        <el-radio :label="3" class="db">日本发货单JP</el-radio>
-        <el-radio :label="4" class="db">上海邮政仓发货单</el-radio>
-      </el-radio-group>
+      <el-form>
+        <el-form-item label="选择状态：">
+          <el-radio-group v-model="exportOutStatus">
+            <el-radio :label="0" class="db">未出库</el-radio>
+            <el-radio :label="1" class="db">已出库</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="选择模板：" v-if="exportOutStatus==0">
+          <el-radio-group v-model="exportOutType">
+            <el-radio :label="0" class="db">昆山发货单</el-radio>
+            <el-radio :label="1" class="db">香港发货单</el-radio>
+            <el-radio :label="2" class="db">日本发货单</el-radio>
+            <el-radio :label="3" class="db">日本发货单JP</el-radio>
+            <el-radio :label="4" class="db">上海邮政仓发货单</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelExport">取 消</el-button>
         <el-button type="primary" @click="confirmExport">确 定</el-button>
@@ -202,7 +212,6 @@ export default {
       pageSize: 20,
       totalRows: 0,
       timeOrder: '',
-      showMorePro: false,
       showDetail: false,
       dialogVisible: false,
       exportOutType: '',
@@ -242,6 +251,7 @@ export default {
         ]
       },
       type: '2',
+      exportOutStatus: 0,
       form: {
         datePickVal: '',
         stockId: '',
@@ -278,11 +288,18 @@ export default {
     },
     $route(val) {
       if (val.name === 'stockOutTable') {
-        this.screening()
+        this.currentPage = 1
+        this.search()
       }
     }
   },
   methods: {
+    showMoreExpressInfo(index) {
+      this.$set(this.stockOutList[index], 'showMorePro', true)
+    },
+    hideExpressInfo(index) {
+      this.$set(this.stockOutList[index], 'showMorePro', false)
+    },
     pickChange() {
       this.screening()
     },
@@ -294,7 +311,8 @@ export default {
           this.form[key] = []
         }
       }
-      this.screening()
+      this.currentPage = 1
+      this.search()
     },
     async getStockList() {
       const url = `/innobeautywms/storehouseVo`
@@ -317,61 +335,72 @@ export default {
       this.dialogVisible = false
     },
     confirmExport() {
-      if (this.exportOutType === '') {
-        this.$message.error('请选择导出模板')
-        return
-      }
-      let url =
-        '/innobeautywms/shippingOrder/excel/export/' + this.exportOutType
-      let params = {}
-      if (this.multipleSelection.length) {
-        url = '/innobeautywms/shippingOrder/excel/export/select'
-        let ids = this.multipleSelection.map(e => e.id)
-        params = {
-          type: this.exportOutType,
-          ids
+      if (this.exportOutStatus === 1) {
+        this.exportOutShipped()
+      } else {
+        if (this.exportOutType === '') {
+          this.$message.error('请选择导出模板')
+          return
         }
-      }
-      this.util.postDownLoadFile(url, params).then(res => {
-        // 如果服务器错误返回
-        if (res.data.type === 'application/json') {
-          let reader = new FileReader()
-          reader.readAsText(res.data, 'utf-8')
-          reader.onload = () => {
-            // console.log('----', JSON.parse(reader.result))
-            const result = JSON.parse(reader.result)
-            this.$message.error(result.msg)
+        const url =
+          '/innobeautywms/shippingOrder/excel/export/' + this.exportOutType
+        let params = {}
+        if (this.multipleSelection.length) {
+          url = '/innobeautywms/shippingOrder/excel/export/select'
+          let ids = this.multipleSelection.map(e => e.id)
+          params = {
+            type: this.exportOutType,
+            ids
           }
-        } else {
-          const nameMap = {
-            0: '昆山发货单模板',
-            1: '香港发货单模板',
-            2: '日本发货单模板',
-            3: '日本发货单JP模板',
-            4: '上海邮政仓发货单'
-          }
-          const content = res.data
-          const blob = new Blob([content])
-          const fileName = nameMap[this.exportOutType] + '.xls'
-          if ('download' in document.createElement('a')) {
-            // 非IE下载
-            const elink = document.createElement('a')
-            elink.download = fileName
-            elink.style.display = 'none'
-            elink.href = URL.createObjectURL(blob)
-            document.body.appendChild(elink)
-            elink.click()
-            URL.revokeObjectURL(elink.href) // 释放URL 对象
-            document.body.removeChild(elink)
+        }
+        this.util.postDownLoadFile(url, params).then(res => {
+          // 如果服务器错误返回
+          if (res.data.type === 'application/json') {
+            let reader = new FileReader()
+            reader.readAsText(res.data, 'utf-8')
+            reader.onload = () => {
+              // console.log('----', JSON.parse(reader.result))
+              const result = JSON.parse(reader.result)
+              this.$message.error(result.msg)
+            }
           } else {
-            // IE10+下载
-            navigator.msSaveBlob(blob, fileName)
+            const nameMap = {
+              0: '昆山发货单模板',
+              1: '香港发货单模板',
+              2: '日本发货单模板',
+              3: '日本发货单JP模板',
+              4: '上海邮政仓发货单'
+            }
+            const content = res.data
+            const blob = new Blob([content])
+            const fileName = nameMap[this.exportOutType] + '.xls'
+            if ('download' in document.createElement('a')) {
+              // 非IE下载
+              const elink = document.createElement('a')
+              elink.download = fileName
+              elink.style.display = 'none'
+              elink.href = URL.createObjectURL(blob)
+              document.body.appendChild(elink)
+              elink.click()
+              URL.revokeObjectURL(elink.href) // 释放URL 对象
+              document.body.removeChild(elink)
+            } else {
+              // IE10+下载
+              navigator.msSaveBlob(blob, fileName)
+            }
           }
-        }
-        this.cancelExport()
-      })
+          this.cancelExport()
+        })
+      }
+    },
+    exportOutShipped() {
+      const url =
+        '/innobeautywms/shippingOrder/excel/export/' + this.exportOutType
+      location.href = url
     },
     screening() {
+      this.form.blurSearchType = ''
+      this.form.searchContent = ''
       this.currentPage = 1
       this.search()
     },
@@ -428,7 +457,10 @@ export default {
     blurSearch() {
       if (!this.form.blurSearchType) {
         this.$message.error('请选择搜索条件')
+        return
       }
+      this.form.datePickVal = []
+      this.form.stockId = ''
       this.currentPage = 1
       this.search()
     },

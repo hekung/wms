@@ -14,7 +14,7 @@
             <el-button
               type="primary"
               icon="el-icon-search"
-              @click="screening"
+              @click="blurSearch"
               size="small"
               style="display:inline-block;margin-left:10px;"
             ></el-button>
@@ -151,18 +151,18 @@
             <template slot-scope="scope">
               <div
                 v-for="(item,index) in scope.row.productInfoList"
-                :class="index>3&&!showMorePro?'no-show':''"
+                :class="index>3&&!scope.row.showMorePro?'no-show':''"
                 :key="index"
               >{{item}}</div>
               <el-button
                 type="text"
-                v-if="scope.row.productInfoList.length>4&&!showMorePro"
-                @click="showMorePro=!showMorePro"
+                v-if="scope.row.productInfoList.length>4&&!scope.row.showMorePro"
+                @click="showMoreExpressInfo(scope.$index)"
               >......</el-button>
               <el-button
                 type="text"
-                v-if="scope.row.productInfoList.length>4&&showMorePro"
-                @click="showMorePro=!showMorePro"
+                v-if="scope.row.productInfoList.length>4&&scope.row.showMorePro"
+                @click="hideExpressInfo(scope.$index)"
               >收起</el-button>
             </template>
           </el-table-column>
@@ -209,7 +209,6 @@ export default {
       showInfoPage: false,
       showDraftPage: false,
       entryOrderList: [],
-      showMorePro: false,
       stockList: [{ id: undefined, name: '全部' }],
       categoryList: [
         { id: undefined, name: '全部' },
@@ -250,7 +249,7 @@ export default {
         ]
       },
       form: {
-        datePickVal: '',
+        datePickVal: [],
         storeHouseId: '',
         category: '',
         orderNo: ''
@@ -264,14 +263,22 @@ export default {
   watch: {
     $route(val) {
       if (val.name === 'stockInTable') {
-        this.screening()
+        this.currentPage = 1
+        this.search()
       }
     },
     type() {
-      this.screening()
+      this.currentPage = 1
+      this.search()
     }
   },
   methods: {
+    showMoreExpressInfo(index) {
+      this.$set(this.entryOrderList[index], 'showMorePro', true)
+    },
+    hideExpressInfo(index) {
+      this.$set(this.entryOrderList[index], 'showMorePro', false)
+    },
     clearScreen() {
       for (const key in this.form) {
         if (key !== 'datePickVal') {
@@ -280,7 +287,8 @@ export default {
           this.form[key] = []
         }
       }
-      this.screening()
+      this.currentPage = 1
+      this.search()
     },
     exportOut() {
       const url = '/innobeautywms/entryOrder/excel/export'
@@ -300,7 +308,10 @@ export default {
       }
     },
     lookDetail(rowData) {
-      if (rowData.orderStatus == '待入库') {
+      if (
+        rowData.orderStatus == '待入库' ||
+        rowData.orderStatus == '仓库入库中'
+      ) {
         this.showDraftPage = true
         this.$router.push({ path: `/stockInTable/draft/${rowData.id}` })
       } else {
@@ -330,7 +341,21 @@ export default {
     addNew() {
       this.$router.push('/createStockIn')
     },
+    blurSearch() {
+      for (const key in this.form) {
+        if (this.form.hasOwnProperty(key)) {
+          if (key === 'datePickVal') {
+            this.form[key] = []
+          } else if (key !== 'orderNo') {
+            this.form[key] = ''
+          }
+        }
+      }
+      this.currentPage = 1
+      this.search()
+    },
     screening() {
+      this.form.orderNo = ''
       this.currentPage = 1
       this.search()
     },
