@@ -108,15 +108,15 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="物流单号：" prop="expressNo" v-if="ruleForm.storehouseId!=2">
+            <el-form-item label="物流单号：" v-if="ruleForm.orderStatus==3 && ruleForm.storehouseId==2">
+              <span>{{ruleForm.expressNo}}</span>
+            </el-form-item>
+            <el-form-item label="物流单号：" prop="expressNo" v-else>
               <el-input
                 v-model="ruleForm.expressNo"
                 size="small"
                 placeholder="支持输入多个物流单号,以英文逗号“,”隔开"
               ></el-input>
-            </el-form-item>
-            <el-form-item label="物流单号：" v-if="ruleForm.orderStatus!=0 && ruleForm.storehouseId==2">
-              <span>{{ruleForm.expressNo}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -372,9 +372,9 @@ export default {
         let id = this.id
         let { expressNo, shippingOrderRemark } = this.ruleForm
         let params = { id, expressNo, remark: shippingOrderRemark }
-        if (this.ruleForm.storehouseId == 2) {
-          delete params.expressNo
-        }
+        // if (this.ruleForm.storehouseId == 2) {
+        //   delete params.expressNo
+        // }
         this.util.post(url, params).then(res => {
           let { status } = res.data
           if (status == 0) {
