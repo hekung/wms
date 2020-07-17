@@ -342,7 +342,7 @@ export default {
           this.$message.error('请选择导出模板')
           return
         }
-        const url =
+        let url =
           '/innobeautywms/shippingOrder/excel/export/' + this.exportOutType
         let params = {}
         if (this.multipleSelection.length) {

@@ -9,6 +9,7 @@ import moment from 'moment'
 Vue.prototype.$axios = window.axios = axios  //改变
 Vue.prototype.util = new Util()
 Vue.prototype.$moment = moment
+// Vue.prototype.packageUrls = packageUrls
 Vue.config.productionTip = false
 // router.beforeEach((to, from, next) => {
 //   // ...

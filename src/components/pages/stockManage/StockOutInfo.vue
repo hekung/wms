@@ -111,6 +111,13 @@
             <el-form-item label="物流单号：" v-if="ruleForm.orderStatus==3 && ruleForm.storehouseId==2">
               <span>{{ruleForm.expressNo}}</span>
             </el-form-item>
+            <el-form-item label="物流单号：" v-else-if="ruleForm.storehouseId==2">
+              <el-input
+                v-model="ruleForm.expressNo"
+                size="small"
+                placeholder="支持输入多个物流单号,以英文逗号“,”隔开"
+              ></el-input>
+            </el-form-item>
             <el-form-item label="物流单号：" prop="expressNo" v-else>
               <el-input
                 v-model="ruleForm.expressNo"

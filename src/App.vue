@@ -84,6 +84,10 @@ export default {
           // })
           this.$store.commit('order/setStatistics', JSON.parse(event.data))
         }
+        if (event.data.includes('isBindWechat')) {
+          let { isBindWechat } = JSON.parse(event.data)
+          bus.$emit('bindWechatStatusChange', isBindWechat)
+        }
       })
     },
     login(username, password) {
