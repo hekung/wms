@@ -362,6 +362,9 @@ export default {
               // console.log('----', JSON.parse(reader.result))
               const result = JSON.parse(reader.result)
               this.$message.error(result.msg)
+              if (result.status == 10) {
+                this.$router.push('/login')
+              }
             }
           } else {
             const nameMap = {
