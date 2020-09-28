@@ -68,11 +68,11 @@ const routes = [
         component: accountManage,
         meta: { title: '账号管理' }
       },
-      {
-        path: '/storeHouseTable',
-        component: storeHouseTable,
-        meta: { title: '仓库管理' }
-      },
+      // {
+      //   path: '/storeHouseTable',
+      //   component: storeHouseTable,
+      //   meta: { title: '仓库管理' }
+      // },
       {
         path: '/stockOutTable',
         component: stockOutTable,
