@@ -18,12 +18,16 @@
               <span slot="title">{{ item.title }}</span>
             </template>
             <template v-for="subItem in item.subs">
-              <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
+              <el-submenu
+                v-if="subItem.subs"
+                :index="subItem.index"
+                :key="subItem.index"
+              >
                 <template slot="title">
                   <div class="menu-item-sub">{{ subItem.title }}</div>
                 </template>
                 <el-menu-item
-                  v-for="(threeItem,i) in subItem.subs"
+                  v-for="(threeItem, i) in subItem.subs"
                   :key="i"
                   :index="threeItem.index"
                 >
@@ -59,49 +63,54 @@ export default {
         {
           index: 'index',
           title: '产品列表',
-          icon: 'el-icon-s-grid'
+          icon: 'el-icon-s-grid',
         },
         {
           index: 'createProduct',
           title: '新建产品',
-          icon: 'no-icon'
+          icon: 'no-icon',
+        },
+        {
+          index: 'storeHouseTable',
+          title: '仓库管理',
+          icon: 'no-icon',
         },
         {
           index: 'stockInTable',
           title: '入库列表',
-          icon: 'el-icon-document'
+          icon: 'el-icon-document',
         },
         {
           index: 'createStockIn',
           title: '新建入库单',
-          icon: 'no-icon'
+          icon: 'no-icon',
         },
         {
           index: 'stockOutTable',
           title: '出库列表',
-          icon: 'el-icon-tickets'
+          icon: 'el-icon-tickets',
         },
         {
           index: 'stockDaily',
           title: '库存统计',
-          icon: 'el-icon-edit-outline'
+          icon: 'el-icon-edit-outline',
         },
         {
           icon: 'el-icon-user',
           index: 'accountManage',
-          title: '账号管理'
-        }
-      ]
+          title: '账号管理',
+        },
+      ],
     }
   },
   computed: {
     onRoutes() {
       return this.$route.path.replace('/', '')
-    }
+    },
   },
   created() {
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
-    bus.$on('collapse', msg => {
+    bus.$on('collapse', (msg) => {
       this.collapse = msg
       bus.$emit('collapse-content', msg)
     })
@@ -113,7 +122,7 @@ export default {
   watch: {
     onRoutes(val) {
       bus.$emit('router-change', val)
-    }
+    },
   },
   methods: {
     select(index) {
@@ -122,8 +131,8 @@ export default {
       } else {
         this.$router.push({ path: `/${index}` })
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
