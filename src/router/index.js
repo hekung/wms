@@ -11,6 +11,7 @@ const home = () => import('@/components/common/Home')
 const productTable = () => import('@/components/pages/productManage/ProductTable')
 const productInfo = () => import('@/components/pages/productManage/ProductInfo')
 const createProduct = () => import('@/components/pages/productManage/CreateProduct')
+const storeHouseTable = () => import('@/component/pages/stockManage/StoreHouseTable')
 const stockOutTable = () => import('@/components/pages/stockManage/StockOutTable')
 const stockOutInfo = () => import('@/components/pages/stockManage/StockOutInfo')
 const stockInTable = () => import('@/components/pages/stockManage/StockInTable')
@@ -66,6 +67,11 @@ const routes = [
         path: '/accountManage',
         component: accountManage,
         meta: { title: '账号管理' }
+      },
+      {
+        path: '/storeHouseTable',
+        component: storeHouseTable,
+        meta: { title: '仓库管理' }
       },
       {
         path: '/stockOutTable',
