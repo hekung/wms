@@ -14,13 +14,25 @@
               <el-option label="收件人" value="receiverName"></el-option>
               <el-option label="物流单号" value="expressNo"></el-option>
             </el-select>
-            <el-input
+            <!-- <el-input
               v-model="form.searchContent"
               size="small"
               :placeholder="placeholderValue"
               clearable
               style="width:200px;display:inline-block;"
-            ></el-input>
+            ></el-input>-->
+            <el-select
+              v-model="form.searchContent"
+              filterable
+              remote
+              clearable
+              placeholder="请输入关键词"
+              :remote-method="remoteMethod"
+              @clear="clearSearchOption"
+              size="small"
+            >
+              <el-option v-for="item in orderOptions" :key="item" :label="item" :value="item"></el-option>
+            </el-select>
             <el-button
               type="primary"
               icon="el-icon-search"
@@ -252,6 +264,7 @@ export default {
       },
       type: '2',
       exportOutStatus: 0,
+      orderOptions: [],
       form: {
         datePickVal: '',
         stockId: '',
@@ -263,20 +276,6 @@ export default {
   created() {
     this.search()
     this.getStockList()
-  },
-  computed: {
-    placeholderValue() {
-      switch (this.form.blurSearchType) {
-        case 'orderNo':
-          return '请输入出库单号'
-        case 'receiverName':
-          return '请输入收件人姓名'
-        case 'expressNo':
-          return '请输入物流单号'
-        default:
-          return ''
-      }
-    }
   },
   watch: {
     type(val) {
@@ -456,6 +455,36 @@ export default {
           }
         })
         .catch(() => {})
+    },
+    clearSearchOption() {
+      this.form.searchContent = ''
+    },
+    async remoteMethod(query) {
+      if (this.form.blurSearchType && query) {
+        const params = {
+          searchContent: query,
+          type: this.type
+        }
+        const map = {
+          orderNo: 0,
+          receiverName: 1,
+          expressNo: 2
+        }
+        const url = '/innobeautywms/shippingOrder/list/search/short'
+        params.searchType = map[this.form.blurSearchType]
+        const res = await this.util.post(url, params)
+        const { status, date, msg } = res.data
+        if (status == 0) {
+          this.orderOptions = date
+        } else {
+          this.$message.error(msg)
+        }
+      } else {
+        if (!this.form.blurSearchType) {
+          this.$message.error('请选择搜索条件')
+        }
+        this.orderOptions = []
+      }
     },
     blurSearch() {
       if (!this.form.blurSearchType) {
