@@ -11,35 +11,27 @@ export default {
   name: 'app',
   data() {
     return {
-      timeId: ''
+      timeId: '',
     }
   },
   created() {
-    // let username = this.util.getCookie('username')
-    // if (!username) {
-    //   this.$router.push('/login').catch(() => {})
+    // let sid = this.util.getCookie('sid')
+    // if (!sid) {
+    //   this.$router.push('/login')
     // } else {
-    //   // 登录操作
-    //   let password = this.util.getCookie('password')
-    //   this.login(username, password)
+    //   let userData = localStorage.getItem('userData')
+    //   userData = JSON.parse(userData)
+    //   this.$store.commit('user/setUserData', userData)
+    //   this.socketConnect()
     // }
-    let sid = this.util.getCookie('sid')
-    if (!sid) {
-      this.$router.push('/login')
-    } else {
-      let userData = localStorage.getItem('userData')
-      userData = JSON.parse(userData)
-      this.$store.commit('user/setUserData', userData)
-      this.socketConnect()
-    }
     bus.$on('socket-connect', () => {
       this.socketConnect()
     })
   },
   computed: {
     ...mapState({
-      userData: state => state.user.userData
-    })
+      userData: (state) => state.user.userData,
+    }),
   },
   methods: {
     socketConnect() {
@@ -50,7 +42,7 @@ export default {
       socket.addEventListener('open', () => {
         socket.send(
           JSON.stringify({
-            action: 'getCount'
+            action: 'getCount',
           })
         )
         if (this.timeId) {
@@ -59,12 +51,12 @@ export default {
         this.timeId = setInterval(() => {
           socket.send(
             JSON.stringify({
-              action: 'heartbeat'
+              action: 'heartbeat',
             })
           )
         }, 25 * 60 * 1000)
       })
-      socket.addEventListener('message', event => {
+      socket.addEventListener('message', (event) => {
         console.log(event.data)
         if (event.data.includes('shippingCountForWait')) {
           // {shippingCountForWait=6, saleOrderAuditCount=0}
@@ -94,9 +86,9 @@ export default {
       this.util
         .postForm('/innobeautywms/auth/login', {
           username: username,
-          password: password
+          password: password,
         })
-        .then(res => {
+        .then((res) => {
           if (res.data && res.data.success) {
             this.$store.commit('user/setUserData', res.data.data)
             this.util.setCookie('username', username)
@@ -104,12 +96,12 @@ export default {
           } else {
             this.$message({
               type: 'error',
-              message: res.data.errMsg
+              message: res.data.errMsg,
             })
           }
         })
-    }
-  }
+    },
+  },
 }
 </script>
 
