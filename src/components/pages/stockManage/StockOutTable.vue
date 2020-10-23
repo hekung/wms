@@ -405,7 +405,6 @@ export default {
             let reader = new FileReader()
             reader.readAsText(res.data, 'utf-8')
             reader.onload = () => {
-              // console.log('----', JSON.parse(reader.result))
               const result = JSON.parse(reader.result)
               this.$message.error(result.msg)
               if (result.status == 10) {
