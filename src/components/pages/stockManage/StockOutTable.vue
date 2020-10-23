@@ -419,6 +419,7 @@ export default {
               2: '日本发货单模板',
               3: '日本发货单JP模板',
               4: '上海邮政仓发货单',
+              5: '香港圆通仓发货单',
             }
             const content = res.data
             const blob = new Blob([content])
