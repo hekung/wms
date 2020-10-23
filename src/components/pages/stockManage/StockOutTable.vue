@@ -6,7 +6,7 @@
           <el-form-item label="出库单查询：">
             <el-select
               v-model="form.blurSearchType"
-              style="width:120px;display:inline-block;"
+              style="width: 120px; display: inline-block"
               size="small"
               placeholder="选择搜索条件"
             >
@@ -19,14 +19,14 @@
               size="small"
               :placeholder="placeholderValue"
               clearable
-              style="width:200px;display:inline-block;"
+              style="width: 200px; display: inline-block"
             ></el-input>
             <el-button
               type="primary"
               icon="el-icon-search"
               @click="blurSearch"
               size="small"
-              style="display:inline-block;margin-left:10px;"
+              style="display: inline-block; margin-left: 10px"
             ></el-button>
           </el-form-item>
         </div>
@@ -52,10 +52,10 @@
                 @change="screening"
                 placeholder="出库仓"
                 size="small"
-                style="margin:0 12px;"
+                style="margin: 0 12px"
               >
                 <el-option
-                  v-for="(item) in stockList"
+                  v-for="item in stockList"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id"
@@ -64,14 +64,22 @@
             </el-form-item>
           </div>
           <div class="btn-container">
-            <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
+            <el-button
+              class="clear-btn"
+              size="small"
+              type="info"
+              plain
+              @click="clearScreen"
+              >清空筛选条件</el-button
+            >
             <el-button
               class="clear-btn"
               size="small"
               type="primary"
-              style="margin-left:30px;"
+              style="margin-left: 30px"
               @click="exportOut"
-            >导出</el-button>
+              >导出</el-button
+            >
           </div>
         </div>
       </el-form>
@@ -81,21 +89,29 @@
         <el-tabs v-model="type">
           <el-tab-pane name="2">
             <div slot="label" class="tab-title">
-              <img src="../../../assets/img/all.png" alt v-if="type!=='2'" />
+              <img src="../../../assets/img/all.png" alt v-if="type !== '2'" />
               <img src="../../../assets/img/all-1.png" alt v-else />
               <span>全部</span>
             </div>
           </el-tab-pane>
           <el-tab-pane name="0">
             <div slot="label" class="tab-title">
-              <img src="../../../assets/img/waitDone.png" alt v-if="type!=='0'" />
+              <img
+                src="../../../assets/img/waitDone.png"
+                alt
+                v-if="type !== '0'"
+              />
               <img src="../../../assets/img/waitDone-1.png" alt v-else />
               <span>待出库</span>
             </div>
           </el-tab-pane>
           <el-tab-pane name="1">
             <div slot="label" class="tab-title">
-              <img src="../../../assets/img/finish.png" alt v-if="type!=='1'" />
+              <img
+                src="../../../assets/img/finish.png"
+                alt
+                v-if="type !== '1'"
+              />
               <img src="../../../assets/img/finish-1.png" alt v-else />
               <span>已出库</span>
             </div>
@@ -107,7 +123,7 @@
           :data="stockOutList"
           stripe
           ref="multipleTable"
-          style="height:100%;"
+          style="height: 100%"
           @sort-change="sortChange"
           @selection-change="handleSelectionChange"
         >
@@ -117,40 +133,65 @@
               <p>暂无数据</p>
             </div>
           </template>
-          <el-table-column type="selection" width="55" v-if="type=='0'"></el-table-column>
-          <el-table-column prop="createTime" label="下单时间" sortable="custom"></el-table-column>
+          <el-table-column
+            type="selection"
+            width="55"
+            v-if="type == '0'"
+          ></el-table-column>
+          <el-table-column
+            prop="createTime"
+            label="下单时间"
+            sortable="custom"
+          ></el-table-column>
           <el-table-column prop="orderNo" label="订单编号">
             <template slot-scope="scope">
-              <el-button type="text" @click="lookDetail(scope.row)">{{scope.row.orderNo}}</el-button>
+              <el-button type="text" @click="lookDetail(scope.row)">{{
+                scope.row.orderNo
+              }}</el-button>
             </template>
           </el-table-column>
           <el-table-column prop="receiverName" label="收件人"></el-table-column>
-          <el-table-column prop="storeHouseName" label="出库仓库"></el-table-column>
-          <el-table-column prop="expressCompanys" label="物流公司"></el-table-column>
+          <el-table-column
+            prop="storeHouseName"
+            label="出库仓库"
+          ></el-table-column>
+          <el-table-column
+            prop="expressCompanys"
+            label="物流公司"
+          ></el-table-column>
           <el-table-column prop="expressNoList" label="物流单号">
             <template slot-scope="scope">
               <div
-                v-for="(expressNo,index) in scope.row.expressNoList"
+                v-for="(expressNo, index) in scope.row.expressNoList"
                 :key="index"
-                :class="index>3&&!scope.row.showMorePro?'no-show':''"
+                :class="index > 3 && !scope.row.showMorePro ? 'no-show' : ''"
               >
-                <span>{{expressNo}}</span>
+                <span>{{ expressNo }}</span>
               </div>
               <el-button
                 type="text"
-                v-if="scope.row.expressNoList.length>4&&!scope.row.showMorePro"
+                v-if="
+                  scope.row.expressNoList.length > 4 && !scope.row.showMorePro
+                "
                 @click="showMoreExpressInfo(scope.$index)"
-              >......</el-button>
+                >......</el-button
+              >
               <el-button
                 type="text"
-                v-if="scope.row.expressNoList.length>4&&scope.row.showMorePro"
+                v-if="
+                  scope.row.expressNoList.length > 4 && scope.row.showMorePro
+                "
                 @click="hideExpressInfo(scope.$index)"
-              >收起</el-button>
+                >收起</el-button
+              >
             </template>
           </el-table-column>
           <el-table-column prop="orderStatus" label="出库状态" align="center">
             <template slot-scope="scope">
-              <span :class="scope.row.orderStatus==='已完成'?'orange':''">{{scope.row.orderStatus}}</span>
+              <span
+                :class="scope.row.orderStatus === '已完成' ? 'orange' : ''"
+                >{{ scope.row.orderStatus }}</span
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -184,13 +225,14 @@
             <el-radio :label="1" class="db">已出库</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="选择模板：" v-if="exportOutStatus==0">
+        <el-form-item label="选择模板：" v-if="exportOutStatus == 0">
           <el-radio-group v-model="exportOutType">
             <el-radio :label="0" class="db">昆山发货单</el-radio>
             <el-radio :label="1" class="db">香港发货单</el-radio>
             <el-radio :label="2" class="db">日本发货单</el-radio>
             <el-radio :label="3" class="db">日本发货单JP</el-radio>
             <el-radio :label="4" class="db">上海邮政仓发货单</el-radio>
+            <el-radio :label="5" class="db">香港圆通仓发货单</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -228,7 +270,7 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
               picker.$emit('pick', [start, end])
-            }
+            },
           },
           {
             text: '最近一个月',
@@ -237,7 +279,7 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
               picker.$emit('pick', [start, end])
-            }
+            },
           },
           {
             text: '最近三个月',
@@ -246,9 +288,9 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       type: '2',
       exportOutStatus: 0,
@@ -256,8 +298,8 @@ export default {
         datePickVal: '',
         stockId: '',
         blurSearchType: '',
-        searchContent: ''
-      }
+        searchContent: '',
+      },
     }
   },
   created() {
@@ -276,7 +318,7 @@ export default {
         default:
           return ''
       }
-    }
+    },
   },
   watch: {
     type(val) {
@@ -291,7 +333,7 @@ export default {
         this.currentPage = 1
         this.search()
       }
-    }
+    },
   },
   methods: {
     showMoreExpressInfo(index) {
@@ -347,13 +389,13 @@ export default {
         let params = {}
         if (this.multipleSelection.length) {
           url = '/innobeautywms/shippingOrder/excel/export/select'
-          let ids = this.multipleSelection.map(e => e.id)
+          let ids = this.multipleSelection.map((e) => e.id)
           params = {
             type: this.exportOutType,
-            ids
+            ids,
           }
         }
-        this.util.postDownLoadFile(url, params).then(res => {
+        this.util.postDownLoadFile(url, params).then((res) => {
           // 如果服务器错误返回
           if (res.data.type === 'application/json') {
             let reader = new FileReader()
@@ -369,7 +411,8 @@ export default {
               1: '香港发货单模板',
               2: '日本发货单模板',
               3: '日本发货单JP模板',
-              4: '上海邮政仓发货单'
+              4: '上海邮政仓发货单',
+              5: '香港圆通仓发货单',
             }
             const content = res.data
             const blob = new Blob([content])
@@ -436,13 +479,13 @@ export default {
       this.$prompt('是否确认取消该出库单', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        inputPlaceholder: '请添加备注信息'
+        inputPlaceholder: '请添加备注信息',
       })
         .then(async ({ value }) => {
           const url = '/innobeautywms/shippingOrder/delete'
           let params = {
             id: rowData.id,
-            closeReason: value
+            closeReason: value,
           }
           let res = await this.util.post(url, params)
           if (res.data.status == 0) {
@@ -469,7 +512,7 @@ export default {
       let params = {
         type: this.type,
         pageNo: this.currentPage,
-        pageSize: this.pageSize
+        pageSize: this.pageSize,
       }
       if (this.timeOrder === 0 || this.timeOrder === 1) {
         params.timeOrder = this.timeOrder
@@ -478,7 +521,7 @@ export default {
         const map = {
           orderNo: 0,
           receiverName: 1,
-          expressNo: 2
+          expressNo: 2,
         }
         url = '/innobeautywms/shippingOrder/list/search'
         params.searchType = map[this.form.blurSearchType]
@@ -497,7 +540,7 @@ export default {
         let { status, date } = res.data
         if (status == 0) {
           this.stockOutList = date.list
-          this.stockOutList.forEach(e => {
+          this.stockOutList.forEach((e) => {
             let expressNo = e.expressNo || ''
             let expressNoList = expressNo.split(',')
             e.expressNoList = expressNoList
@@ -510,8 +553,8 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less" scoped>
