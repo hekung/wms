@@ -71,11 +71,6 @@ export default {
           icon: 'no-icon',
         },
         {
-          index: 'storeHouseTable',
-          title: '仓库管理',
-          icon: 'no-icon',
-        },
-        {
           index: 'stockInTable',
           title: '入库列表',
           icon: 'el-icon-document',
