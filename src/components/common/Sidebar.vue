@@ -70,11 +70,11 @@ export default {
           title: '新建产品',
           icon: 'no-icon',
         },
-        {
-          index: 'storeHouseTable',
-          title: '仓库管理',
-          icon: 'no-icon',
-        },
+        // {
+        //   index: 'storeHouseTable',
+        //   title: '仓库管理',
+        //   icon: 'no-icon',
+        // },
         {
           index: 'stockInTable',
           title: '入库列表',
