@@ -116,7 +116,30 @@
             min-width="80px"
           >
             <template slot-scope="scope">
-              <div>{{ scope.row.stockMap[item.id] || 0 }}</div>
+              <span
+                :class="{
+                  green:
+                    scope.row.shipQuantityMap &&
+                    scope.row.shipQuantityMap[item.id] &&
+                    scope.row.shipQuantityMap[item.id] <
+                      scope.row.stockMap[item.id],
+                  red:
+                    scope.row.shipQuantityMap &&
+                    scope.row.shipQuantityMap[item.id] &&
+                    (scope.row.shipQuantityMap[item.id] >
+                      scope.row.stockMap[item.id] ||
+                      !scope.row.stockMap[item.id]),
+                }"
+              >
+                {{ scope.row.stockMap[item.id] || 0 }}
+              </span>
+              <span
+                v-if="
+                  scope.row.shipQuantityMap &&
+                  scope.row.shipQuantityMap[item.id]
+                "
+                >({{ scope.row.shipQuantityMap[item.id] }})</span
+              >
             </template>
           </el-table-column>
         </el-table>
@@ -556,5 +579,11 @@ export default {
   //   background-color: #ddd;
   //   border-radius: 4px;
   // }
+  .green {
+    color: green;
+  }
+  .red {
+    color: red;
+  }
 }
 </style>
