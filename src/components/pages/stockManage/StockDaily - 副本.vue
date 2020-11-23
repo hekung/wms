@@ -19,9 +19,14 @@
             ></el-date-picker>
           </el-form-item>
           <el-form-item label="仓库：">
-            <el-select v-model="form.stockId" placeholder="仓库" size="small" @change="stockChange">
+            <el-select
+              v-model="form.stockId"
+              placeholder="仓库"
+              size="small"
+              @change="stockChange"
+            >
               <el-option
-                v-for="(item) in stockList"
+                v-for="item in stockList"
                 :key="item.id"
                 :label="item.name"
                 :value="item.id"
@@ -36,7 +41,7 @@
               @change="productChange"
             >
               <el-option
-                v-for="(item) in productList"
+                v-for="item in productList"
                 :key="item.id"
                 :label="item.productName"
                 :value="item.id"
@@ -46,12 +51,19 @@
         </el-form>
       </div>
       <div class="btn-container">
-        <el-button class="clear-btn" size="small" type="info" plain @click="clearScreen">清空筛选条件</el-button>
+        <el-button
+          class="clear-btn"
+          size="small"
+          type="info"
+          plain
+          @click="clearScreen"
+          >清空筛选条件</el-button
+        >
         <el-button
           class="clear-btn"
           size="small"
           type="primary"
-          style="margin-left:30px;"
+          style="margin-left: 30px"
           @click="exportOut"
           >导出</el-button
         >
@@ -121,9 +133,22 @@
                 <p>暂无数据</p>
               </div>
             </template>
-            <el-table-column type="index" label="序号" align="center" width="50"></el-table-column>
-            <el-table-column label="SKU编码" prop="skuNo" min-width="120px"></el-table-column>
-            <el-table-column label="产品名称" prop="productName" min-width="200px"></el-table-column>
+            <el-table-column
+              type="index"
+              label="序号"
+              align="center"
+              width="50"
+            ></el-table-column>
+            <el-table-column
+              label="SKU编码"
+              prop="skuNo"
+              min-width="120px"
+            ></el-table-column>
+            <el-table-column
+              label="产品名称"
+              prop="productName"
+              min-width="200px"
+            ></el-table-column>
             <el-table-column label="入库" prop="inStock"></el-table-column>
             <el-table-column label="出库" prop="outStock"></el-table-column>
             <el-table-column label="库存" prop="quantity"></el-table-column>
@@ -191,7 +216,7 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
               picker.$emit('pick', [start, end])
-            }
+            },
           },
           {
             text: '最近一个月',
@@ -200,7 +225,7 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
               picker.$emit('pick', [start, end])
-            }
+            },
           },
           {
             text: '最近三个月',
@@ -209,15 +234,15 @@ export default {
               const start = new Date()
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       form: {
         datePickVal: '',
         stockId: '',
-        productId: ''
-      }
+        productId: '',
+      },
     }
   },
   created() {
@@ -308,7 +333,7 @@ export default {
       if (this.form.productId !== '' && this.form.productId !== undefined) {
         params.productId = this.form.productId
       }
-      this.util.postDownLoadFile(url, params).then(res => {
+      this.util.postDownLoadFile(url, params).then((res) => {
         // let blob = new Blob([res.data], {
         //   type: 'application/msexcel;charset=utf-8'
         // })
@@ -321,9 +346,6 @@ export default {
             // console.log('----', JSON.parse(reader.result))
             const result = JSON.parse(reader.result)
             this.$message.error(result.msg)
-            if (result.status == 10) {
-              this.$router.push('/login')
-            }
           }
           return
         }
@@ -400,14 +422,14 @@ export default {
         if (status == 0) {
           // 如果是选择了商品，那就需要调整返回
           if (this.form.productId) {
-            let allObj = date.find(e => e.storeHouseName === '全部')
-            let allObjIndex = date.findIndex(e => e.storeHouseName === '全部')
+            let allObj = date.find((e) => e.storeHouseName === '全部')
+            let allObjIndex = date.findIndex((e) => e.storeHouseName === '全部')
             date.splice(allObjIndex, 1)
             date = [allObj, ...date]
           }
           this.dataList = date
           let storehouseObj = this.stockList.find(
-            e => e.id === this.form.stockId
+            (e) => e.id === this.form.stockId
           )
           this.storehouseName = storehouseObj ? storehouseObj.name : '全部'
         }
