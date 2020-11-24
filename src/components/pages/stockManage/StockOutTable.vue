@@ -13,6 +13,7 @@
               <el-option label="出库编号" value="orderNo"></el-option>
               <el-option label="收件人" value="receiverName"></el-option>
               <el-option label="物流单号" value="expressNo"></el-option>
+              <el-option label="产品名称" value="productId"></el-option>
             </el-select>
             <!-- <el-input
               v-model="form.searchContent"
@@ -30,12 +31,26 @@
               :remote-method="remoteMethod"
               @clear="clearSearchOption"
               size="small"
+              v-if="form.blurSearchType !== 'productId'"
             >
               <el-option
                 v-for="item in orderOptions"
                 :key="item"
                 :label="item"
                 :value="item"
+              ></el-option>
+            </el-select>
+            <el-select
+              v-model="selectProductId"
+              placeholder="请选择商品"
+              size="small"
+              v-else
+            >
+              <el-option
+                v-for="item in productList"
+                :key="item.id"
+                :label="item.productName"
+                :value="item.id"
               ></el-option>
             </el-select>
             <el-button
@@ -318,11 +333,14 @@ export default {
         blurSearchType: '',
         searchContent: '',
       },
+      productList: [],
+      selectProductId: '',
     }
   },
   created() {
     this.search()
     this.getStockList()
+    this.getproductList()
   },
   watch: {
     type(val) {
@@ -340,6 +358,13 @@ export default {
     },
   },
   methods: {
+    async getproductList() {
+      const url = '/innobeautywms/product/list'
+      let res = await this.util.get(url)
+      if (res.data.status == 0) {
+        this.productList = res.data.date
+      }
+    },
     showMoreExpressInfo(index) {
       this.$set(this.stockOutList[index], 'showMorePro', true)
     },
@@ -543,7 +568,38 @@ export default {
       this.currentPage = 1
       this.search()
     },
+    async searchByProductId() {
+      const url = '/innobeautywms/shippingOrder/list/product/search'
+      const params = {
+        type: this.type,
+        pageNo: this.currentPage,
+        pageSize: this.pageSize,
+        productId: this.selectProductId,
+      }
+      if (this.timeOrder === 0 || this.timeOrder === 1) {
+        params.timeOrder = this.timeOrder
+      }
+      try {
+        let res = await this.util.post(url, params)
+        let { status, date } = res.data
+        if (status == 0) {
+          this.stockOutList = date.list
+          this.stockOutList.forEach((e) => {
+            let expressNo = e.expressNo || ''
+            let expressNoList = expressNo.split(',')
+            e.expressNoList = expressNoList
+          })
+          this.totalRows = date.total
+        }
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
     async search() {
+      if (this.form.blurSearchType == 'productId') {
+        this.searchByProductId()
+        return
+      }
       let url = '/innobeautywms/shippingOrder/list'
       let params = {
         type: this.type,
