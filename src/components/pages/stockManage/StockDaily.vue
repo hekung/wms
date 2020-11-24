@@ -522,9 +522,9 @@ export default {
                 return prev
               }
             }, 0)
-            if (!sums[index]) {
-              sums[index] = 0
-            }
+          }
+          if (!sums[index]) {
+            sums[index] = 0
           }
         }
       })

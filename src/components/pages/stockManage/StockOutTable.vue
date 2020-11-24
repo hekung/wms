@@ -182,6 +182,11 @@
               }}</el-button>
             </template>
           </el-table-column>
+          <el-table-column prop="category" label="订单类型">
+            <template slot-scope="scope">
+              <span>{{ categoryMap[scope.row.category] }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="receiverName" label="收件人"></el-table-column>
           <el-table-column
             prop="storeHouseName"
@@ -281,6 +286,18 @@ export default {
   components: {},
   data() {
     return {
+      categoryMap: {
+        0: '批发',
+        1: '代发',
+        2: '淘宝',
+        3: '自营',
+        4: '赠样',
+        5: '内购',
+        6: '试用样',
+        7: '移库',
+        8: '借调',
+        9: '退货',
+      },
       datePickVal: '',
       currentPage: 1,
       pageSize: 20,
