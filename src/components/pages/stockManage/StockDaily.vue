@@ -119,10 +119,12 @@
               <span
                 :class="{
                   green:
+                    scope.row.shipQuantityMap &&
                     scope.row.shipQuantityMap[item.id] &&
                     scope.row.shipQuantityMap[item.id] <
                       scope.row.stockMap[item.id],
                   red:
+                    scope.row.shipQuantityMap &&
                     scope.row.shipQuantityMap[item.id] &&
                     (scope.row.shipQuantityMap[item.id] >
                       scope.row.stockMap[item.id] ||
@@ -131,7 +133,11 @@
               >
                 {{ scope.row.stockMap[item.id] || 0 }}
               </span>
-              <span v-if="scope.row.shipQuantityMap[item.id]"
+              <span
+                v-if="
+                  scope.row.shipQuantityMap &&
+                  scope.row.shipQuantityMap[item.id]
+                "
                 >({{ scope.row.shipQuantityMap[item.id] }})</span
               >
             </template>
@@ -168,6 +174,10 @@
             ></el-table-column>
             <el-table-column label="入库" prop="inStock"></el-table-column>
             <el-table-column label="出库" prop="outStock"></el-table-column>
+            <el-table-column
+              label="待出库"
+              prop="shipQuantity"
+            ></el-table-column>
             <el-table-column label="库存" prop="quantity"></el-table-column>
           </el-table-column>
         </el-table>
@@ -188,6 +198,7 @@
           >z
           <el-table-column label="入库" prop="inStock"></el-table-column>
           <el-table-column label="出库" prop="outStock"></el-table-column>
+          <el-table-column label="待出库" prop="shipQuantity"></el-table-column>
           <el-table-column label="库存" prop="quantity"></el-table-column>
         </el-table>
       </el-row>
