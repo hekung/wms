@@ -75,7 +75,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="预期到货时间：">
-              <span>{{this.$moment(this.ruleForm.expectReceiveTime).format(' YYYY-MM-DD')}}</span>
+              <span>{{this.ruleForm.expectReceiveTime?this.$moment(this.ruleForm.expectReceiveTime).format(' YYYY-MM-DD'):""}}</span>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -263,7 +263,9 @@ export default {
           this.categoryName = ''
         }
         this.saleOrderNo = date.saleOrderNo
-        this.ruleForm.expectReceiveTime = date.expectReceiveTime
+        if (date.expectReceiveTime) {
+          this.ruleForm.expectReceiveTime = date.expectReceiveTime
+        }
         this.ruleForm.orderStatus = date.orderStatus
       }
     },
